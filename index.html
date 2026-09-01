@@ -1227,6 +1227,14 @@
   };
   var CROP_ORDER = ["radis", "pois", "ble", "carotte", "orge", "avoine", "lentille", "seigle", "millet", "citrouille", "colza", "soja", "mais", "sarrasin", "tournesol", "sorgho"];
 
+  // Crops unlock by player level, not just coins — coins alone stopped being
+  // a real gate once a single harvest could pay for everything at once.
+  // Each crop's required level is simply its rank in CROP_ORDER (1-16), so
+  // leveling up (via harvesting) opens up the next crop in the list.
+  function cropRequiredLevel(key) {
+    return CROP_ORDER.indexOf(key) + 1;
+  }
+
   var UPGRADES = {
     soil: {
       name: "Terre enrichie",
@@ -1718,7 +1726,13 @@
           '<span>' + effectivePricePerTonne(key) + ' €/t</span>' +
           '<span>' + fmtTime(Math.round(effectiveGrowTime(def))) + '</span></div>';
       } else {
-        html += '<div class="seed-meta">Débloquer pour ' + def.unlockCost + ' pièces</div>';
+        var reqLevel = cropRequiredLevel(key);
+        var levelOk = state.level >= reqLevel;
+        html += '<div class="seed-meta">' +
+          (levelOk
+            ? '<span>Débloquer pour ' + def.unlockCost + ' pièces</span>'
+            : '<span class="seed-level-req">Niveau ' + reqLevel + ' requis</span>') +
+          '</div>';
       }
       html += '</button>';
     }
@@ -1884,6 +1898,11 @@
       state.selected = key;
       saveState();
       render();
+      return;
+    }
+    var reqLevel = cropRequiredLevel(key);
+    if (state.level < reqLevel) {
+      showToast("Il te faut le niveau " + reqLevel + " pour débloquer " + def.name.toLowerCase() + " (niveau actuel : " + state.level + ").");
       return;
     }
     if (state.coins < def.unlockCost) {
