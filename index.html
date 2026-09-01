@@ -444,12 +444,12 @@
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.35), 0 3px 0 -1px rgba(0,0,0,0.15);
     transition: transform 0.15s ease, background 0.6s ease;
   }
-  .plot:nth-child(6n+1) { --furrow-angle: 165deg; border-radius: 30% 20% 34% 24% / 22% 30% 20% 34%; }
-  .plot:nth-child(6n+2) { --furrow-angle: 115deg; border-radius: 22% 34% 20% 30% / 30% 22% 34% 20%; }
-  .plot:nth-child(6n+3) { --furrow-angle: 190deg; border-radius: 34% 24% 30% 20% / 20% 34% 22% 30%; }
-  .plot:nth-child(6n+4) { --furrow-angle: 70deg; border-radius: 20% 30% 22% 34% / 34% 20% 30% 22%; }
-  .plot:nth-child(6n+5) { --furrow-angle: 200deg; border-radius: 26% 20% 32% 24% / 24% 32% 20% 28%; }
-  .plot:nth-child(6n+6) { --furrow-angle: 140deg; border-radius: 24% 32% 20% 28% / 28% 24% 32% 20%; }
+  .plot:nth-child(6n+1) { --furrow-angle: 165deg; clip-path: polygon(6% 9%, 94% 3%, 100% 90%, 8% 100%); }
+  .plot:nth-child(6n+2) { --furrow-angle: 115deg; clip-path: polygon(2% 7%, 88% 0%, 98% 93%, 9% 100%); }
+  .plot:nth-child(6n+3) { --furrow-angle: 190deg; clip-path: polygon(8% 2%, 100% 8%, 92% 100%, 0% 91%); }
+  .plot:nth-child(6n+4) { --furrow-angle: 70deg; clip-path: polygon(3% 10%, 96% 2%, 100% 85%, 6% 96%); }
+  .plot:nth-child(6n+5) { --furrow-angle: 200deg; clip-path: polygon(0% 5%, 91% 3%, 100% 96%, 9% 100%); }
+  .plot:nth-child(6n+6) { --furrow-angle: 140deg; clip-path: polygon(9% 3%, 100% 9%, 90% 100%, 2% 90%); }
   .plot:nth-child(3n+1) { transform: rotate(-0.6deg); }
   .plot:nth-child(3n+2) { transform: rotate(0.4deg); }
   .plot:nth-child(3n) { transform: rotate(-0.2deg); }
