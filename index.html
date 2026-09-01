@@ -580,9 +580,19 @@
     text-shadow: 0 1px 2px rgba(0,0,0,0.4);
   }
 
+  .plot-size-label {
+    display: block;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.85;
+  }
+
   @media (max-width: 480px) {
-    .lock-mark { top: 10%; height: 20%; }
-    .plot-price { font-size: 0.6rem; inset: auto 4% 3%; }
+    .lock-mark { top: 8%; height: 18%; }
+    .plot-price { font-size: 0.56rem; inset: auto 3% 2%; }
+    .plot-size-label { font-size: 0.5rem; }
   }
 
   .plant {
@@ -1131,7 +1141,7 @@
       <aside class="shop" aria-label="Boutique de graines">
         <h2>Graines</h2>
         <div class="seed-list" id="seedList"></div>
-        <p class="shop-hint">Chaque parcelle doit d'abord être labourée (le tracteur y passe un moment), puis choisis une graine et plante-la — ça prend aussi un peu de temps. Une fois prête, la récolte demande elle aussi un dernier passage du tracteur avant de rejoindre ta besace.</p>
+        <p class="shop-hint">Chaque parcelle doit d'abord être labourée (le tracteur y passe un moment), puis choisis une graine et plante-la — ça prend aussi un peu de temps. Une fois prête, la récolte demande elle aussi un dernier passage du tracteur avant de rejoindre ta besace. Les parcelles n'ont pas toutes la même taille : une grande parcelle coûte plus cher à défricher mais rapporte aussi plus de récolte à chaque fois.</p>
       </aside>
     </section>
 
@@ -1168,8 +1178,29 @@
 
   var STORAGE_KEY = "petite-ferme-save-v1";
   var PLOT_COUNT = 12;
-  var BASE_UNLOCKED = 6;
-  var PLOT_UNLOCK_COSTS = [0, 0, 0, 0, 0, 0, 25, 40, 60, 90, 130, 180];
+  var BASE_UNLOCKED = 1;
+
+  // Relative area of each plot's actual Voronoi polygon (see the .plot
+  // clip-path values below) — this is the plot's real "size" and drives both
+  // its unlock price and how much it yields per harvest.
+  var PLOT_AREA = [784.61, 792.35, 899.72, 823.84, 829.33, 758.0, 1000.83, 774.39, 781.36, 1025.19, 698.01, 832.38];
+  var PLOT_AREA_AVG = PLOT_AREA.reduce(function (a, b) { return a + b; }, 0) / PLOT_AREA.length;
+  var PLOT_SIZE_TIER = ["moyenne", "moyenne", "grande", "moyenne", "moyenne", "petite", "grande", "petite", "petite", "grande", "petite", "grande"];
+  var PLOT_SIZE_NAME = { petite: "Petite", moyenne: "Moyenne", grande: "Grande" };
+
+  function plotSizeMult(index) {
+    return PLOT_AREA[index] / PLOT_AREA_AVG;
+  }
+
+  function plotSizeName(index) {
+    return PLOT_SIZE_NAME[PLOT_SIZE_TIER[index]];
+  }
+
+  function plotUnlockCost(index) {
+    if (index < BASE_UNLOCKED) return 0;
+    var base = Math.round(15 * Math.pow(1.4, index));
+    return Math.round(base * plotSizeMult(index));
+  }
 
   var CROPS = {
     radis:      { name: "Radis",       unlockCost: 0,   plantCost: 2,  sellPrice: 5,   growTime: 12,  a: "#ef8f79", b: "#c2503f", shape: "bulb" },
@@ -1516,7 +1547,7 @@
         addXp(plantXp());
       } else if (task.type === "harvest") {
         var bonus = Math.random() * 100 < yieldBonusPct();
-        var qty = bonus ? 2 : 1;
+        var qty = (bonus ? 2 : 1) + (PLOT_SIZE_TIER[i] === "grande" ? 1 : 0);
         var cap = siloCapacity();
         var before = state.inventory[task.crop] || 0;
         state.inventory[task.crop] = Math.min(cap, before + qty);
@@ -1589,12 +1620,13 @@
     for (var i = 0; i < PLOT_COUNT; i++) {
       var plot = state.plots[i];
       if (!plot.unlocked) {
-        var cost = PLOT_UNLOCK_COSTS[i];
+        var cost = plotUnlockCost(i);
+        var sizeName = plotSizeName(i);
         html += '<div class="plot locked" data-index="' + i + '" role="button" tabindex="0" ' +
-          'aria-label="Parcelle en friche, défricher pour ' + cost + ' pièces">' +
+          'aria-label="Parcelle ' + sizeName.toLowerCase() + ' en friche, défricher pour ' + cost + ' pièces">' +
           '<div class="plot-cell">' +
           '<div class="lock-mark"></div>' +
-          '<div class="plot-price">' + cost + ' pièces</div>' +
+          '<div class="plot-price"><span class="plot-size-label">' + sizeName + '</span>' + cost + ' pièces</div>' +
           '</div></div>';
         continue;
       }
@@ -1622,7 +1654,7 @@
       var canWater = info.stage !== "ready" && hasWater && !cooling;
       var waterHint = canWater ? ", cliquer pour arroser" : (hasWater && cooling ? ", arrosage en recharge " + Math.ceil(cooldownMs / 1000) + "s" : "");
       var label = info.stage === "ready"
-        ? def.name + " prêt à récolter"
+        ? def.name + " prêt à récolter (parcelle " + plotSizeName(i).toLowerCase() + ")"
         : def.name + " en pousse, " + Math.round(info.progress * 100) + " pourcent" + waterHint;
       html += '<div class="plot planted stage-' + info.stage + (canWater ? " waterable" : "") + '" data-crop="' + plot.crop + '" data-shape="' + def.shape + '" data-index="' + i + '" ' +
         'role="button" tabindex="0" aria-label="' + label + '" ' +
@@ -1711,7 +1743,7 @@
   }
 
   function unlockPlot(index) {
-    var cost = PLOT_UNLOCK_COSTS[index];
+    var cost = plotUnlockCost(index);
     if (state.coins < cost) {
       showToast("Il te faut " + cost + " pièces pour défricher cette parcelle.");
       return;
