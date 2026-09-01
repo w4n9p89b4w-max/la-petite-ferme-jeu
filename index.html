@@ -1430,14 +1430,26 @@
     return Math.round(40 * Math.pow(level, 1.55));
   }
 
+  var XP_MULTIPLIER = 1.8;
+  var PLOW_XP = 2;
+  var PLANT_XP = 3.5;
+
   function harvestXp(cropKey, qty) {
-    return Math.max(1, Math.round(CROPS[cropKey].sellPrice * 0.5)) * qty;
+    return Math.max(1, Math.round(CROPS[cropKey].sellPrice * 0.5 * XP_MULTIPLIER)) * qty;
+  }
+
+  function plowXp() {
+    return Math.round(PLOW_XP * XP_MULTIPLIER * 10) / 10;
+  }
+
+  function plantXp() {
+    return Math.round(PLANT_XP * XP_MULTIPLIER * 10) / 10;
   }
 
   function addXp(amount) {
-    state.xp += amount;
+    state.xp = Math.round((state.xp + amount) * 10) / 10;
     while (state.xp >= xpForLevel(state.level)) {
-      state.xp -= xpForLevel(state.level);
+      state.xp = Math.round((state.xp - xpForLevel(state.level)) * 10) / 10;
       state.level += 1;
       var bonus = state.level * 5;
       state.coins += bonus;
@@ -1495,11 +1507,13 @@
       if (Date.now() < endAt) continue;
       if (task.type === "plow") {
         plot.plowed = true;
+        addXp(plowXp());
       } else if (task.type === "plant") {
         plot.crop = task.crop;
         plot.plantedAt = endAt;
         plot.watered = 0;
         plot.lastWateredAt = null;
+        addXp(plantXp());
       } else if (task.type === "harvest") {
         var bonus = Math.random() * 100 < yieldBonusPct();
         var qty = bonus ? 2 : 1;
