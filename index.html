@@ -1187,6 +1187,7 @@
   var PLOT_AREA_AVG = PLOT_AREA.reduce(function (a, b) { return a + b; }, 0) / PLOT_AREA.length;
   var PLOT_SIZE_TIER = ["moyenne", "moyenne", "grande", "moyenne", "moyenne", "petite", "grande", "petite", "petite", "grande", "petite", "grande"];
   var PLOT_SIZE_NAME = { petite: "Petite", moyenne: "Moyenne", grande: "Grande" };
+  var PLOT_SIZE_PRICE = { petite: 25, moyenne: 50, grande: 90 };
 
   function plotSizeMult(index) {
     return PLOT_AREA[index] / PLOT_AREA_AVG;
@@ -1198,8 +1199,7 @@
 
   function plotUnlockCost(index) {
     if (index < BASE_UNLOCKED) return 0;
-    var base = Math.round(15 * Math.pow(1.4, index));
-    return Math.round(base * plotSizeMult(index));
+    return PLOT_SIZE_PRICE[PLOT_SIZE_TIER[index]];
   }
 
   var CROPS = {
