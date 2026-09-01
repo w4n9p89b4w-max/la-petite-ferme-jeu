@@ -1141,7 +1141,7 @@
       <aside class="shop" aria-label="Boutique de graines">
         <h2>Graines</h2>
         <div class="seed-list" id="seedList"></div>
-        <p class="shop-hint">Chaque parcelle doit d'abord être labourée (le tracteur y passe un moment), puis choisis une graine et plante-la — ça prend aussi un peu de temps. Une fois prête, la récolte demande elle aussi un dernier passage du tracteur avant de rejoindre ta besace. Les parcelles n'ont pas toutes la même taille (indiquée de 1 à 12) : plus une parcelle est grande, plus elle coûte cher à défricher, mais les plus grandes rapportent aussi plus de récolte à chaque fois.</p>
+        <p class="shop-hint">Chaque parcelle doit d'abord être labourée (le tracteur y passe un moment), puis choisis une graine et plante-la — ça prend aussi un peu de temps. Une fois prête, la récolte demande elle aussi un dernier passage du tracteur avant de rejoindre ta besace. Les parcelles n'ont pas toutes la même taille (indiquée en hectares) : plus une parcelle est grande, plus elle coûte cher à défricher, mais les plus grandes rapportent aussi plus de récolte à chaque fois.</p>
       </aside>
     </section>
 
@@ -1182,19 +1182,25 @@
 
   // Each plot's actual Voronoi polygon (see the .plot clip-path values
   // below) has a real, different area — PLOT_SIZE_RANK ranks each plot from
-  // 1 (smallest) to 12 (largest) by that area, and this rank alone drives
-  // both the unlock price and the harvest yield bonus.
+  // 1 (smallest) to 12 (largest) by that area. PLOT_SIZE_HA gives each rank
+  // its real-world size in hectares; unlock price is hectares x 1.8, and the
+  // top-4 ranks (9-12) keep the harvest yield bonus.
   var PLOT_SIZE_RANK = [5, 6, 10, 7, 8, 2, 11, 3, 4, 12, 1, 9];
-  var PLOT_SIZE_PRICE_PER_RANK = 15;
+  var PLOT_SIZE_HA = [18, 32, 45, 61, 78, 94, 112, 127, 143, 165, 182, 196];
+  var PLOT_HA_PRICE_MULTIPLIER = 1.8;
   var PLOT_LARGE_RANK_THRESHOLD = 9;
 
   function plotSizeRank(index) {
     return PLOT_SIZE_RANK[index];
   }
 
+  function plotSizeHa(index) {
+    return PLOT_SIZE_HA[PLOT_SIZE_RANK[index] - 1];
+  }
+
   function plotUnlockCost(index) {
     if (index < BASE_UNLOCKED) return 0;
-    return PLOT_SIZE_RANK[index] * PLOT_SIZE_PRICE_PER_RANK;
+    return Math.round(plotSizeHa(index) * PLOT_HA_PRICE_MULTIPLIER);
   }
 
   var CROPS = {
@@ -1616,12 +1622,12 @@
       var plot = state.plots[i];
       if (!plot.unlocked) {
         var cost = plotUnlockCost(i);
-        var sizeRank = plotSizeRank(i);
+        var sizeHa = plotSizeHa(i);
         html += '<div class="plot locked" data-index="' + i + '" role="button" tabindex="0" ' +
-          'aria-label="Parcelle de taille ' + sizeRank + ' sur 12 en friche, défricher pour ' + cost + ' pièces">' +
+          'aria-label="Parcelle de ' + sizeHa + ' hectares en friche, défricher pour ' + cost + ' pièces">' +
           '<div class="plot-cell">' +
           '<div class="lock-mark"></div>' +
-          '<div class="plot-price"><span class="plot-size-label">Taille ' + sizeRank + '/12</span>' + cost + ' pièces</div>' +
+          '<div class="plot-price"><span class="plot-size-label">' + sizeHa + ' ha</span>' + cost + ' pièces</div>' +
           '</div></div>';
         continue;
       }
@@ -1649,7 +1655,7 @@
       var canWater = info.stage !== "ready" && hasWater && !cooling;
       var waterHint = canWater ? ", cliquer pour arroser" : (hasWater && cooling ? ", arrosage en recharge " + Math.ceil(cooldownMs / 1000) + "s" : "");
       var label = info.stage === "ready"
-        ? def.name + " prêt à récolter (parcelle de taille " + plotSizeRank(i) + " sur 12)"
+        ? def.name + " prêt à récolter (parcelle de " + plotSizeHa(i) + " hectares)"
         : def.name + " en pousse, " + Math.round(info.progress * 100) + " pourcent" + waterHint;
       html += '<div class="plot planted stage-' + info.stage + (canWater ? " waterable" : "") + '" data-crop="' + plot.crop + '" data-shape="' + def.shape + '" data-index="' + i + '" ' +
         'role="button" tabindex="0" aria-label="' + label + '" ' +
