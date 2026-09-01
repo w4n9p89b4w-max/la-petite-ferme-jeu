@@ -1141,7 +1141,7 @@
       <aside class="shop" aria-label="Boutique de graines">
         <h2>Graines</h2>
         <div class="seed-list" id="seedList"></div>
-        <p class="shop-hint">Chaque parcelle doit d'abord être labourée (le tracteur y passe un moment), puis choisis une graine et plante-la — ça prend aussi un peu de temps. Une fois prête, la récolte demande elle aussi un dernier passage du tracteur avant de rejoindre ta besace. Les parcelles n'ont pas toutes la même taille : une grande parcelle coûte plus cher à défricher mais rapporte aussi plus de récolte à chaque fois.</p>
+        <p class="shop-hint">Chaque parcelle doit d'abord être labourée (le tracteur y passe un moment), puis choisis une graine et plante-la — ça prend aussi un peu de temps. Une fois prête, la récolte demande elle aussi un dernier passage du tracteur avant de rejoindre ta besace. Les parcelles n'ont pas toutes la même taille (indiquée de 1 à 12) : plus une parcelle est grande, plus elle coûte cher à défricher, mais les plus grandes rapportent aussi plus de récolte à chaque fois.</p>
       </aside>
     </section>
 
@@ -1180,26 +1180,21 @@
   var PLOT_COUNT = 12;
   var BASE_UNLOCKED = 1;
 
-  // Relative area of each plot's actual Voronoi polygon (see the .plot
-  // clip-path values below) — this is the plot's real "size" and drives both
-  // its unlock price and how much it yields per harvest.
-  var PLOT_AREA = [784.61, 792.35, 899.72, 823.84, 829.33, 758.0, 1000.83, 774.39, 781.36, 1025.19, 698.01, 832.38];
-  var PLOT_AREA_AVG = PLOT_AREA.reduce(function (a, b) { return a + b; }, 0) / PLOT_AREA.length;
-  var PLOT_SIZE_TIER = ["moyenne", "moyenne", "grande", "moyenne", "moyenne", "petite", "grande", "petite", "petite", "grande", "petite", "grande"];
-  var PLOT_SIZE_NAME = { petite: "Petite", moyenne: "Moyenne", grande: "Grande" };
-  var PLOT_SIZE_PRICE = { petite: 25, moyenne: 50, grande: 90 };
+  // Each plot's actual Voronoi polygon (see the .plot clip-path values
+  // below) has a real, different area — PLOT_SIZE_RANK ranks each plot from
+  // 1 (smallest) to 12 (largest) by that area, and this rank alone drives
+  // both the unlock price and the harvest yield bonus.
+  var PLOT_SIZE_RANK = [5, 6, 10, 7, 8, 2, 11, 3, 4, 12, 1, 9];
+  var PLOT_SIZE_PRICE_PER_RANK = 15;
+  var PLOT_LARGE_RANK_THRESHOLD = 9;
 
-  function plotSizeMult(index) {
-    return PLOT_AREA[index] / PLOT_AREA_AVG;
-  }
-
-  function plotSizeName(index) {
-    return PLOT_SIZE_NAME[PLOT_SIZE_TIER[index]];
+  function plotSizeRank(index) {
+    return PLOT_SIZE_RANK[index];
   }
 
   function plotUnlockCost(index) {
     if (index < BASE_UNLOCKED) return 0;
-    return PLOT_SIZE_PRICE[PLOT_SIZE_TIER[index]];
+    return PLOT_SIZE_RANK[index] * PLOT_SIZE_PRICE_PER_RANK;
   }
 
   var CROPS = {
@@ -1547,7 +1542,7 @@
         addXp(plantXp());
       } else if (task.type === "harvest") {
         var bonus = Math.random() * 100 < yieldBonusPct();
-        var qty = (bonus ? 2 : 1) + (PLOT_SIZE_TIER[i] === "grande" ? 1 : 0);
+        var qty = (bonus ? 2 : 1) + (PLOT_SIZE_RANK[i] >= PLOT_LARGE_RANK_THRESHOLD ? 1 : 0);
         var cap = siloCapacity();
         var before = state.inventory[task.crop] || 0;
         state.inventory[task.crop] = Math.min(cap, before + qty);
@@ -1621,12 +1616,12 @@
       var plot = state.plots[i];
       if (!plot.unlocked) {
         var cost = plotUnlockCost(i);
-        var sizeName = plotSizeName(i);
+        var sizeRank = plotSizeRank(i);
         html += '<div class="plot locked" data-index="' + i + '" role="button" tabindex="0" ' +
-          'aria-label="Parcelle ' + sizeName.toLowerCase() + ' en friche, défricher pour ' + cost + ' pièces">' +
+          'aria-label="Parcelle de taille ' + sizeRank + ' sur 12 en friche, défricher pour ' + cost + ' pièces">' +
           '<div class="plot-cell">' +
           '<div class="lock-mark"></div>' +
-          '<div class="plot-price"><span class="plot-size-label">' + sizeName + '</span>' + cost + ' pièces</div>' +
+          '<div class="plot-price"><span class="plot-size-label">Taille ' + sizeRank + '/12</span>' + cost + ' pièces</div>' +
           '</div></div>';
         continue;
       }
@@ -1654,7 +1649,7 @@
       var canWater = info.stage !== "ready" && hasWater && !cooling;
       var waterHint = canWater ? ", cliquer pour arroser" : (hasWater && cooling ? ", arrosage en recharge " + Math.ceil(cooldownMs / 1000) + "s" : "");
       var label = info.stage === "ready"
-        ? def.name + " prêt à récolter (parcelle " + plotSizeName(i).toLowerCase() + ")"
+        ? def.name + " prêt à récolter (parcelle de taille " + plotSizeRank(i) + " sur 12)"
         : def.name + " en pousse, " + Math.round(info.progress * 100) + " pourcent" + waterHint;
       html += '<div class="plot planted stage-' + info.stage + (canWater ? " waterable" : "") + '" data-crop="' + plot.crop + '" data-shape="' + def.shape + '" data-index="' + i + '" ' +
         'role="button" tabindex="0" aria-label="' + label + '" ' +
