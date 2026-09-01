@@ -1430,20 +1430,20 @@
     return Math.round(40 * Math.pow(level, 1.55));
   }
 
-  var XP_MULTIPLIER = 1.8;
+  var HARVEST_XP_MULTIPLIER = 1.8;
   var PLOW_XP = 2;
   var PLANT_XP = 3.5;
 
   function harvestXp(cropKey, qty) {
-    return Math.max(1, Math.round(CROPS[cropKey].sellPrice * 0.5 * XP_MULTIPLIER)) * qty;
+    return Math.max(1, Math.round(CROPS[cropKey].sellPrice * 0.5 * HARVEST_XP_MULTIPLIER)) * qty;
   }
 
   function plowXp() {
-    return Math.round(PLOW_XP * XP_MULTIPLIER * 10) / 10;
+    return PLOW_XP;
   }
 
   function plantXp() {
-    return Math.round(PLANT_XP * XP_MULTIPLIER * 10) / 10;
+    return PLANT_XP;
   }
 
   function addXp(amount) {
