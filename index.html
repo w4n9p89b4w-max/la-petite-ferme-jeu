@@ -1107,6 +1107,11 @@
   }
   .reset-btn:hover { color: var(--barn); border-color: var(--barn); }
   .reset-btn:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 2px; }
+  .reset-btn.confirming {
+    color: var(--paper);
+    background: var(--barn);
+    border-color: var(--barn-dark);
+  }
 </style>
 
 <div class="app">
@@ -2033,8 +2038,28 @@
     });
   });
 
+  // Avoid window.confirm(): it's silently blocked in sandboxed iframes
+  // (e.g. the artifact preview), which made the button look dead. Use a
+  // two-click, in-page confirmation instead.
+  var resetConfirming = false;
+  var resetConfirmTimer = null;
+
+  function resetConfirmReset() {
+    resetConfirming = false;
+    resetBtnEl.textContent = "Réinitialiser la partie";
+    resetBtnEl.classList.remove("confirming");
+    clearTimeout(resetConfirmTimer);
+  }
+
   resetBtnEl.addEventListener("click", function () {
-    if (!confirm("Réinitialiser la partie ? Toute ta progression sera perdue définitivement.")) return;
+    if (!resetConfirming) {
+      resetConfirming = true;
+      resetBtnEl.textContent = "Cliquer encore pour confirmer";
+      resetBtnEl.classList.add("confirming");
+      resetConfirmTimer = setTimeout(resetConfirmReset, 4000);
+      return;
+    }
+    resetConfirmReset();
     try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
     state = migrateState(defaultState());
     saveState();
