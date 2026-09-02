@@ -597,6 +597,62 @@
     .plot-size-label { font-size: 0.48rem; }
   }
 
+  /* ---------- Crop canopy ----------
+     A field-wide texture of the growing crop, filling the whole parcel
+     (clipped to its irregular shape by .plot's own clip-path) instead of
+     just the single icon in .plant. Fades in with --grow-progress so a
+     freshly planted parcel starts bare and fills in as it matures — by
+     "ready" it reads as a dense, textured field like a real crop from
+     above. Pattern and color come from data-shape and --crop-a/--crop-b,
+     so every culture gets its own look. */
+  .crop-canopy {
+    position: absolute;
+    inset: 0;
+    opacity: var(--grow-progress, 0);
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+  }
+
+  .plot[data-shape="bulb"] .crop-canopy {
+    background-image:
+      radial-gradient(circle, var(--crop-a) 32%, transparent 34%),
+      radial-gradient(circle, var(--crop-b) 32%, transparent 34%);
+    background-size: 13px 13px, 13px 13px;
+    background-position: 0 0, 6.5px 6.5px;
+  }
+
+  .plot[data-shape="spike"] .crop-canopy {
+    background-image:
+      radial-gradient(ellipse 2.6px 6px at center, var(--crop-a) 65%, transparent 68%),
+      radial-gradient(ellipse 2.6px 6px at center, var(--crop-b) 65%, transparent 68%);
+    background-size: 9px 12px, 9px 12px;
+    background-position: 0 0, 4.5px 6px;
+  }
+
+  .plot[data-shape="carrot"] .crop-canopy {
+    background-image:
+      radial-gradient(circle 2px at center, var(--leaf-dark) 85%, transparent 90%),
+      radial-gradient(circle 4.5px at center, var(--crop-a) 60%, transparent 64%);
+    background-size: 12px 12px, 12px 12px;
+    background-position: 3px 1px, 3px 4px;
+  }
+
+  .plot[data-shape="pumpkin"] .crop-canopy {
+    background-image:
+      radial-gradient(circle, var(--crop-a) 40%, transparent 42%),
+      radial-gradient(circle, var(--crop-b) 40%, transparent 42%);
+    background-size: 24px 24px, 24px 24px;
+    background-position: 0 0, 12px 12px;
+  }
+
+  .plot[data-shape="bloom"] .crop-canopy {
+    background-image:
+      radial-gradient(circle, var(--crop-b) 22%, var(--crop-a) 24% 42%, transparent 44%),
+      radial-gradient(circle, var(--crop-b) 22%, var(--crop-a) 24% 42%, transparent 44%);
+    background-size: 15px 15px, 15px 15px;
+    background-position: 0 0, 7.5px 7.5px;
+  }
+
   .plant {
     position: absolute;
     left: 50%;
@@ -1823,6 +1879,7 @@
     var html = '<div class="plot task-' + task.type + '" data-index="' + i + '" ' +
       (def ? 'data-crop="' + task.crop + '" data-shape="' + def.shape + '" style="--crop-a:' + def.a + ';--crop-b:' + def.b + ';--grow-progress:' + growProgress + '"' : "") +
       ' role="button" tabindex="0" aria-label="' + label + '">';
+    if (def) html += '<div class="crop-canopy"></div>';
     html += '<div class="plot-cell">';
     if (task.type === "harvest") html += '<div class="plant"></div>';
     html += '<div class="tractor" style="animation-duration:' + totalS + 's;animation-delay:-' + elapsedS.toFixed(2) + 's">' +
@@ -1877,6 +1934,7 @@
       html += '<div class="plot planted stage-' + info.stage + (canWater ? " waterable" : "") + '" data-crop="' + plot.crop + '" data-shape="' + def.shape + '" data-index="' + i + '" ' +
         'role="button" tabindex="0" aria-label="' + label + '" ' +
         'style="--crop-a:' + def.a + ';--crop-b:' + def.b + ';--grow-progress:' + info.progress.toFixed(2) + '">';
+      html += '<div class="crop-canopy"></div>';
       html += '<div class="plot-cell">';
       if (info.stage === "ready") html += '<div class="ready-glow"></div>';
       html += '<div class="plant"></div>';
