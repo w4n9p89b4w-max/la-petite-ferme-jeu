@@ -951,79 +951,171 @@
     border-radius: 999px;
   }
 
+  .dealer-icon { filter: drop-shadow(0 2px 1px rgba(0,0,0,0.25)); }
+
   .d-wheel {
     position: absolute;
     bottom: 0;
     border-radius: 50%;
-    background: #2b2117;
+    background: radial-gradient(circle at 35% 30%, #4a3d2c, #2b2117 70%);
     border: 2.5px solid #6b5a48;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.3);
+  }
+  .d-wheel::after {
+    content: "";
+    position: absolute;
+    inset: 32%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #a89878, #7a6a4c 80%);
   }
 
-  /* Tractor: cabin + body + two wheels, same silhouette as the field one. */
+  /* Panels get a top-to-bottom gloss (light catching the roof, shadow
+     pooling underneath) instead of a flat fill, so each brand's color
+     reads as a rounded body panel rather than a paper cutout — reused
+     across every "light" (tier-color) and "dark" (tier-dark) panel. */
+  .dealer-tractor .d-body,
+  .dealer-seeder .d-hopper,
+  .dealer-harvester .d-body {
+    background: linear-gradient(180deg,
+      color-mix(in srgb, var(--tier-color) 100%, white 30%) 0%,
+      var(--tier-color) 45%,
+      var(--tier-dark) 100%);
+  }
+  .dealer-tractor .d-cab,
+  .dealer-harvester .d-cab {
+    background: linear-gradient(180deg,
+      color-mix(in srgb, var(--tier-dark) 100%, white 20%) 0%,
+      var(--tier-dark) 60%,
+      color-mix(in srgb, var(--tier-dark) 100%, black 25%) 100%);
+  }
+
+  /* Tractor: cabin + body + two wheels, same silhouette as the field one,
+     plus a headlight and exhaust stack for a more finished read. */
   .dealer-tractor .d-wheel-b { left: 2px; width: 20px; height: 20px; }
   .dealer-tractor .d-wheel-f { left: 42px; width: 14px; height: 14px; bottom: 1px; }
   .dealer-tractor .d-cab {
     position: absolute; left: 6px; bottom: 18px; width: 20px; height: 18px;
-    background: var(--tier-dark); border-radius: 4px 4px 0 0;
+    border-radius: 4px 4px 0 0;
   }
   .dealer-tractor .d-window {
     position: absolute; left: 10px; bottom: 24px; width: 12px; height: 9px;
-    background: rgba(255,255,255,0.75); border-radius: 2px;
+    background: linear-gradient(160deg, rgba(255,255,255,0.9), rgba(200,222,235,0.55));
+    border-radius: 2px;
   }
   .dealer-tractor .d-body {
     position: absolute; left: 10px; bottom: 7px; width: 46px; height: 15px;
-    background: var(--tier-color); border-radius: 2px 9px 3px 3px;
+    border-radius: 2px 9px 3px 3px;
+  }
+  .dealer-tractor .d-light {
+    position: absolute; left: 54px; bottom: 10px; width: 5px; height: 5px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff6cf, #e8b93f 75%);
+    box-shadow: 0 0 3px rgba(255, 224, 140, 0.8);
+  }
+  .dealer-tractor .d-exhaust {
+    position: absolute; left: 9px; bottom: 32px; width: 4px; height: 10px;
+    background: linear-gradient(180deg, #8a8478, #5c574c);
+    border-radius: 2px 2px 0 0;
   }
 
-  /* Charrue: wheeled beam with an angled moldboard blade. */
+  /* Charrue: wheeled beam with an angled moldboard blade, ribbed for a
+     cast-iron look, plus a wood-grained handle and a bolt row. */
   .dealer-plow .d-wheel-single { left: 2px; width: 17px; height: 17px; }
   .dealer-plow .d-frame {
     position: absolute; left: 8px; bottom: 15px; width: 38px; height: 5px;
-    background: #6b5a48; border-radius: 2px;
+    background: linear-gradient(180deg, #8a7a5c, #5c4f3a);
+    border-radius: 2px;
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.3);
+  }
+  .dealer-plow .d-frame::after {
+    content: "";
+    position: absolute;
+    left: 4px; right: 4px; top: 50%; height: 1px;
+    background: repeating-linear-gradient(90deg, rgba(0,0,0,0.35) 0 2px, transparent 2px 7px);
+    transform: translateY(-50%);
   }
   .dealer-plow .d-handle {
     position: absolute; left: 10px; bottom: 15px; width: 4px; height: 22px;
-    background: #8a6a45; border-radius: 2px; transform: rotate(-18deg); transform-origin: bottom center;
+    background: linear-gradient(90deg, #8a6a45, #6b4f30);
+    border-radius: 2px; transform: rotate(-18deg); transform-origin: bottom center;
   }
   .dealer-plow .d-blade {
     position: absolute; right: 4px; bottom: 0; width: 22px; height: 28px;
-    background: var(--tier-color);
+    background: linear-gradient(115deg,
+      color-mix(in srgb, var(--tier-color) 100%, white 35%) 0%,
+      var(--tier-color) 45%,
+      var(--tier-dark) 100%);
     clip-path: polygon(0% 15%, 100% 0%, 78% 100%, 0% 78%);
     box-shadow: inset -3px 0 0 var(--tier-dark);
   }
+  .dealer-plow .d-blade::after {
+    content: "";
+    position: absolute;
+    left: 15%; top: 10%; width: 3px; height: 3px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.35);
+    box-shadow: 5px 9px 0 rgba(0,0,0,0.35);
+  }
 
-  /* Semoir: hopper box on two wheels with a funnel spout. */
+  /* Semoir: hopper box on two wheels with a funnel spout and a row of
+     visible seeds through a little sight window. */
   .dealer-seeder .d-wheel-l { left: 8px; width: 15px; height: 15px; }
   .dealer-seeder .d-wheel-r { right: 8px; width: 15px; height: 15px; }
   .dealer-seeder .d-hopper {
     position: absolute; left: 16px; bottom: 15px; width: 34px; height: 19px;
-    background: var(--tier-color); border-radius: 5px 5px 3px 3px;
+    border-radius: 5px 5px 3px 3px;
+  }
+  .dealer-seeder .d-hopper::after {
+    content: "";
+    position: absolute;
+    left: 6px; top: 5px; width: 22px; height: 5px;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--tier-dark) 55%, transparent);
+    background-image: radial-gradient(circle, rgba(255,214,120,0.9) 1px, transparent 1.4px);
+    background-size: 5px 5px;
   }
   .dealer-seeder .d-lid {
     position: absolute; left: 20px; bottom: 33px; width: 26px; height: 4px;
-    background: var(--tier-dark); border-radius: 2px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--tier-dark) 100%, white 25%), var(--tier-dark));
+    border-radius: 2px;
   }
   .dealer-seeder .d-funnel {
     position: absolute; left: 24px; bottom: 6px; width: 18px; height: 11px;
-    background: var(--tier-dark);
+    background: linear-gradient(180deg, var(--tier-dark), color-mix(in srgb, var(--tier-dark) 100%, black 30%));
     clip-path: polygon(0% 0%, 100% 0%, 68% 100%, 32% 100%);
   }
 
-  /* Moissonneuse: cab + body on big wheels, wide toothed cutting header. */
+  /* Moissonneuse: cab + body on big wheels, wide toothed cutting header,
+     a grain-tank highlight and a small exhaust stack. */
   .dealer-harvester .d-wheel-b { left: 22px; width: 19px; height: 19px; }
   .dealer-harvester .d-wheel-f { left: 48px; width: 13px; height: 13px; bottom: 1px; }
   .dealer-harvester .d-header {
     position: absolute; left: 0; bottom: 9px; width: 22px; height: 9px;
-    background: var(--tier-dark); border-radius: 2px;
-    background-image: repeating-linear-gradient(90deg, rgba(0,0,0,0.3) 0 2px, transparent 2px 4px);
+    border-radius: 2px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--tier-dark) 100%, white 20%), var(--tier-dark));
+    background-image:
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.35) 0 2px, transparent 2px 4px),
+      linear-gradient(180deg, color-mix(in srgb, var(--tier-dark) 100%, white 20%), var(--tier-dark));
   }
   .dealer-harvester .d-body {
     position: absolute; left: 16px; bottom: 10px; width: 36px; height: 19px;
-    background: var(--tier-color); border-radius: 3px;
+    border-radius: 3px;
+  }
+  .dealer-harvester .d-body::after {
+    content: "";
+    position: absolute;
+    left: 4px; top: 3px; width: 12px; height: 5px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.22);
   }
   .dealer-harvester .d-cab {
     position: absolute; left: 38px; bottom: 21px; width: 15px; height: 13px;
-    background: var(--tier-dark); border-radius: 3px 3px 0 0;
+    border-radius: 3px 3px 0 0;
+  }
+  .dealer-harvester .d-exhaust {
+    position: absolute; left: 41px; bottom: 33px; width: 3px; height: 8px;
+    background: linear-gradient(180deg, #8a8478, #5c574c);
+    border-radius: 2px 2px 0 0;
   }
 
   /* ---------- Garage carousel ----------
@@ -2199,10 +2291,10 @@
 
   var GARAGE_ICON_TYPES = { tractors: "tractor", tractorSpeed: "tractor", toolPlow: "plow", toolPlant: "seeder", toolHarvest: "harvester" };
   var DEALER_PARTS = {
-    tractor: '<div class="d-wheel d-wheel-b"></div><div class="d-wheel d-wheel-f"></div><div class="d-cab"></div><div class="d-window"></div><div class="d-body"></div>',
+    tractor: '<div class="d-wheel d-wheel-b"></div><div class="d-wheel d-wheel-f"></div><div class="d-cab"></div><div class="d-window"></div><div class="d-body"></div><div class="d-light"></div><div class="d-exhaust"></div>',
     plow: '<div class="d-wheel d-wheel-single"></div><div class="d-frame"></div><div class="d-handle"></div><div class="d-blade"></div>',
     seeder: '<div class="d-wheel d-wheel-l"></div><div class="d-wheel d-wheel-r"></div><div class="d-hopper"></div><div class="d-lid"></div><div class="d-funnel"></div>',
-    harvester: '<div class="d-wheel d-wheel-b"></div><div class="d-wheel d-wheel-f"></div><div class="d-header"></div><div class="d-body"></div><div class="d-cab"></div>'
+    harvester: '<div class="d-wheel d-wheel-b"></div><div class="d-wheel d-wheel-f"></div><div class="d-header"></div><div class="d-body"></div><div class="d-cab"></div><div class="d-exhaust"></div>'
   };
   // Which tier each carousel is currently scrolled to, kept outside
   // game state (pure UI position) so a render() tick never resets it.
