@@ -1026,6 +1026,67 @@
     background: var(--tier-dark); border-radius: 3px 3px 0 0;
   }
 
+  /* ---------- Garage carousel ----------
+     Browse every named tier of a brand ladder (not just what's owned)
+     with left/right arrows, like walking down a dealership showroom
+     floor — the "tractors" (fleet size) card stays a plain static card
+     since it has no models of its own to browse. */
+  .carousel-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .carousel-stage {
+    flex: 1;
+    min-width: 0;
+  }
+  .carousel-stage .dealer-visual { margin-bottom: 0; }
+  .carousel-arrow {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1.5px solid var(--paper-edge);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 1.1rem;
+    line-height: 1;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .carousel-arrow:hover:not(:disabled) { background: var(--barn); color: var(--paper); border-color: var(--barn); }
+  .carousel-arrow:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 1px; }
+  .carousel-arrow:disabled { opacity: 0.35; cursor: default; }
+
+  .carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.3rem;
+    margin: 0.4rem 0 0.5rem;
+  }
+  .carousel-dots .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--paper-edge);
+  }
+  .carousel-dots .dot.active { background: var(--barn); }
+
+  .carousel-status {
+    margin-top: 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-align: center;
+    padding: 0.5rem 0.6rem;
+    border-radius: 8px;
+  }
+  .carousel-status.owned { color: var(--ink-soft); background: color-mix(in srgb, var(--ink) 8%, transparent); }
+  .carousel-status.current { color: var(--leaf-dark); background: color-mix(in srgb, var(--leaf) 16%, transparent); }
+  .carousel-status.locked { color: var(--barn-dark); background: color-mix(in srgb, var(--barn) 12%, transparent); }
+
   /* ---------- Market ---------- */
   .market-card {
     border: 1.5px solid var(--paper-edge);
@@ -2143,19 +2204,21 @@
     seeder: '<div class="d-wheel d-wheel-l"></div><div class="d-wheel d-wheel-r"></div><div class="d-hopper"></div><div class="d-lid"></div><div class="d-funnel"></div>',
     harvester: '<div class="d-wheel d-wheel-b"></div><div class="d-wheel d-wheel-f"></div><div class="d-header"></div><div class="d-body"></div><div class="d-cab"></div>'
   };
+  // Which tier each carousel is currently scrolled to, kept outside
+  // game state (pure UI position) so a render() tick never resets it.
+  var garageBrowseIndex = {};
 
-  // The little dealership vehicle/tool shown on a Garage card — "tractors"
-  // (fleet size) shows the currently-owned tractor model repeated by count
-  // rather than its own brand ladder, since buying a slot doesn't pick a
-  // brand.
-  function dealerIconHtml(key, lvl) {
-    var type = GARAGE_ICON_TYPES[key];
-    var tier = key === "tractors" ? state.upgrades.tractorSpeed : lvl;
-    var html = '<div class="dealer-visual"><div class="dealer-icon dealer-' + type + '" data-tier="' + tier + '">' +
-      DEALER_PARTS[type] + '</div>';
-    if (key === "tractors") html += '<span class="dealer-badge">×' + (lvl + 1) + '</span>';
-    html += '</div>';
-    return html;
+  function dealerVisualHtml(type, tier, badge) {
+    return '<div class="dealer-visual"><div class="dealer-icon dealer-' + type + '" data-tier="' + tier + '">' +
+      DEALER_PARTS[type] + '</div>' + (badge ? '<span class="dealer-badge">' + badge + '</span>' : '') + '</div>';
+  }
+
+  // Cost to move from tier-1 to tier for a given category — same formula
+  // as upgradeCost(), generalized to any tier so the carousel can quote a
+  // price on models the player hasn't reached yet.
+  function garageTierCost(key, tier) {
+    var u = UPGRADES[key];
+    return Math.round(u.baseCost * Math.pow(u.costMult, tier - 1));
   }
 
   function renderGarageList() {
@@ -2164,16 +2227,57 @@
       var key = GARAGE_ORDER[i];
       var u = UPGRADES[key];
       var lvl = state.upgrades[key];
-      var cost = upgradeCost(key);
-      var maxed = cost === null;
-      html += '<div class="upgrade-card' + (maxed ? " maxed" : "") + '">' +
-        dealerIconHtml(key, lvl) +
-        '<div class="seed-top"><span>' + u.name + '</span><span class="level-badge">Niv. ' + lvl + '/' + u.maxLevel + '</span></div>' +
-        '<div class="seed-meta">' + u.desc(lvl) + '</div>';
-      html += maxed
-        ? '<div class="upgrade-maxed">Niveau maximum</div>'
-        : '<button type="button" class="upgrade-buy" data-upgrade="' + key + '">Améliorer — ' + cost + ' pièces</button>';
+      var maxed = lvl >= u.maxLevel;
+
+      if (key === "tractors") {
+        var cost = upgradeCost(key);
+        html += '<div class="upgrade-card' + (maxed ? " maxed" : "") + '">' +
+          dealerVisualHtml("tractor", state.upgrades.tractorSpeed, "×" + (lvl + 1)) +
+          '<div class="seed-top"><span>' + u.name + '</span><span class="level-badge">Niv. ' + lvl + '/' + u.maxLevel + '</span></div>' +
+          '<div class="seed-meta">' + u.desc(lvl) + '</div>';
+        html += maxed
+          ? '<div class="upgrade-maxed">Niveau maximum</div>'
+          : '<button type="button" class="upgrade-buy" data-upgrade="' + key + '">Améliorer — ' + cost + ' pièces</button>';
+        html += '</div>';
+        continue;
+      }
+
+      // Showroom carousel: browse every named tier (0 = starting kit,
+      // maxLevel = top brand), independent of what's actually owned.
+      if (garageBrowseIndex[key] === undefined) garageBrowseIndex[key] = lvl;
+      var idx = Math.max(0, Math.min(u.maxLevel, garageBrowseIndex[key]));
+      var type = GARAGE_ICON_TYPES[key];
+      var atStart = idx <= 0;
+      var atEnd = idx >= u.maxLevel;
+
+      var statusHtml;
+      if (idx < lvl) {
+        statusHtml = '<div class="carousel-status owned">Déjà possédé</div>';
+      } else if (idx === lvl) {
+        statusHtml = '<div class="carousel-status current">Modèle actuel</div>';
+      } else if (idx === lvl + 1) {
+        statusHtml = '<button type="button" class="upgrade-buy" data-upgrade="' + key + '">Acheter — ' + garageTierCost(key, idx) + ' pièces</button>';
+      } else {
+        statusHtml = '<div class="carousel-status locked">Verrouillé — débloque d\'abord le modèle précédent</div>';
+      }
+
+      html += '<div class="upgrade-card dealer-card' + (maxed ? " maxed" : "") + '">' +
+        '<div class="carousel-row">' +
+        '<button type="button" class="carousel-arrow" data-key="' + key + '" data-dir="-1" aria-label="Modèle précédent"' + (atStart ? " disabled" : "") + '>‹</button>' +
+        '<div class="carousel-stage">' +
+        dealerVisualHtml(type, idx, null) +
+        '</div>' +
+        '<button type="button" class="carousel-arrow" data-key="' + key + '" data-dir="1" aria-label="Modèle suivant"' + (atEnd ? " disabled" : "") + '>›</button>' +
+        '</div>';
+      html += '<div class="carousel-dots">';
+      for (var d = 0; d <= u.maxLevel; d++) {
+        html += '<span class="dot' + (d === idx ? " active" : "") + '"></span>';
+      }
       html += '</div>';
+      html += '<div class="seed-top"><span>' + u.name + '</span><span class="level-badge">Niv. ' + lvl + '/' + u.maxLevel + '</span></div>' +
+        '<div class="seed-meta">' + u.desc(idx) + '</div>' +
+        statusHtml +
+        '</div>';
     }
     garageListEl.innerHTML = html;
   }
@@ -2394,6 +2498,17 @@
   });
 
   garageListEl.addEventListener("click", function (e) {
+    var arrowEl = e.target.closest(".carousel-arrow");
+    if (arrowEl) {
+      if (arrowEl.disabled) return;
+      var key = arrowEl.getAttribute("data-key");
+      var dir = parseInt(arrowEl.getAttribute("data-dir"), 10);
+      var maxLevel = UPGRADES[key].maxLevel;
+      var current = garageBrowseIndex[key] === undefined ? state.upgrades[key] : garageBrowseIndex[key];
+      garageBrowseIndex[key] = Math.max(0, Math.min(maxLevel, current + dir));
+      renderGarageList();
+      return;
+    }
     var el = e.target.closest(".upgrade-buy");
     if (el) buyUpgrade(el.getAttribute("data-upgrade"));
   });
