@@ -1475,18 +1475,63 @@
     background: color-mix(in srgb, var(--paper) 60%, transparent);
     border-radius: 12px;
     padding: 0.4rem 0.7rem;
-    cursor: pointer;
     font-family: inherit;
     color: var(--ink);
     text-align: left;
     width: 100%;
   }
-  .tractor-option:hover { border-color: var(--leaf-dark); background: color-mix(in srgb, var(--leaf) 12%, var(--paper)); }
-  .tractor-option:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 1px; }
   .tractor-option .dealer-visual { width: 84px; flex: none; margin-bottom: 0; }
-  .tractor-option-info { display: flex; flex-direction: column; gap: 0.15rem; }
+  .tractor-option-info { display: flex; flex-direction: column; gap: 0.15rem; flex: 1; min-width: 0; }
   .tractor-option-info strong { font-size: 0.9rem; }
   .tractor-option-info span { font-size: 0.78rem; color: var(--ink-soft); }
+  .tractor-stepper { display: flex; align-items: center; gap: 0.4rem; flex: none; }
+  .stepper-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid var(--paper-edge);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 1rem;
+    line-height: 1;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stepper-btn:hover:not(:disabled) { background: var(--leaf-dark); color: var(--text-on-color); border-color: var(--leaf-dark); }
+  .stepper-btn:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 1px; }
+  .stepper-btn:disabled { opacity: 0.35; cursor: default; }
+  .stepper-count {
+    min-width: 1.2em;
+    text-align: center;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+  .modal-summary {
+    margin: 0.3rem 0 0.6rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+  .modal-confirm {
+    width: 100%;
+    border: none;
+    border-radius: 999px;
+    padding: 0.6rem;
+    background: var(--leaf-dark);
+    color: var(--text-on-color);
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-bottom: 0.6rem;
+  }
+  .modal-confirm:hover:not(:disabled) { background: var(--leaf); }
+  .modal-confirm:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 1px; }
+  .modal-confirm:disabled { background: var(--locked); cursor: default; opacity: 0.7; }
   .modal-cancel {
     width: 100%;
     border: 1px solid var(--paper-edge);
@@ -2085,25 +2130,25 @@
   function busyTierCounts() {
     var counts = {};
     state.plots.forEach(function (p) {
-      if (p.task && typeof p.task.tractorTier === "number") {
-        counts[p.task.tractorTier] = (counts[p.task.tractorTier] || 0) + 1;
+      if (p.task && Array.isArray(p.task.tractorTiers)) {
+        p.task.tractorTiers.forEach(function (t) {
+          counts[t] = (counts[t] || 0) + 1;
+        });
       }
     });
     return counts;
   }
 
-  // Sends the best idle tractor to a new task — returns its tier, or -1 if
-  // the whole fleet is already busy.
-  function pickIdleTractorTier() {
-    var owned = ownedTierCounts();
-    var busy = busyTierCounts();
-    var best = -1;
-    Object.keys(owned).forEach(function (tStr) {
-      var t = parseInt(tStr, 10);
-      var idle = owned[t] - (busy[t] || 0);
-      if (idle > 0 && t > best) best = t;
-    });
-    return best;
+  // Several tractors sent to the same field split the work between them:
+  // each contributes its own rate (1 / its solo-duration multiplier), the
+  // field's total rate is their sum, and the duration multiplier is
+  // whatever solo multiplier would produce that same combined rate. Two
+  // base tractors together roughly halve the time; a mix of brands adds
+  // each one's own contribution. Floored so a huge fleet can't collapse a
+  // task to an instant.
+  function combinedTractorMult(tiers) {
+    var rateSum = tiers.reduce(function (sum, t) { return sum + 1 / tractorTierSpeedMult(t); }, 0);
+    return Math.max(0.05, 1 / rateSum);
   }
 
   // Cost to add one more tractor at a given tier — scales with the tier's
@@ -2641,19 +2686,19 @@
     showToast("Tous tes tracteurs sont occupés (" + busy + "/" + total + "). Attends qu'un champ se libère ou achète-en un autre au garage.");
   }
 
-  function startPlow(index, tier) {
-    state.plots[index].task = { type: "plow", startedAt: Date.now(), duration: Math.round(PLOW_MS * tractorTierSpeedMult(tier) * toolPlowMult() * plotTimeMult(index)), crop: null, tractorTier: tier };
+  function startPlow(index, tiers) {
+    state.plots[index].task = { type: "plow", startedAt: Date.now(), duration: Math.round(PLOW_MS * combinedTractorMult(tiers) * toolPlowMult() * plotTimeMult(index)), crop: null, tractorTiers: tiers };
     saveState();
     render();
   }
 
-  function startPlant(index, tier) {
+  function startPlant(index, tiers) {
     // Seed selection and stock are already validated before the tractor
     // picker opens (see onPlotActivate) — just spend the stock here.
     var ha = plotSizeHa(index);
     var stock = state.seedStock[state.selected] || 0;
     state.seedStock[state.selected] = Math.round((stock - ha) * 10) / 10;
-    state.plots[index].task = { type: "plant", startedAt: Date.now(), duration: Math.round(PLANT_MS * tractorTierSpeedMult(tier) * toolPlantMult() * plotTimeMult(index)), crop: state.selected, tractorTier: tier };
+    state.plots[index].task = { type: "plant", startedAt: Date.now(), duration: Math.round(PLANT_MS * combinedTractorMult(tiers) * toolPlantMult() * plotTimeMult(index)), crop: state.selected, tractorTiers: tiers };
     saveState();
     render();
   }
@@ -2681,11 +2726,11 @@
     render();
   }
 
-  function startHarvest(index, tier) {
+  function startHarvest(index, tiers) {
     var plot = state.plots[index];
     // Silo capacity is already validated before the tractor picker opens
     // (see onPlotActivate).
-    plot.task = { type: "harvest", startedAt: Date.now(), duration: Math.round(HARVEST_MS * tractorTierSpeedMult(tier) * toolHarvestMult() * plotTimeMult(index)), crop: plot.crop, tractorTier: tier };
+    plot.task = { type: "harvest", startedAt: Date.now(), duration: Math.round(HARVEST_MS * combinedTractorMult(tiers) * toolHarvestMult() * plotTimeMult(index)), crop: plot.crop, tractorTiers: tiers };
     saveState();
     render();
   }
@@ -2718,49 +2763,102 @@
     render();
   }
 
-  // Picking a tractor for a field ---------------------------------------
+  // Picking one or more tractors for a field -----------------------------
   var pendingTractorAction = null;
+  var pendingSelection = {};
 
-  function tractorOptionsHtml() {
+  function taskBaseMsForType(type) {
+    return type === "plow" ? PLOW_MS : type === "plant" ? PLANT_MS : HARVEST_MS;
+  }
+
+  function taskToolMultForType(type) {
+    return type === "plow" ? toolPlowMult() : type === "plant" ? toolPlantMult() : toolHarvestMult();
+  }
+
+  function renderTractorModal() {
     var owned = ownedTierCounts();
     var busy = busyTierCounts();
     var tiers = Object.keys(owned).map(Number).sort(function (a, b) { return b - a; });
-    var html = "";
+    var rowsHtml = "";
+    var totalSelected = 0;
+    var selectedTiers = [];
     tiers.forEach(function (t) {
       var idle = owned[t] - (busy[t] || 0);
-      if (idle <= 0) return;
+      var picked = pendingSelection[t] || 0;
+      if (idle <= 0 && picked <= 0) return;
+      totalSelected += picked;
+      for (var k = 0; k < picked; k++) selectedTiers.push(t);
       var pct = t * 10;
-      html += '<button type="button" class="tractor-option" data-tier="' + t + '">' +
+      rowsHtml += '<div class="tractor-option">' +
         dealerVisualHtml("tractor", t, null) +
         '<span class="tractor-option-info"><strong>' + TRACTOR_BRANDS[t] + '</strong>' +
         '<span>' + (t === 0 ? "Vitesse normale" : pct + "% plus rapide") + ' — ' + idle + ' disponible' + (idle > 1 ? "s" : "") + '</span></span>' +
-        '</button>';
+        '<span class="tractor-stepper">' +
+        '<button type="button" class="stepper-btn" data-tier="' + t + '" data-dir="-1"' + (picked <= 0 ? " disabled" : "") + ' aria-label="Retirer un ' + TRACTOR_BRANDS[t] + '">−</button>' +
+        '<span class="stepper-count">' + picked + '</span>' +
+        '<button type="button" class="stepper-btn" data-tier="' + t + '" data-dir="1"' + (picked >= idle ? " disabled" : "") + ' aria-label="Ajouter un ' + TRACTOR_BRANDS[t] + '">+</button>' +
+        '</span></div>';
     });
-    return html;
+
+    var summaryHtml;
+    if (totalSelected === 0) {
+      summaryHtml = '<p class="modal-summary">Choisis au moins un tracteur.</p>' +
+        '<button type="button" class="modal-confirm" disabled>Confirmer</button>';
+    } else {
+      var action = pendingTractorAction;
+      var estMs = Math.round(taskBaseMsForType(action.type) * combinedTractorMult(selectedTiers) * taskToolMultForType(action.type) * plotTimeMult(action.index));
+      summaryHtml = '<p class="modal-summary">' + totalSelected + ' tracteur' + (totalSelected > 1 ? "s" : "") + ' choisi' + (totalSelected > 1 ? "s" : "") +
+        ' — durée estimée : ' + fmtTime(Math.max(1, Math.round(estMs / 1000))) + '</p>' +
+        '<button type="button" class="modal-confirm">Confirmer</button>';
+    }
+
+    tractorModalListEl.innerHTML = rowsHtml + summaryHtml;
   }
 
   function openTractorModal(index, type) {
-    var optionsHtml = tractorOptionsHtml();
-    if (!optionsHtml) { tractorsFreeToast(); return; }
-    tractorModalListEl.innerHTML = optionsHtml;
+    var owned = ownedTierCounts();
+    var busy = busyTierCounts();
+    var anyIdle = Object.keys(owned).some(function (t) { return owned[t] - (busy[t] || 0) > 0; });
+    if (!anyIdle) { tractorsFreeToast(); return; }
     pendingTractorAction = { index: index, type: type };
+    pendingSelection = {};
     tractorModalEl.hidden = false;
+    renderTractorModal();
   }
 
   function closeTractorModal() {
     tractorModalEl.hidden = true;
     pendingTractorAction = null;
+    pendingSelection = {};
   }
 
   tractorModalListEl.addEventListener("click", function (e) {
-    var el = e.target.closest(".tractor-option");
-    if (!el || !pendingTractorAction) return;
-    var tier = parseInt(el.getAttribute("data-tier"), 10);
-    var action = pendingTractorAction;
-    closeTractorModal();
-    if (action.type === "plow") startPlow(action.index, tier);
-    else if (action.type === "plant") startPlant(action.index, tier);
-    else if (action.type === "harvest") startHarvest(action.index, tier);
+    var stepperEl = e.target.closest(".stepper-btn");
+    if (stepperEl) {
+      if (stepperEl.disabled) return;
+      var tier = parseInt(stepperEl.getAttribute("data-tier"), 10);
+      var dir = parseInt(stepperEl.getAttribute("data-dir"), 10);
+      var owned = ownedTierCounts();
+      var busy = busyTierCounts();
+      var idle = (owned[tier] || 0) - (busy[tier] || 0);
+      var current = pendingSelection[tier] || 0;
+      pendingSelection[tier] = Math.max(0, Math.min(idle, current + dir));
+      renderTractorModal();
+      return;
+    }
+    var confirmEl = e.target.closest(".modal-confirm");
+    if (confirmEl && !confirmEl.disabled && pendingTractorAction) {
+      var action = pendingTractorAction;
+      var tiers = [];
+      Object.keys(pendingSelection).forEach(function (tStr) {
+        var t = parseInt(tStr, 10);
+        for (var k = 0; k < pendingSelection[t]; k++) tiers.push(t);
+      });
+      closeTractorModal();
+      if (action.type === "plow") startPlow(action.index, tiers);
+      else if (action.type === "plant") startPlant(action.index, tiers);
+      else if (action.type === "harvest") startHarvest(action.index, tiers);
+    }
   });
   tractorModalCancelEl.addEventListener("click", closeTractorModal);
   tractorModalEl.addEventListener("click", function (e) {
