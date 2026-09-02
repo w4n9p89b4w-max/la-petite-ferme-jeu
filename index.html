@@ -602,16 +602,17 @@
      (clipped to its irregular shape by .plot's own clip-path). Rotated to
      --furrow-angle so its rows run along the same lines already laid down
      by the plow, rather than a generic grid. Every shape is a single,
-     plainly-aligned grid (one gradient layer, same background-position
-     every row — no staggered/offset "quinconce" pattern), dense enough
-     that each line is made of several distinct points. Each mark only
-     grows a little with --grow-progress, and stays short of its
-     neighbor's — so the rows read as rows, not a solid block, even at
-     full maturity. Color color-mixes from a young green to the crop's
-     actual --crop-a as --grow-progress climbs — the same color as that
-     culture's reference swatch in the shop, reached exactly once mature.
-     Oversized (inset -30%) so rotating it never exposes a gap at the
-     parcel's corners. */
+     plainly-aligned grid of true circles (one gradient layer, same
+     background-position every row — no staggered/offset "quinconce"
+     pattern). The grid spacing itself is anisotropic, tighter along the
+     row (x, before rotation) than between rows (y): as each circle grows
+     with --grow-progress its diameter ends up exceeding the row spacing
+     (dots touch and read as a continuous row) while staying under the
+     between-row spacing (rows stay visually separate). Color color-mixes
+     from a young green to the crop's actual --crop-a as --grow-progress
+     climbs — the same color as that culture's reference swatch in the
+     shop, reached exactly once mature. Oversized (inset -30%) so
+     rotating it never exposes a gap at the parcel's corners. */
   .crop-canopy {
     position: absolute;
     inset: -30%;
@@ -623,63 +624,50 @@
 
   .plot[data-shape="bulb"] .crop-canopy {
     background-image:
-      radial-gradient(calc(1.6px + var(--grow-progress, 0) * 3.2px) calc(1px + var(--grow-progress, 0) * 1.2px) at center,
+      radial-gradient(circle calc(1.3px + var(--grow-progress, 0) * 2px) at center,
         color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 88%,
         transparent 100%);
-    background-size: 9px 6px;
+    background-size: 6px 9px;
     background-position: 0 0;
   }
 
   .plot[data-shape="spike"] .crop-canopy {
     background-image:
-      radial-gradient(calc(2.2px + var(--grow-progress, 0) * 2.2px) calc(1px + var(--grow-progress, 0) * 1.2px) at center,
+      radial-gradient(circle calc(1.1px + var(--grow-progress, 0) * 1.7px) at center,
         color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 85%,
         transparent 100%);
-    background-size: 8px 6px;
+    background-size: 5px 7.5px;
     background-position: 0 0;
   }
 
   .plot[data-shape="carrot"] .crop-canopy {
     background-image:
-      radial-gradient(calc(1.4px + var(--grow-progress, 0) * 3.4px) calc(0.9px + var(--grow-progress, 0) * 1px) at center,
+      radial-gradient(circle calc(1.1px + var(--grow-progress, 0) * 1.8px) at center,
         color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf-dark)) 0 50%,
         color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 55% 100%);
-    background-size: 9px 6px;
+    background-size: 5.2px 8px;
     background-position: 0 0;
   }
 
   .plot[data-shape="pumpkin"] .crop-canopy {
     background-image:
-      radial-gradient(calc(3px + var(--grow-progress, 0) * 5px) calc(1.8px + var(--grow-progress, 0) * 2px) at center,
+      radial-gradient(circle calc(2.8px + var(--grow-progress, 0) * 2.6px) at center,
         color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 88%,
         transparent 100%);
-    background-size: 15px 10px;
+    background-size: 9.5px 14px;
     background-position: 0 0;
   }
 
   .plot[data-shape="bloom"] .crop-canopy {
     background-image:
-      radial-gradient(calc(1.8px + var(--grow-progress, 0) * 4px) calc(1.1px + var(--grow-progress, 0) * 1.3px) at center,
+      radial-gradient(circle calc(1.4px + var(--grow-progress, 0) * 2px) at center,
         color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf-dark)) 0 40%,
         color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 45% 100%);
-    background-size: 11px 7px;
+    background-size: 6.2px 9.5px;
     background-position: 0 0;
   }
 
-  .ready-glow {
-    position: absolute;
-    inset: 8%;
-    border-radius: 50%;
-    background: radial-gradient(circle, color-mix(in srgb, var(--gold-bright) 55%, transparent), transparent 70%);
-    pointer-events: none;
-    animation: glow-pulse 1.8s ease-in-out infinite;
-  }
-  @keyframes glow-pulse {
-    0%, 100% { opacity: 0.7; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.08); }
-  }
   @media (prefers-reduced-motion: reduce) {
-    .ready-glow { animation: none; }
     .drop-fill { animation: none !important; }
   }
 
@@ -1862,7 +1850,6 @@
         'style="--crop-a:' + def.a + ';--crop-b:' + def.b + ';--grow-progress:' + info.progress.toFixed(2) + '">';
       html += '<div class="crop-canopy"></div>';
       html += '<div class="plot-cell">';
-      if (info.stage === "ready") html += '<div class="ready-glow"></div>';
       if (info.stage !== "ready") {
         html += '<div class="progress"><span style="width:' + Math.round(info.progress * 100) + '%"></span></div>';
         if (hasWater) {
