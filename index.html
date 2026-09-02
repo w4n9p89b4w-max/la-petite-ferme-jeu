@@ -549,11 +549,11 @@
 
   .lock-mark {
     position: absolute;
-    top: 22%;
+    top: 8%;
     left: 50%;
     transform: translateX(-50%);
-    width: 26%;
-    height: 26%;
+    width: 24%;
+    height: 22%;
     border: 3px solid color-mix(in srgb, var(--paper) 75%, transparent);
     border-bottom: none;
     border-radius: 10px 10px 0 0;
@@ -571,28 +571,30 @@
 
   .plot-price {
     position: absolute;
-    inset: auto 6% 6%;
+    inset: auto 4% 5%;
     text-align: center;
-    font-size: 0.72rem;
-    line-height: 1.1;
+    font-size: 0.68rem;
+    line-height: 1.25;
     font-weight: 800;
     color: var(--paper);
     text-shadow: 0 1px 2px rgba(0,0,0,0.4);
   }
 
   .plot-size-label {
-    display: block;
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     opacity: 0.85;
+  }
+  .plot-size-label::after {
+    content: " · ";
   }
 
   @media (max-width: 480px) {
-    .lock-mark { top: 8%; height: 18%; }
-    .plot-price { font-size: 0.56rem; inset: auto 3% 2%; }
-    .plot-size-label { font-size: 0.5rem; }
+    .lock-mark { top: 5%; height: 16%; }
+    .plot-price { font-size: 0.54rem; inset: auto 2% 2%; }
+    .plot-size-label { font-size: 0.48rem; }
   }
 
   .plant {
@@ -1090,6 +1092,26 @@
     color: var(--ink-soft);
     font-size: 0.85rem;
   }
+
+  .reset-btn {
+    margin-top: 0.8rem;
+    border: 1px solid var(--paper-edge);
+    background: transparent;
+    color: var(--ink-soft);
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.4rem 0.8rem;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .reset-btn:hover { color: var(--barn); border-color: var(--barn); }
+  .reset-btn:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 2px; }
+  .reset-btn.confirming {
+    color: var(--paper);
+    background: var(--barn);
+    border-color: var(--barn-dark);
+  }
 </style>
 
 <div class="app">
@@ -1103,7 +1125,7 @@
       <p class="eyebrow">Un petit potager à cultiver</p>
       <h1>La Petite Ferme</h1>
       <div class="stats">
-        <div class="stat"><span class="coin-icon" aria-hidden="true"></span><span id="coinCount">15</span> pièces</div>
+        <div class="stat"><span class="coin-icon" aria-hidden="true"></span><span id="coinCount">100</span> pièces</div>
         <div class="stat"><span id="harvestCount">0</span> récoltes</div>
         <div class="stat"><span id="tractorBusy">0</span>/<span id="tractorTotal">1</span> tracteurs</div>
       </div>
@@ -1166,6 +1188,7 @@
 
   <footer class="foot">
     <p>Les cultures poussent même quand tu fermes l'onglet — reviens plus tard pour récolter. La partie est sauvegardée automatiquement dans ce navigateur.</p>
+    <button type="button" class="reset-btn" id="resetBtn">Réinitialiser la partie</button>
   </footer>
 </div>
 
@@ -1187,14 +1210,18 @@
   // harvest's tonnage is the crop's yield (t/ha) times these hectares, so a
   // plot's size now directly and precisely drives how much it produces.
   var PLOT_SIZE_RANK = [5, 6, 10, 7, 8, 2, 11, 3, 4, 12, 1, 9];
-  var PLOT_SIZE_HA = [18, 32, 45, 61, 78, 94, 112, 127, 143, 165, 182, 196];
-  var PLOT_HA_PRICE_MULTIPLIER = 1.8;
+  var PLOT_SIZE_HA = [40, 32, 45, 61, 78, 94, 112, 127, 143, 165, 182, 196];
+  var PLOT_HA_PRICE_MULTIPLIER = 6400;
+  // The free starting plot is a special case, capped small (18-30ha) rather
+  // than using its rank's table value, so a new game begins on a modest plot.
+  var PLOT_START_HA = 24;
 
   function plotSizeRank(index) {
     return PLOT_SIZE_RANK[index];
   }
 
   function plotSizeHa(index) {
+    if (index < BASE_UNLOCKED) return PLOT_START_HA;
     return PLOT_SIZE_HA[PLOT_SIZE_RANK[index] - 1];
   }
 
@@ -1218,22 +1245,22 @@
   // computed from a plot's actual hectares (see plotSizeHa), so a crop's
   // total payout depends on both the crop AND the plot it's planted on.
   var CROPS = {
-    radis:      { name: "Radis",       unlockCost: 0,   plantCost: 2,  yieldPerHa: 25,  pricePerTonne: 32,   growTime: 12,   a: "#ef8f79", b: "#c2503f", shape: "bulb" },
-    pois:       { name: "Pois",        unlockCost: 12,  plantCost: 3,  yieldPerHa: 4,   pricePerTonne: 225,  growTime: 30,   a: "#8fc45f", b: "#5a8a38", shape: "bulb" },
-    ble:        { name: "Blé",         unlockCost: 20,  plantCost: 4,  yieldPerHa: 7.5, pricePerTonne: 140,  growTime: 60,   a: "#e8c468", b: "#b8935a", shape: "spike" },
-    carotte:    { name: "Carotte",     unlockCost: 30,  plantCost: 6,  yieldPerHa: 50,  pricePerTonne: 24,   growTime: 120,  a: "#f5a83c", b: "#d97a1f", shape: "carrot" },
-    orge:       { name: "Orge",        unlockCost: 45,  plantCost: 7,  yieldPerHa: 6.5, pricePerTonne: 200,  growTime: 210,  a: "#ead98f", b: "#b8a35c", shape: "spike" },
-    avoine:     { name: "Avoine",      unlockCost: 65,  plantCost: 8,  yieldPerHa: 4.5, pricePerTonne: 310,  growTime: 300,  a: "#e3d3a0", b: "#a99b6e", shape: "spike" },
-    lentille:   { name: "Lentille",    unlockCost: 85,  plantCost: 9,  yieldPerHa: 2,   pricePerTonne: 750,  growTime: 420,  a: "#a3a355", b: "#6e6e32", shape: "bulb" },
-    seigle:     { name: "Seigle",      unlockCost: 110, plantCost: 10, yieldPerHa: 4.5, pricePerTonne: 360,  growTime: 600,  a: "#c9a15c", b: "#8a6a38", shape: "spike" },
-    millet:     { name: "Millet",      unlockCost: 130, plantCost: 11, yieldPerHa: 2,   pricePerTonne: 850,  growTime: 720,  a: "#d4c85a", b: "#9a9040", shape: "spike" },
-    citrouille: { name: "Citrouille",  unlockCost: 150, plantCost: 18, yieldPerHa: 40,  pricePerTonne: 45,   growTime: 900,  a: "#f6a63e", b: "#c9711f", shape: "pumpkin" },
-    colza:      { name: "Colza",       unlockCost: 180, plantCost: 14, yieldPerHa: 3.2, pricePerTonne: 600,  growTime: 1200, a: "#f5d020", b: "#a89014", shape: "bloom" },
-    soja:       { name: "Soja",        unlockCost: 220, plantCost: 16, yieldPerHa: 3,   pricePerTonne: 680,  growTime: 1500, a: "#7fae52", b: "#4f7a30", shape: "bulb" },
-    mais:       { name: "Maïs",        unlockCost: 260, plantCost: 19, yieldPerHa: 10,  pricePerTonne: 220,  growTime: 1800, a: "#f2d33a", b: "#c9a51f", shape: "spike" },
-    sarrasin:   { name: "Sarrasin",    unlockCost: 310, plantCost: 21, yieldPerHa: 1.4, pricePerTonne: 1650, growTime: 2400, a: "#e8c9d8", b: "#a6708a", shape: "bloom" },
-    tournesol:  { name: "Tournesol",   unlockCost: 400, plantCost: 40, yieldPerHa: 2.8, pricePerTonne: 875,  growTime: 3000, a: "#f6c445", b: "#7a4a23", shape: "bloom" },
-    sorgho:     { name: "Sorgho",      unlockCost: 480, plantCost: 30, yieldPerHa: 6,   pricePerTonne: 430,  growTime: 3600, a: "#b8583f", b: "#7a3826", shape: "spike" }
+    radis:      { name: "Radis",       unlockCost: 0,   plantCost: 2,  yieldPerHa: 25,  pricePerTonne: 30,   growTime: 12,   a: "#ef8f79", b: "#c2503f", shape: "bulb" },
+    pois:       { name: "Pois",        unlockCost: 12,  plantCost: 3,  yieldPerHa: 4,   pricePerTonne: 230,  growTime: 30,   a: "#8fc45f", b: "#5a8a38", shape: "bulb" },
+    ble:        { name: "Blé",         unlockCost: 20,  plantCost: 4,  yieldPerHa: 7.5, pricePerTonne: 150,  growTime: 60,   a: "#e8c468", b: "#b8935a", shape: "spike" },
+    carotte:    { name: "Carotte",     unlockCost: 30,  plantCost: 6,  yieldPerHa: 50,  pricePerTonne: 30,   growTime: 120,  a: "#f5a83c", b: "#d97a1f", shape: "carrot" },
+    orge:       { name: "Orge",        unlockCost: 45,  plantCost: 7,  yieldPerHa: 6.5, pricePerTonne: 260,  growTime: 210,  a: "#ead98f", b: "#b8a35c", shape: "spike" },
+    avoine:     { name: "Avoine",      unlockCost: 65,  plantCost: 8,  yieldPerHa: 4.5, pricePerTonne: 400,  growTime: 300,  a: "#e3d3a0", b: "#a99b6e", shape: "spike" },
+    lentille:   { name: "Lentille",    unlockCost: 85,  plantCost: 9,  yieldPerHa: 2,   pricePerTonne: 1000, growTime: 420,  a: "#a3a355", b: "#6e6e32", shape: "bulb" },
+    seigle:     { name: "Seigle",      unlockCost: 110, plantCost: 10, yieldPerHa: 4.5, pricePerTonne: 500,  growTime: 600,  a: "#c9a15c", b: "#8a6a38", shape: "spike" },
+    millet:     { name: "Millet",      unlockCost: 130, plantCost: 11, yieldPerHa: 2,   pricePerTonne: 1200, growTime: 720,  a: "#d4c85a", b: "#9a9040", shape: "spike" },
+    citrouille: { name: "Citrouille",  unlockCost: 150, plantCost: 18, yieldPerHa: 40,  pricePerTonne: 65,   growTime: 900,  a: "#f6a63e", b: "#c9711f", shape: "pumpkin" },
+    colza:      { name: "Colza",       unlockCost: 180, plantCost: 14, yieldPerHa: 3.2, pricePerTonne: 900,  growTime: 1200, a: "#f5d020", b: "#a89014", shape: "bloom" },
+    soja:       { name: "Soja",        unlockCost: 220, plantCost: 16, yieldPerHa: 3,   pricePerTonne: 1000, growTime: 1500, a: "#7fae52", b: "#4f7a30", shape: "bulb" },
+    mais:       { name: "Maïs",        unlockCost: 260, plantCost: 19, yieldPerHa: 10,  pricePerTonne: 320,  growTime: 1800, a: "#f2d33a", b: "#c9a51f", shape: "spike" },
+    sarrasin:   { name: "Sarrasin",    unlockCost: 310, plantCost: 21, yieldPerHa: 1.4, pricePerTonne: 2400, growTime: 2400, a: "#e8c9d8", b: "#a6708a", shape: "bloom" },
+    tournesol:  { name: "Tournesol",   unlockCost: 400, plantCost: 40, yieldPerHa: 2.8, pricePerTonne: 1300, growTime: 3000, a: "#f6c445", b: "#7a4a23", shape: "bloom" },
+    sorgho:     { name: "Sorgho",      unlockCost: 480, plantCost: 30, yieldPerHa: 6,   pricePerTonne: 800,  growTime: 3600, a: "#b8583f", b: "#7a3826", shape: "spike" }
   };
   var CROP_ORDER = ["radis", "pois", "ble", "carotte", "orge", "avoine", "lentille", "seigle", "millet", "citrouille", "colza", "soja", "mais", "sarrasin", "tournesol", "sorgho"];
 
@@ -1332,6 +1359,7 @@
   var xpNextEl = document.getElementById("xpNext");
   var toastEl = document.getElementById("toast");
   var floatLayerEl = document.getElementById("floatLayer");
+  var resetBtnEl = document.getElementById("resetBtn");
   var tabButtons = document.querySelectorAll(".tab-btn");
   var views = {
     field: document.getElementById("view-field"),
@@ -1352,7 +1380,7 @@
       plots.push({ unlocked: i < BASE_UNLOCKED, crop: null, plantedAt: null, watered: 0, lastWateredAt: null, plowed: false, task: null });
     }
     return {
-      coins: 15,
+      coins: 100,
       harvests: 0,
       xp: 0,
       level: 1,
@@ -1457,12 +1485,18 @@
     return Math.max(0.75, 1 - state.upgrades.tools * 0.05);
   }
 
-  function effectivePlantCost(def) {
+  // def.plantCost is a rate in pièces per hectare — planting scales with the
+  // specific plot's size, same as its unlock price and harvest yield do.
+  function plantCostPerHa(def) {
     return Math.max(1, Math.round(def.plantCost * toolsCostMult()));
   }
 
+  function effectivePlantCost(def, ha) {
+    return Math.max(1, Math.round(plantCostPerHa(def) * ha));
+  }
+
   function waterCost(def) {
-    return Math.min(5, Math.max(2, effectivePlantCost(def)));
+    return Math.min(5, Math.max(2, plantCostPerHa(def)));
   }
 
   function taskDurationMult() {
@@ -1488,7 +1522,7 @@
     return Math.round(40 * Math.pow(level, 1.55));
   }
 
-  var HARVEST_XP_MULTIPLIER = 1.8;
+  var HARVEST_XP_MULTIPLIER = 1.3;
   var PLOW_XP = 2;
   var PLANT_XP = 3.5;
 
@@ -1530,6 +1564,15 @@
 
   function fmtNum(n) {
     return Math.round(n).toLocaleString("fr-FR");
+  }
+
+  // Compact form for tight spaces (on-plot badges) — full fmtNum() numbers
+  // got long enough (7 digits) to overlap the lock icon on small parcels.
+  function fmtCompact(n) {
+    n = Math.round(n);
+    if (n >= 1000000) return (n / 1000000).toFixed(2).replace(".", ",") + "M";
+    if (n >= 1000) return Math.round(n / 1000) + "k";
+    return String(n);
   }
 
   function getStage(plot) {
@@ -1663,10 +1706,10 @@
         var cost = plotUnlockCost(i);
         var sizeHa = plotSizeHa(i);
         html += '<div class="plot locked" data-index="' + i + '" role="button" tabindex="0" ' +
-          'aria-label="Parcelle de ' + sizeHa + ' hectares en friche, défricher pour ' + cost + ' pièces">' +
+          'aria-label="Parcelle de ' + sizeHa + ' hectares en friche, défricher pour ' + fmtNum(cost) + ' pièces">' +
           '<div class="plot-cell">' +
           '<div class="lock-mark"></div>' +
-          '<div class="plot-price"><span class="plot-size-label">' + sizeHa + ' ha</span>' + cost + ' pièces</div>' +
+          '<div class="plot-price"><span class="plot-size-label">' + sizeHa + ' ha</span>' + fmtCompact(cost) + ' pièces</div>' +
           '</div></div>';
         continue;
       }
@@ -1731,7 +1774,7 @@
         'data-seed="' + key + '">' +
         '<div class="seed-top"><span><span class="seed-swatch" style="background:' + def.a + '"></span>' + def.name + '</span></div>';
       if (unlocked) {
-        html += '<div class="seed-meta"><span>' + effectivePlantCost(def) + ' pièces à planter</span>' +
+        html += '<div class="seed-meta"><span>' + plantCostPerHa(def) + ' pièces/ha à planter</span>' +
           '<span>' + def.yieldPerHa + ' t/ha</span>' +
           '<span>' + effectivePricePerTonne(key) + ' €/t</span>' +
           '<span>' + fmtTime(Math.round(effectiveGrowTime(def))) + '</span></div>';
@@ -1793,7 +1836,7 @@
   function unlockPlot(index) {
     var cost = plotUnlockCost(index);
     if (state.coins < cost) {
-      showToast("Il te faut " + cost + " pièces pour défricher cette parcelle.");
+      showToast("Il te faut " + fmtNum(cost) + " pièces pour défricher cette parcelle.");
       return;
     }
     state.coins -= cost;
@@ -1823,9 +1866,9 @@
       return;
     }
     var def = CROPS[state.selected];
-    var cost = effectivePlantCost(def);
+    var cost = effectivePlantCost(def, plotSizeHa(index));
     if (state.coins < cost) {
-      showToast("Il te faut " + cost + " pièces pour planter du " + def.name.toLowerCase() + ".");
+      showToast("Il te faut " + fmtNum(cost) + " pièces pour planter du " + def.name.toLowerCase() + " sur cette parcelle.");
       return;
     }
     state.coins -= cost;
@@ -1993,6 +2036,35 @@
     btn.addEventListener("click", function () {
       setView(btn.getAttribute("data-view"));
     });
+  });
+
+  // Avoid window.confirm(): it's silently blocked in sandboxed iframes
+  // (e.g. the artifact preview), which made the button look dead. Use a
+  // two-click, in-page confirmation instead.
+  var resetConfirming = false;
+  var resetConfirmTimer = null;
+
+  function resetConfirmReset() {
+    resetConfirming = false;
+    resetBtnEl.textContent = "Réinitialiser la partie";
+    resetBtnEl.classList.remove("confirming");
+    clearTimeout(resetConfirmTimer);
+  }
+
+  resetBtnEl.addEventListener("click", function () {
+    if (!resetConfirming) {
+      resetConfirming = true;
+      resetBtnEl.textContent = "Cliquer encore pour confirmer";
+      resetBtnEl.classList.add("confirming");
+      resetConfirmTimer = setTimeout(resetConfirmReset, 4000);
+      return;
+    }
+    resetConfirmReset();
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
+    state = migrateState(defaultState());
+    saveState();
+    render();
+    showToast("Partie réinitialisée.");
   });
 
   // Offline growth: crops mature based on their stored timestamp, so time
