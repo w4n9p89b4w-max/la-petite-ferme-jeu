@@ -549,11 +549,11 @@
 
   .lock-mark {
     position: absolute;
-    top: 22%;
+    top: 8%;
     left: 50%;
     transform: translateX(-50%);
-    width: 26%;
-    height: 26%;
+    width: 24%;
+    height: 22%;
     border: 3px solid color-mix(in srgb, var(--paper) 75%, transparent);
     border-bottom: none;
     border-radius: 10px 10px 0 0;
@@ -571,28 +571,30 @@
 
   .plot-price {
     position: absolute;
-    inset: auto 6% 6%;
+    inset: auto 4% 5%;
     text-align: center;
-    font-size: 0.72rem;
-    line-height: 1.1;
+    font-size: 0.68rem;
+    line-height: 1.25;
     font-weight: 800;
     color: var(--paper);
     text-shadow: 0 1px 2px rgba(0,0,0,0.4);
   }
 
   .plot-size-label {
-    display: block;
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     opacity: 0.85;
+  }
+  .plot-size-label::after {
+    content: " · ";
   }
 
   @media (max-width: 480px) {
-    .lock-mark { top: 8%; height: 18%; }
-    .plot-price { font-size: 0.56rem; inset: auto 3% 2%; }
-    .plot-size-label { font-size: 0.5rem; }
+    .lock-mark { top: 5%; height: 16%; }
+    .plot-price { font-size: 0.54rem; inset: auto 2% 2%; }
+    .plot-size-label { font-size: 0.48rem; }
   }
 
   .plant {
@@ -1188,7 +1190,7 @@
   // plot's size now directly and precisely drives how much it produces.
   var PLOT_SIZE_RANK = [5, 6, 10, 7, 8, 2, 11, 3, 4, 12, 1, 9];
   var PLOT_SIZE_HA = [18, 32, 45, 61, 78, 94, 112, 127, 143, 165, 182, 196];
-  var PLOT_HA_PRICE_MULTIPLIER = 1.8;
+  var PLOT_HA_PRICE_MULTIPLIER = 6400;
 
   function plotSizeRank(index) {
     return PLOT_SIZE_RANK[index];
@@ -1532,6 +1534,15 @@
     return Math.round(n).toLocaleString("fr-FR");
   }
 
+  // Compact form for tight spaces (on-plot badges) — full fmtNum() numbers
+  // got long enough (7 digits) to overlap the lock icon on small parcels.
+  function fmtCompact(n) {
+    n = Math.round(n);
+    if (n >= 1000000) return (n / 1000000).toFixed(2).replace(".", ",") + "M";
+    if (n >= 1000) return Math.round(n / 1000) + "k";
+    return String(n);
+  }
+
   function getStage(plot) {
     var def = CROPS[plot.crop];
     var elapsed = (Date.now() - plot.plantedAt) / 1000;
@@ -1663,10 +1674,10 @@
         var cost = plotUnlockCost(i);
         var sizeHa = plotSizeHa(i);
         html += '<div class="plot locked" data-index="' + i + '" role="button" tabindex="0" ' +
-          'aria-label="Parcelle de ' + sizeHa + ' hectares en friche, défricher pour ' + cost + ' pièces">' +
+          'aria-label="Parcelle de ' + sizeHa + ' hectares en friche, défricher pour ' + fmtNum(cost) + ' pièces">' +
           '<div class="plot-cell">' +
           '<div class="lock-mark"></div>' +
-          '<div class="plot-price"><span class="plot-size-label">' + sizeHa + ' ha</span>' + cost + ' pièces</div>' +
+          '<div class="plot-price"><span class="plot-size-label">' + sizeHa + ' ha</span>' + fmtCompact(cost) + ' pièces</div>' +
           '</div></div>';
         continue;
       }
@@ -1793,7 +1804,7 @@
   function unlockPlot(index) {
     var cost = plotUnlockCost(index);
     if (state.coins < cost) {
-      showToast("Il te faut " + cost + " pièces pour défricher cette parcelle.");
+      showToast("Il te faut " + fmtNum(cost) + " pièces pour défricher cette parcelle.");
       return;
     }
     state.coins -= cost;
