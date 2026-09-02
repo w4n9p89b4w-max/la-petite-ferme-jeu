@@ -23,6 +23,11 @@
     --ink-soft: #6b5540;
     --paper: #fff8ea;
     --paper-edge: #e2c48f;
+    /* Fixed light color for text/icons drawn over the illustrated scene or
+       a solid-hue badge/button (barn red, leaf green, gold...) — unlike
+       --paper it never flips dark in night mode, since those backgrounds
+       don't flip either and would otherwise lose contrast. */
+    --text-on-color: #fff8ea;
     --locked: #a3907a;
     --locked-dark: #6b5a48;
     --grass-1: #a3c667;
@@ -295,7 +300,7 @@
     padding: 0 5px;
     border-radius: 999px;
     background: var(--barn);
-    color: var(--paper);
+    color: var(--text-on-color);
     font-size: 0.68rem;
     font-variant-numeric: tabular-nums;
   }
@@ -576,7 +581,7 @@
     transform: translateX(-50%);
     width: 24%;
     height: 22%;
-    border: 3px solid color-mix(in srgb, var(--paper) 75%, transparent);
+    border: 3px solid color-mix(in srgb, var(--text-on-color) 75%, transparent);
     border-bottom: none;
     border-radius: 10px 10px 0 0;
   }
@@ -587,7 +592,7 @@
     left: -35%;
     width: 170%;
     height: 55%;
-    background: color-mix(in srgb, var(--paper) 82%, transparent);
+    background: color-mix(in srgb, var(--text-on-color) 82%, transparent);
     border-radius: 4px;
   }
 
@@ -598,7 +603,7 @@
     font-size: 0.68rem;
     line-height: 1.25;
     font-weight: 800;
-    color: var(--paper);
+    color: var(--text-on-color);
     text-shadow: 0 1px 2px rgba(0,0,0,0.4);
   }
 
@@ -834,7 +839,7 @@
     border-radius: 999px;
     font-size: 0.72rem;
     font-weight: 800;
-    color: var(--paper);
+    color: var(--text-on-color);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
@@ -909,7 +914,7 @@
     border-radius: 8px;
     padding: 0.5rem 0.6rem;
     background: var(--barn);
-    color: var(--paper);
+    color: var(--text-on-color);
     font-weight: 800;
     font-family: inherit;
     font-size: 0.82rem;
@@ -1191,7 +1196,7 @@
     align-items: center;
     justify-content: center;
   }
-  .carousel-arrow:hover:not(:disabled) { background: var(--barn); color: var(--paper); border-color: var(--barn); }
+  .carousel-arrow:hover:not(:disabled) { background: var(--barn); color: var(--text-on-color); border-color: var(--barn); }
   .carousel-arrow:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 1px; }
   .carousel-arrow:disabled { opacity: 0.35; cursor: default; }
 
@@ -1246,7 +1251,7 @@
     padding: 0.05rem 0.4rem;
     border-radius: 999px;
     background: var(--barn);
-    color: var(--paper);
+    color: var(--text-on-color);
     font-size: 0.68rem;
     font-weight: 800;
     text-transform: uppercase;
@@ -1275,7 +1280,7 @@
     border-radius: 8px;
     padding: 0.5rem 0.6rem;
     background: var(--leaf-dark);
-    color: var(--paper);
+    color: var(--text-on-color);
     font-weight: 800;
     font-family: inherit;
     font-size: 0.85rem;
@@ -1342,7 +1347,7 @@
     justify-content: center;
     font-family: "Fraunces", serif;
     font-size: 1.6rem;
-    color: color-mix(in srgb, var(--paper) 45%, transparent);
+    color: color-mix(in srgb, var(--text-on-color) 45%, transparent);
     opacity: 0;
     transition: opacity 0.15s ease;
   }
@@ -1494,7 +1499,7 @@
   .reset-btn:hover { color: var(--barn); border-color: var(--barn); }
   .reset-btn:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 2px; }
   .reset-btn.confirming {
-    color: var(--paper);
+    color: var(--text-on-color);
     background: var(--barn);
     border-color: var(--barn-dark);
   }
