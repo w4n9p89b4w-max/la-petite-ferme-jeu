@@ -1250,7 +1250,7 @@
 
     <section class="view page-wrap" id="view-garage" role="tabpanel" hidden>
       <h2>Garage</h2>
-      <p class="shop-hint">Un tracteur ne peut travailler qu'un seul champ à la fois — laboure, semis et récolte occupent le tracteur qui s'en charge. Achète des tracteurs supplémentaires pour faire avancer plusieurs champs en même temps, un modèle plus rapide pour réduire chaque tâche, ou de meilleurs outils pour dépenser moins de pièces.</p>
+      <p class="shop-hint">Un tracteur ne peut travailler qu'un seul champ à la fois — laboure, semis et récolte occupent le tracteur qui s'en charge. Achète des tracteurs supplémentaires pour faire avancer plusieurs champs en même temps, une meilleure marque de tracteur pour accélérer les trois tâches à la fois, ou l'outil dédié à chaque tâche (charrue, semoir, moissonneuse) pour l'accélérer encore davantage — et pour le semoir, réduire aussi le prix des graines.</p>
       <div class="upgrade-grid" id="garageList"></div>
     </section>
   </main>
@@ -1407,20 +1407,51 @@
       costMult: 2.0,
       desc: function (lvl) {
         var pct = lvl * 10;
-        return lvl === 0 ? "Vitesse de travail normale" : "Labour, semis et récolte " + pct + "% plus rapides";
+        return TRACTOR_BRANDS[lvl] + (lvl === 0
+          ? " — vitesse de travail normale"
+          : " — labour, semis et récolte " + pct + "% plus rapides");
       }
     },
-    tools: {
-      name: "Outils",
+    toolPlow: {
+      name: "Charrue",
+      maxLevel: 5,
+      baseCost: 55,
+      costMult: 1.9,
+      desc: function (lvl) {
+        var pct = lvl * 7;
+        return TOOL_PLOW_BRANDS[lvl] + (lvl === 0 ? " — labour à vitesse normale" : " — labour " + pct + "% plus rapide");
+      }
+    },
+    toolPlant: {
+      name: "Semoir",
       maxLevel: 5,
       baseCost: 70,
       costMult: 2.0,
       desc: function (lvl) {
-        var pct = lvl * 5;
-        return lvl === 0 ? "Coûts normaux" : "Plantation et arrosage " + pct + "% moins chers";
+        var pctTime = lvl * 7;
+        var pctCost = lvl * 5;
+        return TOOL_PLANT_BRANDS[lvl] + (lvl === 0
+          ? " — semis et achats de graines à tarif normal"
+          : " — semis " + pctTime + "% plus rapide, achats de graines " + pctCost + "% moins chers");
+      }
+    },
+    toolHarvest: {
+      name: "Moissonneuse",
+      maxLevel: 5,
+      baseCost: 95,
+      costMult: 2.15,
+      desc: function (lvl) {
+        var pct = lvl * 7;
+        return TOOL_HARVEST_BRANDS[lvl] + (lvl === 0 ? " — récolte à vitesse normale" : " — récolte " + pct + "% plus rapide");
       }
     }
   };
+  // Named tiers rather than anonymous levels — buying a better brand
+  // replaces the previous one (levels 0-5, index 0 is the starting kit).
+  var TRACTOR_BRANDS = ["Tracteur de base", "Bovin 100", "Renardeau 220", "Taureau X350", "Titan Pro 480", "AgroMax Élite"];
+  var TOOL_PLOW_BRANDS = ["Araire de base", "Charrue simple", "Charrue renforcée", "Charrue hydraulique", "Charrue à disques Pro", "Charrue GPS AutoTrac"];
+  var TOOL_PLANT_BRANDS = ["Semis à la main", "Semoir manuel", "Semoir mécanique", "Semoir pneumatique", "Semoir de précision", "Semoir GPS haute précision"];
+  var TOOL_HARVEST_BRANDS = ["Récolte à la main", "Faucille améliorée", "Faucheuse mécanique", "Moissonneuse simple", "Moissonneuse-batteuse", "Moissonneuse-batteuse Pro"];
   var YIELD_BONUS_PCT = [0, 2, 5, 10, 25, 40];
   // In tonnes — harvest tonnage now scales with a plot's real hectares, so
   // the silo has to hold a lot more than the old flat "units" capacity.
@@ -1432,7 +1463,7 @@
   var SEED_SILO_CAPACITY = [100, 220, 400, 650, 1000, 1450];
   var SEED_BATCH_HA = 50;
   var UPGRADE_ORDER = ["soil", "water", "harvest", "seedSilo"];
-  var GARAGE_ORDER = ["tractors", "tractorSpeed", "tools"];
+  var GARAGE_ORDER = ["tractors", "tractorSpeed", "toolPlow", "toolPlant", "toolHarvest"];
 
   var plotsEl = document.getElementById("plots");
   var seedListEl = document.getElementById("seedList");
@@ -1580,7 +1611,21 @@
   }
 
   function toolsCostMult() {
-    return Math.max(0.75, 1 - state.upgrades.tools * 0.05);
+    return Math.max(0.75, 1 - state.upgrades.toolPlant * 0.05);
+  }
+
+  // Task-specific tool tiers, on top of the tractor model's global speed —
+  // each maxes out at a 35% reduction for that task alone.
+  function toolPlowMult() {
+    return Math.max(0.65, 1 - state.upgrades.toolPlow * 0.07);
+  }
+
+  function toolPlantMult() {
+    return Math.max(0.65, 1 - state.upgrades.toolPlant * 0.07);
+  }
+
+  function toolHarvestMult() {
+    return Math.max(0.65, 1 - state.upgrades.toolHarvest * 0.07);
   }
 
   // def.plantCost is a rate in pièces per hectare — planting scales with the
@@ -2006,7 +2051,7 @@
 
   function startPlow(index) {
     if (busyTaskCount() >= tractorCount()) { tractorsFreeToast(); return; }
-    state.plots[index].task = { type: "plow", startedAt: Date.now(), duration: Math.round(PLOW_MS * taskDurationMult() * plotTimeMult(index)), crop: null };
+    state.plots[index].task = { type: "plow", startedAt: Date.now(), duration: Math.round(PLOW_MS * taskDurationMult() * toolPlowMult() * plotTimeMult(index)), crop: null };
     saveState();
     render();
   }
@@ -2027,7 +2072,7 @@
       return;
     }
     state.seedStock[state.selected] = Math.round((stock - ha) * 10) / 10;
-    state.plots[index].task = { type: "plant", startedAt: Date.now(), duration: Math.round(PLANT_MS * taskDurationMult() * plotTimeMult(index)), crop: state.selected };
+    state.plots[index].task = { type: "plant", startedAt: Date.now(), duration: Math.round(PLANT_MS * taskDurationMult() * toolPlantMult() * plotTimeMult(index)), crop: state.selected };
     saveState();
     render();
   }
@@ -2064,7 +2109,7 @@
       showToast("Ta besace de " + def.name.toLowerCase() + " est pleine (" + cap + "/" + cap + ") — vends au marché avant de récolter davantage.");
       return;
     }
-    plot.task = { type: "harvest", startedAt: Date.now(), duration: Math.round(HARVEST_MS * taskDurationMult() * plotTimeMult(index)), crop: plot.crop };
+    plot.task = { type: "harvest", startedAt: Date.now(), duration: Math.round(HARVEST_MS * taskDurationMult() * toolHarvestMult() * plotTimeMult(index)), crop: plot.crop };
     saveState();
     render();
   }
