@@ -1092,6 +1092,21 @@
     color: var(--ink-soft);
     font-size: 0.85rem;
   }
+
+  .reset-btn {
+    margin-top: 0.8rem;
+    border: 1px solid var(--paper-edge);
+    background: transparent;
+    color: var(--ink-soft);
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.4rem 0.8rem;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .reset-btn:hover { color: var(--barn); border-color: var(--barn); }
+  .reset-btn:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 2px; }
 </style>
 
 <div class="app">
@@ -1168,6 +1183,7 @@
 
   <footer class="foot">
     <p>Les cultures poussent même quand tu fermes l'onglet — reviens plus tard pour récolter. La partie est sauvegardée automatiquement dans ce navigateur.</p>
+    <button type="button" class="reset-btn" id="resetBtn">Réinitialiser la partie</button>
   </footer>
 </div>
 
@@ -1338,6 +1354,7 @@
   var xpNextEl = document.getElementById("xpNext");
   var toastEl = document.getElementById("toast");
   var floatLayerEl = document.getElementById("floatLayer");
+  var resetBtnEl = document.getElementById("resetBtn");
   var tabButtons = document.querySelectorAll(".tab-btn");
   var views = {
     field: document.getElementById("view-field"),
@@ -1463,12 +1480,18 @@
     return Math.max(0.75, 1 - state.upgrades.tools * 0.05);
   }
 
-  function effectivePlantCost(def) {
+  // def.plantCost is a rate in pièces per hectare — planting scales with the
+  // specific plot's size, same as its unlock price and harvest yield do.
+  function plantCostPerHa(def) {
     return Math.max(1, Math.round(def.plantCost * toolsCostMult()));
   }
 
+  function effectivePlantCost(def, ha) {
+    return Math.max(1, Math.round(plantCostPerHa(def) * ha));
+  }
+
   function waterCost(def) {
-    return Math.min(5, Math.max(2, effectivePlantCost(def)));
+    return Math.min(5, Math.max(2, plantCostPerHa(def)));
   }
 
   function taskDurationMult() {
@@ -1746,7 +1769,7 @@
         'data-seed="' + key + '">' +
         '<div class="seed-top"><span><span class="seed-swatch" style="background:' + def.a + '"></span>' + def.name + '</span></div>';
       if (unlocked) {
-        html += '<div class="seed-meta"><span>' + effectivePlantCost(def) + ' pièces à planter</span>' +
+        html += '<div class="seed-meta"><span>' + plantCostPerHa(def) + ' pièces/ha à planter</span>' +
           '<span>' + def.yieldPerHa + ' t/ha</span>' +
           '<span>' + effectivePricePerTonne(key) + ' €/t</span>' +
           '<span>' + fmtTime(Math.round(effectiveGrowTime(def))) + '</span></div>';
@@ -1838,9 +1861,9 @@
       return;
     }
     var def = CROPS[state.selected];
-    var cost = effectivePlantCost(def);
+    var cost = effectivePlantCost(def, plotSizeHa(index));
     if (state.coins < cost) {
-      showToast("Il te faut " + cost + " pièces pour planter du " + def.name.toLowerCase() + ".");
+      showToast("Il te faut " + fmtNum(cost) + " pièces pour planter du " + def.name.toLowerCase() + " sur cette parcelle.");
       return;
     }
     state.coins -= cost;
@@ -2008,6 +2031,15 @@
     btn.addEventListener("click", function () {
       setView(btn.getAttribute("data-view"));
     });
+  });
+
+  resetBtnEl.addEventListener("click", function () {
+    if (!confirm("Réinitialiser la partie ? Toute ta progression sera perdue définitivement.")) return;
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
+    state = migrateState(defaultState());
+    saveState();
+    render();
+    showToast("Partie réinitialisée.");
   });
 
   // Offline growth: crops mature based on their stored timestamp, so time
