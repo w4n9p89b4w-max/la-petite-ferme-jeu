@@ -1266,10 +1266,17 @@
 
   // Crops unlock by player level, not just coins — coins alone stopped being
   // a real gate once a single harvest could pay for everything at once.
-  // Each crop's required level is simply its rank in CROP_ORDER (1-16), so
-  // leveling up (via harvesting) opens up the next crop in the list.
+  // Required levels follow the escalating curve the user set (starting at
+  // Blé=5, x1.3 through Seigle, x1.2 through Citrouille, x1.1 after that),
+  // rather than simply matching each crop's rank in CROP_ORDER.
+  var CROP_REQUIRED_LEVEL = {
+    radis: 1, pois: 3, ble: 5, carotte: 7, orge: 8, avoine: 11, lentille: 14,
+    seigle: 19, millet: 22, citrouille: 27, colza: 29, soja: 32, mais: 36,
+    sarrasin: 39, tournesol: 43, sorgho: 47
+  };
+
   function cropRequiredLevel(key) {
-    return CROP_ORDER.indexOf(key) + 1;
+    return CROP_REQUIRED_LEVEL[key];
   }
 
   var UPGRADES = {
