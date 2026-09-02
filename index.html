@@ -462,6 +462,28 @@
     padding: 0.4rem;
   }
 
+  /* ---------- Field paths ----------
+     Dirt tracks along the Voronoi edges shared by two neighboring plots
+     (computed once from the same clip-path polygons above), so every
+     parcel reads as visually delimited from the ones next to it. Painted
+     as the last child of #plots, above every .plot, in the same 0-100
+     percentage coordinate space so it lines up exactly with no extra
+     positioning math. */
+  .field-paths {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .field-paths path {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .field-paths .path-edge { stroke: var(--road-edge); stroke-width: 5; }
+  .field-paths .path-fill { stroke: var(--road); stroke-width: 2.4; }
+
   /* ---------- Field bed (plot tile) ----------
      Every plot is stacked full-size over the whole board and carved down to
      its own parcel with clip-path. Because the 12 polygons below come from a
@@ -2152,6 +2174,12 @@
     return html;
   }
 
+  // Precomputed once from the plot polygons' shared edges (see the
+  // .field-paths CSS above) — the dirt-track lines between neighboring
+  // parcels. Constant, so it's just appended after each render rather
+  // than recomputed.
+  var FIELD_PATHS_SVG = "<svg class=\"field-paths\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path class=\"path-edge\" d=\"M33.67,0 L35.3,21.74 M35.3,21.74 L0,23.72 M71.99,0 L67.67,22.93 M67.67,22.93 L35.41,21.88 M35.41,21.88 L35.3,21.74 M100,34.54 L68.46,24.46 M68.46,24.46 L67.67,22.93 M35.41,21.88 L34.15,42.79 M34.15,42.79 L0,50.2 M68.46,24.46 L62.85,47.8 M62.85,47.8 L41.54,51.66 M41.54,51.66 L34.15,42.79 M100,49.13 L67.24,52.84 M67.24,52.84 L62.85,47.8 M41.54,51.66 L36.92,74.67 M36.92,74.67 L0,68.66 M67.24,52.84 L70.17,74.12 M70.17,74.12 L65.89,77.69 M65.89,77.69 L36.96,74.75 M36.96,74.75 L36.92,74.67 M100,77.78 L70.17,74.12 M36.96,74.75 L35.22,100 M65.89,77.69 L64.83,100\"/><path class=\"path-fill\" d=\"M33.67,0 L35.3,21.74 M35.3,21.74 L0,23.72 M71.99,0 L67.67,22.93 M67.67,22.93 L35.41,21.88 M35.41,21.88 L35.3,21.74 M100,34.54 L68.46,24.46 M68.46,24.46 L67.67,22.93 M35.41,21.88 L34.15,42.79 M34.15,42.79 L0,50.2 M68.46,24.46 L62.85,47.8 M62.85,47.8 L41.54,51.66 M41.54,51.66 L34.15,42.79 M100,49.13 L67.24,52.84 M67.24,52.84 L62.85,47.8 M41.54,51.66 L36.92,74.67 M36.92,74.67 L0,68.66 M67.24,52.84 L70.17,74.12 M70.17,74.12 L65.89,77.69 M65.89,77.69 L36.96,74.75 M36.96,74.75 L36.92,74.67 M100,77.78 L70.17,74.12 M36.96,74.75 L35.22,100 M65.89,77.69 L64.83,100\"/></svg>";
+
   function renderPlots() {
     var html = "";
     for (var i = 0; i < PLOT_COUNT; i++) {
@@ -2213,7 +2241,7 @@
       }
       html += '</div></div>';
     }
-    plotsEl.innerHTML = html;
+    plotsEl.innerHTML = html + FIELD_PATHS_SVG;
   }
 
   function renderShop() {
