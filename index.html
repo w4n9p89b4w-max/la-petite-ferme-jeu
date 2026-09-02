@@ -1245,22 +1245,22 @@
   // computed from a plot's actual hectares (see plotSizeHa), so a crop's
   // total payout depends on both the crop AND the plot it's planted on.
   var CROPS = {
-    radis:      { name: "Radis",       unlockCost: 0,   plantCost: 2,  yieldPerHa: 25,  pricePerTonne: 32,   growTime: 12,   a: "#ef8f79", b: "#c2503f", shape: "bulb" },
-    pois:       { name: "Pois",        unlockCost: 12,  plantCost: 3,  yieldPerHa: 4,   pricePerTonne: 225,  growTime: 30,   a: "#8fc45f", b: "#5a8a38", shape: "bulb" },
-    ble:        { name: "Blé",         unlockCost: 20,  plantCost: 4,  yieldPerHa: 7.5, pricePerTonne: 140,  growTime: 60,   a: "#e8c468", b: "#b8935a", shape: "spike" },
-    carotte:    { name: "Carotte",     unlockCost: 30,  plantCost: 6,  yieldPerHa: 50,  pricePerTonne: 24,   growTime: 120,  a: "#f5a83c", b: "#d97a1f", shape: "carrot" },
-    orge:       { name: "Orge",        unlockCost: 45,  plantCost: 7,  yieldPerHa: 6.5, pricePerTonne: 200,  growTime: 210,  a: "#ead98f", b: "#b8a35c", shape: "spike" },
-    avoine:     { name: "Avoine",      unlockCost: 65,  plantCost: 8,  yieldPerHa: 4.5, pricePerTonne: 310,  growTime: 300,  a: "#e3d3a0", b: "#a99b6e", shape: "spike" },
-    lentille:   { name: "Lentille",    unlockCost: 85,  plantCost: 9,  yieldPerHa: 2,   pricePerTonne: 750,  growTime: 420,  a: "#a3a355", b: "#6e6e32", shape: "bulb" },
-    seigle:     { name: "Seigle",      unlockCost: 110, plantCost: 10, yieldPerHa: 4.5, pricePerTonne: 360,  growTime: 600,  a: "#c9a15c", b: "#8a6a38", shape: "spike" },
-    millet:     { name: "Millet",      unlockCost: 130, plantCost: 11, yieldPerHa: 2,   pricePerTonne: 850,  growTime: 720,  a: "#d4c85a", b: "#9a9040", shape: "spike" },
-    citrouille: { name: "Citrouille",  unlockCost: 150, plantCost: 18, yieldPerHa: 40,  pricePerTonne: 45,   growTime: 900,  a: "#f6a63e", b: "#c9711f", shape: "pumpkin" },
-    colza:      { name: "Colza",       unlockCost: 180, plantCost: 14, yieldPerHa: 3.2, pricePerTonne: 600,  growTime: 1200, a: "#f5d020", b: "#a89014", shape: "bloom" },
-    soja:       { name: "Soja",        unlockCost: 220, plantCost: 16, yieldPerHa: 3,   pricePerTonne: 680,  growTime: 1500, a: "#7fae52", b: "#4f7a30", shape: "bulb" },
-    mais:       { name: "Maïs",        unlockCost: 260, plantCost: 19, yieldPerHa: 10,  pricePerTonne: 220,  growTime: 1800, a: "#f2d33a", b: "#c9a51f", shape: "spike" },
-    sarrasin:   { name: "Sarrasin",    unlockCost: 310, plantCost: 21, yieldPerHa: 1.4, pricePerTonne: 1650, growTime: 2400, a: "#e8c9d8", b: "#a6708a", shape: "bloom" },
-    tournesol:  { name: "Tournesol",   unlockCost: 400, plantCost: 40, yieldPerHa: 2.8, pricePerTonne: 875,  growTime: 3000, a: "#f6c445", b: "#7a4a23", shape: "bloom" },
-    sorgho:     { name: "Sorgho",      unlockCost: 480, plantCost: 30, yieldPerHa: 6,   pricePerTonne: 430,  growTime: 3600, a: "#b8583f", b: "#7a3826", shape: "spike" }
+    radis:      { name: "Radis",       unlockCost: 0,   plantCost: 2,  yieldPerHa: 25,  pricePerTonne: 30,   growTime: 12,   a: "#ef8f79", b: "#c2503f", shape: "bulb" },
+    pois:       { name: "Pois",        unlockCost: 12,  plantCost: 3,  yieldPerHa: 4,   pricePerTonne: 230,  growTime: 30,   a: "#8fc45f", b: "#5a8a38", shape: "bulb" },
+    ble:        { name: "Blé",         unlockCost: 20,  plantCost: 4,  yieldPerHa: 7.5, pricePerTonne: 150,  growTime: 60,   a: "#e8c468", b: "#b8935a", shape: "spike" },
+    carotte:    { name: "Carotte",     unlockCost: 30,  plantCost: 6,  yieldPerHa: 50,  pricePerTonne: 30,   growTime: 120,  a: "#f5a83c", b: "#d97a1f", shape: "carrot" },
+    orge:       { name: "Orge",        unlockCost: 45,  plantCost: 7,  yieldPerHa: 6.5, pricePerTonne: 260,  growTime: 210,  a: "#ead98f", b: "#b8a35c", shape: "spike" },
+    avoine:     { name: "Avoine",      unlockCost: 65,  plantCost: 8,  yieldPerHa: 4.5, pricePerTonne: 400,  growTime: 300,  a: "#e3d3a0", b: "#a99b6e", shape: "spike" },
+    lentille:   { name: "Lentille",    unlockCost: 85,  plantCost: 9,  yieldPerHa: 2,   pricePerTonne: 1000, growTime: 420,  a: "#a3a355", b: "#6e6e32", shape: "bulb" },
+    seigle:     { name: "Seigle",      unlockCost: 110, plantCost: 10, yieldPerHa: 4.5, pricePerTonne: 500,  growTime: 600,  a: "#c9a15c", b: "#8a6a38", shape: "spike" },
+    millet:     { name: "Millet",      unlockCost: 130, plantCost: 11, yieldPerHa: 2,   pricePerTonne: 1200, growTime: 720,  a: "#d4c85a", b: "#9a9040", shape: "spike" },
+    citrouille: { name: "Citrouille",  unlockCost: 150, plantCost: 18, yieldPerHa: 40,  pricePerTonne: 65,   growTime: 900,  a: "#f6a63e", b: "#c9711f", shape: "pumpkin" },
+    colza:      { name: "Colza",       unlockCost: 180, plantCost: 14, yieldPerHa: 3.2, pricePerTonne: 900,  growTime: 1200, a: "#f5d020", b: "#a89014", shape: "bloom" },
+    soja:       { name: "Soja",        unlockCost: 220, plantCost: 16, yieldPerHa: 3,   pricePerTonne: 1000, growTime: 1500, a: "#7fae52", b: "#4f7a30", shape: "bulb" },
+    mais:       { name: "Maïs",        unlockCost: 260, plantCost: 19, yieldPerHa: 10,  pricePerTonne: 320,  growTime: 1800, a: "#f2d33a", b: "#c9a51f", shape: "spike" },
+    sarrasin:   { name: "Sarrasin",    unlockCost: 310, plantCost: 21, yieldPerHa: 1.4, pricePerTonne: 2400, growTime: 2400, a: "#e8c9d8", b: "#a6708a", shape: "bloom" },
+    tournesol:  { name: "Tournesol",   unlockCost: 400, plantCost: 40, yieldPerHa: 2.8, pricePerTonne: 1300, growTime: 3000, a: "#f6c445", b: "#7a4a23", shape: "bloom" },
+    sorgho:     { name: "Sorgho",      unlockCost: 480, plantCost: 30, yieldPerHa: 6,   pricePerTonne: 800,  growTime: 3600, a: "#b8583f", b: "#7a3826", shape: "spike" }
   };
   var CROP_ORDER = ["radis", "pois", "ble", "carotte", "orge", "avoine", "lentille", "seigle", "millet", "citrouille", "colza", "soja", "mais", "sarrasin", "tournesol", "sorgho"];
 
