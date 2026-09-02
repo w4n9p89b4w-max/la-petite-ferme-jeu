@@ -875,6 +875,9 @@
   .seed-card.locked { opacity: 0.85; }
   .seed-card.locked .seed-meta { color: var(--barn-dark); font-weight: 700; }
 
+  .seed-stock-hint { flex-basis: 100%; font-weight: 800; color: var(--leaf-dark); }
+  .seed-stock-hint.empty { color: var(--barn); }
+
   .shop-hint {
     margin: 0.8rem 0 0;
     font-size: 0.82rem;
@@ -1252,13 +1255,13 @@
       <aside class="shop" aria-label="Boutique de graines">
         <h2>Graines</h2>
         <div class="seed-list" id="seedList"></div>
-        <p class="shop-hint">Chaque parcelle doit d'abord être labourée (le tracteur y passe un moment), puis choisis une graine et plante-la — ça prend aussi un peu de temps. Une fois prête, la récolte demande elle aussi un dernier passage du tracteur avant de rejoindre ta besace. Les parcelles n'ont pas toutes la même taille (indiquée en hectares) : plus une parcelle est grande, plus elle coûte cher à défricher et plus le tracteur met de temps à la labourer, la semer ou la récolter — mais elle rapporte aussi davantage à chaque récolte. Stocke des graines à l'avance dans le Silo pour ne plus payer au moment de planter.</p>
+        <p class="shop-hint">Chaque parcelle doit d'abord être labourée (le tracteur y passe un moment), puis choisis une graine et plante-la — ça prend aussi un peu de temps. Une fois prête, la récolte demande elle aussi un dernier passage du tracteur avant de rejoindre ta besace. Les parcelles n'ont pas toutes la même taille (indiquée en hectares) : plus une parcelle est grande, plus elle coûte cher à défricher et plus le tracteur met de temps à la labourer, la semer ou la récolter — mais elle rapporte aussi davantage à chaque récolte. Planter demande des graines en stock (achetées dans le Silo) : sans assez de graines pour la taille de la parcelle, impossible de planter.</p>
       </aside>
     </section>
 
     <section class="view page-wrap" id="view-silo" role="tabpanel" hidden>
       <h2>Silo à graines</h2>
-      <p class="shop-hint">Achète des graines à l'avance pour chaque culture débloquée, au même tarif que planter directement. Planter une parcelle pioche d'abord dans ce stock (aucune pièce dépensée sur le moment) et ne retombe sur le paiement classique que si le stock est insuffisant. La capacité par culture augmente avec l'amélioration "Silo à graines".</p>
+      <p class="shop-hint">Achète des graines à l'avance pour chaque culture débloquée — c'est le seul moyen de pouvoir planter : sans assez de graines en stock pour la taille de la parcelle, tu ne peux pas planter. La capacité par culture augmente avec l'amélioration "Silo à graines".</p>
       <div class="market-grid" id="siloList"></div>
     </section>
 
@@ -1615,10 +1618,6 @@
     return Math.max(1, Math.round(def.plantCost * toolsCostMult()));
   }
 
-  function effectivePlantCost(def, ha) {
-    return Math.max(1, Math.round(plantCostPerHa(def) * ha));
-  }
-
   function seedSiloCapacity() {
     return SEED_SILO_CAPACITY[state.upgrades.seedSilo];
   }
@@ -1910,10 +1909,12 @@
         'data-seed="' + key + '">' +
         '<div class="seed-top"><span><span class="seed-swatch" style="background:' + def.a + '"></span>' + def.name + '</span></div>';
       if (unlocked) {
-        html += '<div class="seed-meta"><span>' + plantCostPerHa(def) + ' pièces/ha à planter</span>' +
+        var seedStockHa = state.seedStock[key] || 0;
+        html += '<div class="seed-meta"><span>' + plantCostPerHa(def) + ' pièces/ha au Silo</span>' +
           '<span>' + def.yieldPerHa + ' t/ha</span>' +
           '<span>' + effectivePricePerTonne(key) + ' €/t</span>' +
-          '<span>' + fmtTime(Math.round(effectiveGrowTime(def))) + '</span></div>';
+          '<span>' + fmtTime(Math.round(effectiveGrowTime(def))) + '</span>' +
+          '<span class="seed-stock-hint' + (seedStockHa <= 0 ? " empty" : "") + '">Graines en stock : ' + fmtNum(seedStockHa) + ' ha</span></div>';
       } else {
         var reqLevel = cropRequiredLevel(key);
         var levelOk = state.level >= reqLevel;
@@ -2049,19 +2050,13 @@
     var def = CROPS[state.selected];
     var ha = plotSizeHa(index);
     var stock = state.seedStock[state.selected] || 0;
-    // Planting draws from stocked seed first (free — already paid for when
-    // bought), and only charges coins on the spot if there isn't enough.
-    var useStock = stock >= ha;
-    if (useStock) {
-      state.seedStock[state.selected] = Math.round((stock - ha) * 10) / 10;
-    } else {
-      var cost = effectivePlantCost(def, ha);
-      if (state.coins < cost) {
-        showToast("Il te faut " + fmtNum(cost) + " pièces (ou " + fmtNum(ha) + " ha de graines en stock) pour planter du " + def.name.toLowerCase() + " sur cette parcelle.");
-        return;
-      }
-      state.coins -= cost;
+    // Planting only draws from stocked seed — no more paying coins on the
+    // spot. Without enough in the Silo, planting is blocked outright.
+    if (stock < ha) {
+      showToast("Pas assez de graines de " + def.name.toLowerCase() + " en stock (" + fmtNum(stock) + "/" + fmtNum(ha) + " ha requis) — achète-en dans le Silo.");
+      return;
     }
+    state.seedStock[state.selected] = Math.round((stock - ha) * 10) / 10;
     state.plots[index].task = { type: "plant", startedAt: Date.now(), duration: Math.round(PLANT_MS * taskDurationMult() * plotTimeMult(index)), crop: state.selected };
     saveState();
     render();
