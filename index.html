@@ -897,6 +897,135 @@
   .upgrade-buy:hover { background: var(--barn-dark); }
   .upgrade-buy:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 1px; }
 
+  /* ---------- Garage showroom ----------
+     Each garage card gets a little illustrated vehicle/tool instead of
+     just a name, like a dealership floor — the model shown is the one
+     currently owned, colored by data-tier (0 = worn base kit, 5 = the
+     premium brand). Reuses the game's existing wheel/cabin visual
+     language (see .tractor in the task-progress animation) but bigger
+     and static, plus new shapes for the three hand tools. */
+  .dealer-visual {
+    position: relative;
+    height: 64px;
+    margin-bottom: 0.5rem;
+    border-radius: 10px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--paper) 40%, transparent), color-mix(in srgb, var(--road-edge) 30%, transparent) 85%);
+    overflow: hidden;
+  }
+  .dealer-visual::after {
+    content: "";
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: 6px;
+    height: 4px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--ink) 18%, transparent);
+    filter: blur(1px);
+  }
+
+  .dealer-icon {
+    position: absolute;
+    left: 50%;
+    bottom: 8px;
+    width: 66px;
+    height: 46px;
+    transform: translateX(-50%);
+  }
+  .dealer-icon[data-tier="0"] { --tier-color: #8a8478; --tier-dark: #5c574c; }
+  .dealer-icon[data-tier="1"] { --tier-color: #c0392b; --tier-dark: #8a2d1f; }
+  .dealer-icon[data-tier="2"] { --tier-color: #d9822b; --tier-dark: #a35d1a; }
+  .dealer-icon[data-tier="3"] { --tier-color: #4a7a3a; --tier-dark: #305226; }
+  .dealer-icon[data-tier="4"] { --tier-color: #2f6fa8; --tier-dark: #204b73; }
+  .dealer-icon[data-tier="5"] { --tier-color: #c9a227; --tier-dark: #7a6015; }
+
+  .dealer-badge {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 0.1rem 0.4rem;
+    border-radius: 999px;
+  }
+
+  .d-wheel {
+    position: absolute;
+    bottom: 0;
+    border-radius: 50%;
+    background: #2b2117;
+    border: 2.5px solid #6b5a48;
+  }
+
+  /* Tractor: cabin + body + two wheels, same silhouette as the field one. */
+  .dealer-tractor .d-wheel-b { left: 2px; width: 20px; height: 20px; }
+  .dealer-tractor .d-wheel-f { left: 42px; width: 14px; height: 14px; bottom: 1px; }
+  .dealer-tractor .d-cab {
+    position: absolute; left: 6px; bottom: 18px; width: 20px; height: 18px;
+    background: var(--tier-dark); border-radius: 4px 4px 0 0;
+  }
+  .dealer-tractor .d-window {
+    position: absolute; left: 10px; bottom: 24px; width: 12px; height: 9px;
+    background: rgba(255,255,255,0.75); border-radius: 2px;
+  }
+  .dealer-tractor .d-body {
+    position: absolute; left: 10px; bottom: 7px; width: 46px; height: 15px;
+    background: var(--tier-color); border-radius: 2px 9px 3px 3px;
+  }
+
+  /* Charrue: wheeled beam with an angled moldboard blade. */
+  .dealer-plow .d-wheel-single { left: 2px; width: 17px; height: 17px; }
+  .dealer-plow .d-frame {
+    position: absolute; left: 8px; bottom: 15px; width: 38px; height: 5px;
+    background: #6b5a48; border-radius: 2px;
+  }
+  .dealer-plow .d-handle {
+    position: absolute; left: 10px; bottom: 15px; width: 4px; height: 22px;
+    background: #8a6a45; border-radius: 2px; transform: rotate(-18deg); transform-origin: bottom center;
+  }
+  .dealer-plow .d-blade {
+    position: absolute; right: 4px; bottom: 0; width: 22px; height: 28px;
+    background: var(--tier-color);
+    clip-path: polygon(0% 15%, 100% 0%, 78% 100%, 0% 78%);
+    box-shadow: inset -3px 0 0 var(--tier-dark);
+  }
+
+  /* Semoir: hopper box on two wheels with a funnel spout. */
+  .dealer-seeder .d-wheel-l { left: 8px; width: 15px; height: 15px; }
+  .dealer-seeder .d-wheel-r { right: 8px; width: 15px; height: 15px; }
+  .dealer-seeder .d-hopper {
+    position: absolute; left: 16px; bottom: 15px; width: 34px; height: 19px;
+    background: var(--tier-color); border-radius: 5px 5px 3px 3px;
+  }
+  .dealer-seeder .d-lid {
+    position: absolute; left: 20px; bottom: 33px; width: 26px; height: 4px;
+    background: var(--tier-dark); border-radius: 2px;
+  }
+  .dealer-seeder .d-funnel {
+    position: absolute; left: 24px; bottom: 6px; width: 18px; height: 11px;
+    background: var(--tier-dark);
+    clip-path: polygon(0% 0%, 100% 0%, 68% 100%, 32% 100%);
+  }
+
+  /* Moissonneuse: cab + body on big wheels, wide toothed cutting header. */
+  .dealer-harvester .d-wheel-b { left: 22px; width: 19px; height: 19px; }
+  .dealer-harvester .d-wheel-f { left: 48px; width: 13px; height: 13px; bottom: 1px; }
+  .dealer-harvester .d-header {
+    position: absolute; left: 0; bottom: 9px; width: 22px; height: 9px;
+    background: var(--tier-dark); border-radius: 2px;
+    background-image: repeating-linear-gradient(90deg, rgba(0,0,0,0.3) 0 2px, transparent 2px 4px);
+  }
+  .dealer-harvester .d-body {
+    position: absolute; left: 16px; bottom: 10px; width: 36px; height: 19px;
+    background: var(--tier-color); border-radius: 3px;
+  }
+  .dealer-harvester .d-cab {
+    position: absolute; left: 38px; bottom: 21px; width: 15px; height: 13px;
+    background: var(--tier-dark); border-radius: 3px 3px 0 0;
+  }
+
   /* ---------- Market ---------- */
   .market-card {
     border: 1.5px solid var(--paper-edge);
@@ -1823,7 +1952,7 @@
     renderShop();
     renderSilo();
     renderUpgradeList(UPGRADE_ORDER, upgradeListEl);
-    renderUpgradeList(GARAGE_ORDER, garageListEl);
+    renderGarageList();
     renderMarket();
   }
 
@@ -2005,6 +2134,48 @@
       html += '</div>';
     }
     container.innerHTML = html;
+  }
+
+  var GARAGE_ICON_TYPES = { tractors: "tractor", tractorSpeed: "tractor", toolPlow: "plow", toolPlant: "seeder", toolHarvest: "harvester" };
+  var DEALER_PARTS = {
+    tractor: '<div class="d-wheel d-wheel-b"></div><div class="d-wheel d-wheel-f"></div><div class="d-cab"></div><div class="d-window"></div><div class="d-body"></div>',
+    plow: '<div class="d-wheel d-wheel-single"></div><div class="d-frame"></div><div class="d-handle"></div><div class="d-blade"></div>',
+    seeder: '<div class="d-wheel d-wheel-l"></div><div class="d-wheel d-wheel-r"></div><div class="d-hopper"></div><div class="d-lid"></div><div class="d-funnel"></div>',
+    harvester: '<div class="d-wheel d-wheel-b"></div><div class="d-wheel d-wheel-f"></div><div class="d-header"></div><div class="d-body"></div><div class="d-cab"></div>'
+  };
+
+  // The little dealership vehicle/tool shown on a Garage card — "tractors"
+  // (fleet size) shows the currently-owned tractor model repeated by count
+  // rather than its own brand ladder, since buying a slot doesn't pick a
+  // brand.
+  function dealerIconHtml(key, lvl) {
+    var type = GARAGE_ICON_TYPES[key];
+    var tier = key === "tractors" ? state.upgrades.tractorSpeed : lvl;
+    var html = '<div class="dealer-visual"><div class="dealer-icon dealer-' + type + '" data-tier="' + tier + '">' +
+      DEALER_PARTS[type] + '</div>';
+    if (key === "tractors") html += '<span class="dealer-badge">×' + (lvl + 1) + '</span>';
+    html += '</div>';
+    return html;
+  }
+
+  function renderGarageList() {
+    var html = "";
+    for (var i = 0; i < GARAGE_ORDER.length; i++) {
+      var key = GARAGE_ORDER[i];
+      var u = UPGRADES[key];
+      var lvl = state.upgrades[key];
+      var cost = upgradeCost(key);
+      var maxed = cost === null;
+      html += '<div class="upgrade-card' + (maxed ? " maxed" : "") + '">' +
+        dealerIconHtml(key, lvl) +
+        '<div class="seed-top"><span>' + u.name + '</span><span class="level-badge">Niv. ' + lvl + '/' + u.maxLevel + '</span></div>' +
+        '<div class="seed-meta">' + u.desc(lvl) + '</div>';
+      html += maxed
+        ? '<div class="upgrade-maxed">Niveau maximum</div>'
+        : '<button type="button" class="upgrade-buy" data-upgrade="' + key + '">Améliorer — ' + cost + ' pièces</button>';
+      html += '</div>';
+    }
+    garageListEl.innerHTML = html;
   }
 
   function renderMarket() {
