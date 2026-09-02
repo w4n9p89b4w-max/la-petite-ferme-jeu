@@ -603,14 +603,15 @@
      --furrow-angle so its rows run along the same lines already laid down
      by the plow, rather than a generic grid. Every shape is a single,
      plainly-aligned grid (one gradient layer, same background-position
-     every row — no staggered/offset "quinconce" pattern). Each mark grows
-     from a small young dot to one large enough to overlap its neighbors,
-     so by harvest the rows visually merge into a solid stand instead of
-     staying separate specks. Color color-mixes from a young green to the
-     crop's actual --crop-a as --grow-progress climbs — the same color as
-     that culture's reference swatch in the shop, reached exactly once
-     mature. Oversized (inset -30%) so rotating it never exposes a gap at
-     the parcel's corners. */
+     every row — no staggered/offset "quinconce" pattern), dense enough
+     that each line is made of several distinct points. Each mark only
+     grows a little with --grow-progress, and stays short of its
+     neighbor's — so the rows read as rows, not a solid block, even at
+     full maturity. Color color-mixes from a young green to the crop's
+     actual --crop-a as --grow-progress climbs — the same color as that
+     culture's reference swatch in the shop, reached exactly once mature.
+     Oversized (inset -30%) so rotating it never exposes a gap at the
+     parcel's corners. */
   .crop-canopy {
     position: absolute;
     inset: -30%;
@@ -622,46 +623,46 @@
 
   .plot[data-shape="bulb"] .crop-canopy {
     background-image:
-      radial-gradient(circle calc(2.5px + var(--grow-progress, 0) * 8px) at center,
-        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 95%,
+      radial-gradient(circle calc(1.3px + var(--grow-progress, 0) * 1.6px) at center,
+        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 88%,
         transparent 100%);
-    background-size: 13px 13px;
+    background-size: 8px 8px;
     background-position: 0 0;
   }
 
   .plot[data-shape="spike"] .crop-canopy {
     background-image:
-      radial-gradient(calc(1.4px + var(--grow-progress, 0) * 5px) calc(3.5px + var(--grow-progress, 0) * 8px) at center,
-        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 95%,
+      radial-gradient(calc(1px + var(--grow-progress, 0) * 1.2px) calc(2.2px + var(--grow-progress, 0) * 1.6px) at center,
+        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 85%,
         transparent 100%);
-    background-size: 9px 11px;
+    background-size: 6px 8px;
     background-position: 0 0;
   }
 
   .plot[data-shape="carrot"] .crop-canopy {
     background-image:
-      radial-gradient(circle calc(2px + var(--grow-progress, 0) * 8px) at center,
-        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf-dark)) 0 55%,
-        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 60% 100%);
-    background-size: 12px 12px;
+      radial-gradient(circle calc(1.2px + var(--grow-progress, 0) * 1.6px) at center,
+        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf-dark)) 0 50%,
+        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 55% 100%);
+    background-size: 8px 8px;
     background-position: 0 0;
   }
 
   .plot[data-shape="pumpkin"] .crop-canopy {
     background-image:
-      radial-gradient(circle calc(4px + var(--grow-progress, 0) * 12px) at center,
-        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 94%,
+      radial-gradient(circle calc(2.5px + var(--grow-progress, 0) * 3px) at center,
+        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 88%,
         transparent 100%);
-    background-size: 22px 22px;
+    background-size: 14px 14px;
     background-position: 0 0;
   }
 
   .plot[data-shape="bloom"] .crop-canopy {
     background-image:
-      radial-gradient(circle calc(2.5px + var(--grow-progress, 0) * 9px) at center,
+      radial-gradient(circle calc(1.5px + var(--grow-progress, 0) * 2px) at center,
         color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf-dark)) 0 40%,
         color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 45% 100%);
-    background-size: 15px 15px;
+    background-size: 10px 10px;
     background-position: 0 0;
   }
 
