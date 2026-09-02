@@ -1509,6 +1509,15 @@
     font-weight: 800;
     font-variant-numeric: tabular-nums;
   }
+  .modal-group-title {
+    margin: 0.7rem 0 0.4rem;
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--ink);
+  }
+  .modal-group-title:first-child { margin-top: 0; }
+  .modal-group-title span { font-weight: 500; color: var(--ink-soft); font-family: inherit; }
   .modal-summary {
     margin: 0.3rem 0 0.6rem;
     font-size: 0.82rem;
@@ -1693,7 +1702,7 @@
 
     <section class="view page-wrap" id="view-garage" role="tabpanel" hidden>
       <h2>Garage</h2>
-      <p class="shop-hint">Un tracteur ne peut travailler qu'un seul champ à la fois — laboure, semis et récolte occupent le tracteur qui s'en charge. Chaque tracteur acheté (même modèle ou marque supérieure) ajoute un champ travaillé en même temps ; sa vitesse propre dépend de sa marque, achetée une fois pour toutes — les tracteurs déjà achetés ne deviennent pas plus rapides après coup. L'outil dédié à chaque tâche (charrue, semoir, moissonneuse), lui, accélère la tâche pour toute la flotte — et pour le semoir, réduit aussi le prix des graines.</p>
+      <p class="shop-hint">Tracteurs, charrues, semoirs et moissonneuses forment chacun leur propre flotte : achète-en plusieurs, du même modèle ou d'une meilleure marque, sans que ça accélère ceux déjà achetés. Avant chaque labour, semis ou récolte, choisis jusqu'à 3 tracteurs et 3 outils correspondants (charrue pour labourer, semoir pour semer, moissonneuse pour récolter) parmi ceux libres — leurs vitesses s'additionnent, donc en envoyer plusieurs sur le même champ accélère nettement la tâche. Le semoir réduit aussi le prix des graines, selon le meilleur modèle possédé.</p>
       <div class="upgrade-grid" id="garageList"></div>
     </section>
   </main>
@@ -1841,54 +1850,35 @@
         return "Stock : " + fmtNum(SEED_SILO_CAPACITY[lvl]) + " ha de graines par culture";
       }
     },
-    toolPlow: {
-      name: "Charrue",
-      maxLevel: 5,
-      baseCost: 55,
-      costMult: 1.9,
-      desc: function (lvl) {
-        var pct = lvl * 7;
-        return TOOL_PLOW_BRANDS[lvl] + (lvl === 0 ? " — labour à vitesse normale" : " — labour " + pct + "% plus rapide");
-      }
-    },
-    toolPlant: {
-      name: "Semoir",
-      maxLevel: 5,
-      baseCost: 70,
-      costMult: 2.0,
-      desc: function (lvl) {
-        var pctTime = lvl * 7;
-        var pctCost = lvl * 5;
-        return TOOL_PLANT_BRANDS[lvl] + (lvl === 0
-          ? " — semis et achats de graines à tarif normal"
-          : " — semis " + pctTime + "% plus rapide, achats de graines " + pctCost + "% moins chers");
-      }
-    },
-    toolHarvest: {
-      name: "Moissonneuse",
-      maxLevel: 5,
-      baseCost: 95,
-      costMult: 2.15,
-      desc: function (lvl) {
-        var pct = lvl * 7;
-        return TOOL_HARVEST_BRANDS[lvl] + (lvl === 0 ? " — récolte à vitesse normale" : " — récolte " + pct + "% plus rapide");
-      }
-    }
   };
-  // Each owned tractor is an independent unit at a fixed brand/tier (0 =
-  // starting kit .. TRACTOR_MAX_TIER = the best brand) — buying a tractor
-  // just adds one more to the fleet at whichever tier you bought; it does
-  // not retroactively speed up tractors already owned. state.tractorFleet
-  // holds one tier number per owned tractor (see defaultState/migrateState).
+  // Every garage category (tractors + the three tools) works the same way:
+  // an independent fleet of units, each at a fixed brand/tier from the
+  // moment it's bought — buying a better brand later doesn't retroactively
+  // speed up units already owned. A task picks specific idle units of the
+  // relevant fleet(s) (see the tractor-picker modal), up to
+  // MAX_UNITS_PER_TASK each, and their speeds add together.
   var TRACTOR_BRANDS = ["Tracteur de base", "Bovin 100", "Renardeau 220", "Taureau X350", "Titan Pro 480"];
-  var TRACTOR_MAX_TIER = TRACTOR_BRANDS.length - 1;
   var TRACTOR_TIER_BASE_COST = [90, 180, 360, 720, 1440];
-  // Each additional tractor (any tier) costs a bit more than the last,
-  // since parallel field capacity is powerful regardless of which brand.
-  var TRACTOR_FLEET_COST_MULT = 1.2;
   var TOOL_PLOW_BRANDS = ["Araire de base", "Charrue simple", "Charrue renforcée", "Charrue hydraulique", "Charrue à disques Pro", "Charrue GPS AutoTrac"];
+  var TOOL_PLOW_TIER_BASE_COST = [55, 105, 199, 377, 717, 1362];
   var TOOL_PLANT_BRANDS = ["Semis à la main", "Semoir manuel", "Semoir mécanique", "Semoir pneumatique", "Semoir de précision", "Semoir GPS haute précision"];
+  var TOOL_PLANT_TIER_BASE_COST = [70, 140, 280, 560, 1120, 2240];
   var TOOL_HARVEST_BRANDS = ["Récolte à la main", "Faucille améliorée", "Faucheuse mécanique", "Moissonneuse simple", "Moissonneuse-batteuse", "Moissonneuse-batteuse Pro"];
+  var TOOL_HARVEST_TIER_BASE_COST = [95, 204, 439, 944, 2030, 4364];
+  // Each additional unit (any tier, any fleet) costs a bit more than the
+  // last, since parallel capacity is powerful regardless of brand.
+  var FLEET_COST_MULT = 1.2;
+  var MAX_UNITS_PER_TASK = 3;
+  var FLEETS = {
+    tractors: { brands: TRACTOR_BRANDS, baseCost: TRACTOR_TIER_BASE_COST, dealerType: "tractor", perTierPct: 0.10, soloFloor: 0.5, label: "Tracteurs" },
+    toolPlow: { brands: TOOL_PLOW_BRANDS, baseCost: TOOL_PLOW_TIER_BASE_COST, dealerType: "plow", perTierPct: 0.07, soloFloor: 0.65, label: "Charrue" },
+    toolPlant: { brands: TOOL_PLANT_BRANDS, baseCost: TOOL_PLANT_TIER_BASE_COST, dealerType: "seeder", perTierPct: 0.07, soloFloor: 0.65, label: "Semoir" },
+    toolHarvest: { brands: TOOL_HARVEST_BRANDS, baseCost: TOOL_HARVEST_TIER_BASE_COST, dealerType: "harvester", perTierPct: 0.07, soloFloor: 0.65, label: "Moissonneuse" }
+  };
+  // Which task type each tool fleet applies to (tractors work every type).
+  var FLEET_TASK_TYPE = { toolPlow: "plow", toolPlant: "plant", toolHarvest: "harvest" };
+  // ...and the reverse, for going from a task's type to the tool fleet it uses.
+  var FLEET_TASK_TYPE_TO_KEY = { plow: "toolPlow", plant: "toolPlant", harvest: "toolHarvest" };
   var YIELD_BONUS_PCT = [0, 2, 5, 10, 25, 40];
   // In tonnes — harvest tonnage now scales with a plot's real hectares, so
   // the silo has to hold a lot more than the old flat "units" capacity.
@@ -1951,6 +1941,7 @@
       unlockedCrops: ["radis"],
       selected: "radis",
       tractorFleet: [0],
+      toolFleets: { toolPlow: [0], toolPlant: [0], toolHarvest: [0] },
       upgrades: Object.keys(UPGRADES).reduce(function (acc, key) { acc[key] = 0; return acc; }, {}),
       inventory: CROP_ORDER.reduce(function (acc, key) { acc[key] = 0; return acc; }, {}),
       seedStock: CROP_ORDER.reduce(function (acc, key) { acc[key] = 0; return acc; }, {}),
@@ -1978,9 +1969,22 @@
       for (var ti = 0; ti < legacyCount; ti++) s.tractorFleet.push(legacyTier);
     }
     s.tractorFleet = s.tractorFleet.map(function (t) {
-      return Math.max(0, Math.min(TRACTOR_MAX_TIER, t | 0));
+      return Math.max(0, Math.min(fleetMaxTier("tractors"), t | 0));
     });
     if (s.tractorFleet.length === 0) s.tractorFleet = [0];
+    // Same story for the three tools — a single owned "level" becomes one
+    // fleet unit at that tier.
+    if (!s.toolFleets) s.toolFleets = {};
+    ["toolPlow", "toolPlant", "toolHarvest"].forEach(function (key) {
+      if (!Array.isArray(s.toolFleets[key])) {
+        var legacy = typeof s.upgrades[key] === "number" ? s.upgrades[key] : 0;
+        s.toolFleets[key] = [legacy];
+      }
+      s.toolFleets[key] = s.toolFleets[key].map(function (t) {
+        return Math.max(0, Math.min(fleetMaxTier(key), t | 0));
+      });
+      if (s.toolFleets[key].length === 0) s.toolFleets[key] = [0];
+    });
     if (!s.inventory) s.inventory = {};
     CROP_ORDER.forEach(function (key) {
       if (typeof s.inventory[key] !== "number") s.inventory[key] = 0;
@@ -2065,22 +2069,11 @@
     return waterCooldownSeconds(state.upgrades.water) * 1000;
   }
 
+  // The seed-price discount is a passive perk from owning a good semoir —
+  // driven by the best one in the fleet, regardless of how many are busy.
   function toolsCostMult() {
-    return Math.max(0.75, 1 - state.upgrades.toolPlant * 0.05);
-  }
-
-  // Task-specific tool tiers, on top of the tractor model's global speed —
-  // each maxes out at a 35% reduction for that task alone.
-  function toolPlowMult() {
-    return Math.max(0.65, 1 - state.upgrades.toolPlow * 0.07);
-  }
-
-  function toolPlantMult() {
-    return Math.max(0.65, 1 - state.upgrades.toolPlant * 0.07);
-  }
-
-  function toolHarvestMult() {
-    return Math.max(0.65, 1 - state.upgrades.toolHarvest * 0.07);
+    var best = state.toolFleets.toolPlant.reduce(function (b, t) { return Math.max(b, t); }, 0);
+    return Math.max(0.75, 1 - best * 0.05);
   }
 
   // def.plantCost is a rate in pièces per hectare — planting scales with the
@@ -2104,10 +2097,12 @@
     return Math.min(5, Math.max(2, plantCostPerHa(def)));
   }
 
-  // Each tractor's own speed comes from its tier alone — buying a better
-  // brand later doesn't retroactively speed up tractors bought earlier.
-  function tractorTierSpeedMult(tier) {
-    return Math.max(0.5, 1 - tier * 0.1);
+  function fleetArray(fleetKey) {
+    return fleetKey === "tractors" ? state.tractorFleet : state.toolFleets[fleetKey];
+  }
+
+  function fleetMaxTier(fleetKey) {
+    return FLEETS[fleetKey].brands.length - 1;
   }
 
   function tractorCount() {
@@ -2118,54 +2113,62 @@
     return state.plots.reduce(function (n, p) { return n + (p.task ? 1 : 0); }, 0);
   }
 
-  // How many owned tractors sit at each tier, and how many of those are
+  // Each unit's own speed comes from its tier alone — buying a better
+  // brand later doesn't retroactively speed up units already owned.
+  function fleetSoloMult(fleetKey, tier) {
+    var f = FLEETS[fleetKey];
+    return Math.max(f.soloFloor, 1 - tier * f.perTierPct);
+  }
+
+  // How many owned units sit at each tier, and how many of those are
   // currently out working a field — the difference is what's free to pick
   // for a new task.
-  function ownedTierCounts() {
+  function fleetOwnedTierCounts(fleetKey) {
     var counts = {};
-    state.tractorFleet.forEach(function (t) { counts[t] = (counts[t] || 0) + 1; });
+    fleetArray(fleetKey).forEach(function (t) { counts[t] = (counts[t] || 0) + 1; });
     return counts;
   }
 
-  function busyTierCounts() {
+  function fleetBusyTierCounts(fleetKey) {
     var counts = {};
+    var taskType = FLEET_TASK_TYPE[fleetKey]; // undefined for "tractors" -> any task type
     state.plots.forEach(function (p) {
-      if (p.task && Array.isArray(p.task.tractorTiers)) {
-        p.task.tractorTiers.forEach(function (t) {
-          counts[t] = (counts[t] || 0) + 1;
-        });
-      }
+      if (!p.task) return;
+      if (taskType && p.task.type !== taskType) return;
+      var arr = fleetKey === "tractors" ? p.task.tractorTiers : p.task.toolTiers;
+      if (Array.isArray(arr)) arr.forEach(function (t) { counts[t] = (counts[t] || 0) + 1; });
     });
     return counts;
   }
 
-  // Several tractors sent to the same field split the work between them:
-  // each contributes its own rate (1 / its solo-duration multiplier), the
+  // Several units sent to the same field split the work between them: each
+  // contributes its own rate (1 / its solo-duration multiplier), the
   // field's total rate is their sum, and the duration multiplier is
   // whatever solo multiplier would produce that same combined rate. Two
-  // base tractors together roughly halve the time; a mix of brands adds
-  // each one's own contribution. Floored so a huge fleet can't collapse a
-  // task to an instant.
-  function combinedTractorMult(tiers) {
-    var rateSum = tiers.reduce(function (sum, t) { return sum + 1 / tractorTierSpeedMult(t); }, 0);
+  // base units together roughly halve the time; a mix of brands adds each
+  // one's own contribution. Floored so a big crew can't collapse a task to
+  // an instant.
+  function fleetCombinedMult(fleetKey, tiers) {
+    if (tiers.length === 0) return 1;
+    var rateSum = tiers.reduce(function (sum, t) { return sum + 1 / fleetSoloMult(fleetKey, t); }, 0);
     return Math.max(0.05, 1 / rateSum);
   }
 
-  // Cost to add one more tractor at a given tier — scales with the tier's
-  // own price and with how many tractors are already in the fleet.
-  function tractorBuyCost(tier) {
-    return Math.round(TRACTOR_TIER_BASE_COST[tier] * Math.pow(TRACTOR_FLEET_COST_MULT, state.tractorFleet.length));
+  // Cost to add one more unit at a given tier — scales with the tier's own
+  // price and with how many units are already in that fleet.
+  function fleetBuyCost(fleetKey, tier) {
+    return Math.round(FLEETS[fleetKey].baseCost[tier] * Math.pow(FLEET_COST_MULT, fleetArray(fleetKey).length));
   }
 
-  function buyTractor(tier) {
-    var cost = tractorBuyCost(tier);
+  function buyFleetUnit(fleetKey, tier) {
+    var cost = fleetBuyCost(fleetKey, tier);
     if (state.coins < cost) {
-      showToast("Il te faut " + fmtNum(cost) + " pièces pour acheter ce tracteur.");
+      showToast("Il te faut " + fmtNum(cost) + " pièces pour acheter cet équipement.");
       return;
     }
     state.coins -= cost;
-    state.tractorFleet.push(tier);
-    showToast(TRACTOR_BRANDS[tier] + " acheté !");
+    fleetArray(fleetKey).push(tier);
+    showToast(FLEETS[fleetKey].brands[tier] + " acheté !");
     saveState();
     render();
   }
@@ -2522,7 +2525,6 @@
     container.innerHTML = html;
   }
 
-  var GARAGE_ICON_TYPES = { tractorSpeed: "tractor", toolPlow: "plow", toolPlant: "seeder", toolHarvest: "harvester" };
   var DEALER_PARTS = {
     tractor: '<div class="d-wheel d-wheel-b"></div><div class="d-wheel d-wheel-f"></div><div class="d-cab"></div><div class="d-window"></div><div class="d-body"></div><div class="d-light"></div><div class="d-exhaust"></div>',
     plow: '<div class="d-wheel d-wheel-single"></div><div class="d-frame"></div><div class="d-handle"></div><div class="d-blade"></div>',
@@ -2552,45 +2554,41 @@
       inner + '</div>' + (badge ? '<span class="dealer-badge">' + badge + '</span>' : '') + '</div>';
   }
 
-  // Cost to move from tier-1 to tier for a given category — same formula
-  // as upgradeCost(), generalized to any tier so the carousel can quote a
-  // price on models the player hasn't reached yet.
-  function garageTierCost(key, tier) {
-    var u = UPGRADES[key];
-    return Math.round(u.baseCost * Math.pow(u.costMult, tier - 1));
-  }
-
-  // The tractor fleet isn't a single "level" — every purchase (any tier,
-  // owned or not) just adds one more independent tractor, so it gets its
-  // own card instead of going through the level-based carousel below.
-  function renderTractorCard() {
-    if (garageBrowseIndex.tractors === undefined) {
-      garageBrowseIndex.tractors = state.tractorFleet[state.tractorFleet.length - 1];
+  // Every garage category (tractors + the three tools) is a fleet, not a
+  // single "level" — every purchase (any tier, owned or not) just adds one
+  // more independent unit, so they all share this one card renderer.
+  function renderFleetCard(fleetKey) {
+    var f = FLEETS[fleetKey];
+    var maxTier = fleetMaxTier(fleetKey);
+    if (garageBrowseIndex[fleetKey] === undefined) {
+      var arr = fleetArray(fleetKey);
+      garageBrowseIndex[fleetKey] = arr[arr.length - 1];
     }
-    var idx = Math.max(0, Math.min(TRACTOR_MAX_TIER, garageBrowseIndex.tractors));
+    var idx = Math.max(0, Math.min(maxTier, garageBrowseIndex[fleetKey]));
     var atStart = idx <= 0;
-    var atEnd = idx >= TRACTOR_MAX_TIER;
-    var owned = ownedTierCounts()[idx] || 0;
-    var cost = tractorBuyCost(idx);
-    var pct = idx * 10;
-    var descText = TRACTOR_BRANDS[idx] + (idx === 0
-      ? " — vitesse de travail normale"
-      : " — labour/semis/récolte " + pct + "% plus rapide");
+    var atEnd = idx >= maxTier;
+    var owned = fleetOwnedTierCounts(fleetKey)[idx] || 0;
+    var cost = fleetBuyCost(fleetKey, idx);
+    var pct = Math.round(idx * f.perTierPct * 100);
+    var descText = f.brands[idx] + (idx === 0 ? " — vitesse de travail normale" : " — " + pct + "% plus rapide");
+    if (fleetKey === "toolPlant") {
+      descText += idx === 0 ? ", achats de graines à tarif normal" : ", achats de graines " + Math.round(idx * 5) + "% moins chers";
+    }
 
     var html = '<div class="upgrade-card dealer-card">' +
       '<div class="carousel-row">' +
-      '<button type="button" class="carousel-arrow" data-key="tractors" data-dir="-1" aria-label="Modèle précédent"' + (atStart ? " disabled" : "") + '>‹</button>' +
-      '<div class="carousel-stage">' + dealerVisualHtml("tractor", idx, owned > 0 ? "×" + owned : null) + '</div>' +
-      '<button type="button" class="carousel-arrow" data-key="tractors" data-dir="1" aria-label="Modèle suivant"' + (atEnd ? " disabled" : "") + '>›</button>' +
+      '<button type="button" class="carousel-arrow" data-key="' + fleetKey + '" data-dir="-1" aria-label="Modèle précédent"' + (atStart ? " disabled" : "") + '>‹</button>' +
+      '<div class="carousel-stage">' + dealerVisualHtml(f.dealerType, idx, owned > 0 ? "×" + owned : null) + '</div>' +
+      '<button type="button" class="carousel-arrow" data-key="' + fleetKey + '" data-dir="1" aria-label="Modèle suivant"' + (atEnd ? " disabled" : "") + '>›</button>' +
       '</div>';
     html += '<div class="carousel-dots">';
-    for (var d = 0; d <= TRACTOR_MAX_TIER; d++) {
+    for (var d = 0; d <= maxTier; d++) {
       html += '<span class="dot' + (d === idx ? " active" : "") + '"></span>';
     }
     html += '</div>';
-    html += '<div class="seed-top"><span>Tracteurs</span><span class="level-badge">' + tractorCount() + ' au total</span></div>' +
+    html += '<div class="seed-top"><span>' + f.label + '</span><span class="level-badge">' + fleetArray(fleetKey).length + ' au total</span></div>' +
       '<div class="seed-meta">' + descText + (owned > 0 ? " · tu en as " + owned : "") + '</div>' +
-      '<button type="button" class="upgrade-buy" data-buy-tractor="' + idx + '">Acheter — ' + fmtNum(cost) + ' pièces</button>' +
+      '<button type="button" class="upgrade-buy" data-buy-fleet="' + fleetKey + '" data-tier="' + idx + '">Acheter — ' + fmtNum(cost) + ' pièces</button>' +
       '</div>';
     return html;
   }
@@ -2598,48 +2596,7 @@
   function renderGarageList() {
     var html = "";
     for (var i = 0; i < GARAGE_ORDER.length; i++) {
-      var key = GARAGE_ORDER[i];
-      if (key === "tractors") { html += renderTractorCard(); continue; }
-      var u = UPGRADES[key];
-      var lvl = state.upgrades[key];
-      var maxed = lvl >= u.maxLevel;
-
-      // Showroom carousel: browse every named tier (0 = starting kit,
-      // maxLevel = top brand), independent of what's actually owned.
-      if (garageBrowseIndex[key] === undefined) garageBrowseIndex[key] = lvl;
-      var idx = Math.max(0, Math.min(u.maxLevel, garageBrowseIndex[key]));
-      var type = GARAGE_ICON_TYPES[key];
-      var atStart = idx <= 0;
-      var atEnd = idx >= u.maxLevel;
-
-      var statusHtml;
-      if (idx < lvl) {
-        statusHtml = '<div class="carousel-status owned">Déjà possédé</div>';
-      } else if (idx === lvl) {
-        statusHtml = '<div class="carousel-status current">Modèle actuel</div>';
-      } else if (idx === lvl + 1) {
-        statusHtml = '<button type="button" class="upgrade-buy" data-upgrade="' + key + '">Acheter — ' + garageTierCost(key, idx) + ' pièces</button>';
-      } else {
-        statusHtml = '<div class="carousel-status locked">Verrouillé — débloque d\'abord le modèle précédent</div>';
-      }
-
-      html += '<div class="upgrade-card dealer-card' + (maxed ? " maxed" : "") + '">' +
-        '<div class="carousel-row">' +
-        '<button type="button" class="carousel-arrow" data-key="' + key + '" data-dir="-1" aria-label="Modèle précédent"' + (atStart ? " disabled" : "") + '>‹</button>' +
-        '<div class="carousel-stage">' +
-        dealerVisualHtml(type, idx, null) +
-        '</div>' +
-        '<button type="button" class="carousel-arrow" data-key="' + key + '" data-dir="1" aria-label="Modèle suivant"' + (atEnd ? " disabled" : "") + '>›</button>' +
-        '</div>';
-      html += '<div class="carousel-dots">';
-      for (var d = 0; d <= u.maxLevel; d++) {
-        html += '<span class="dot' + (d === idx ? " active" : "") + '"></span>';
-      }
-      html += '</div>';
-      html += '<div class="seed-top"><span>' + u.name + '</span><span class="level-badge">Niv. ' + lvl + '/' + u.maxLevel + '</span></div>' +
-        '<div class="seed-meta">' + u.desc(idx) + '</div>' +
-        statusHtml +
-        '</div>';
+      html += renderFleetCard(GARAGE_ORDER[i]);
     }
     garageListEl.innerHTML = html;
   }
@@ -2686,19 +2643,19 @@
     showToast("Tous tes tracteurs sont occupés (" + busy + "/" + total + "). Attends qu'un champ se libère ou achète-en un autre au garage.");
   }
 
-  function startPlow(index, tiers) {
-    state.plots[index].task = { type: "plow", startedAt: Date.now(), duration: Math.round(PLOW_MS * combinedTractorMult(tiers) * toolPlowMult() * plotTimeMult(index)), crop: null, tractorTiers: tiers };
+  function startPlow(index, tractorTiers, toolTiers) {
+    state.plots[index].task = { type: "plow", startedAt: Date.now(), duration: Math.round(PLOW_MS * fleetCombinedMult("tractors", tractorTiers) * fleetCombinedMult("toolPlow", toolTiers) * plotTimeMult(index)), crop: null, tractorTiers: tractorTiers, toolTiers: toolTiers };
     saveState();
     render();
   }
 
-  function startPlant(index, tiers) {
+  function startPlant(index, tractorTiers, toolTiers) {
     // Seed selection and stock are already validated before the tractor
     // picker opens (see onPlotActivate) — just spend the stock here.
     var ha = plotSizeHa(index);
     var stock = state.seedStock[state.selected] || 0;
     state.seedStock[state.selected] = Math.round((stock - ha) * 10) / 10;
-    state.plots[index].task = { type: "plant", startedAt: Date.now(), duration: Math.round(PLANT_MS * combinedTractorMult(tiers) * toolPlantMult() * plotTimeMult(index)), crop: state.selected, tractorTiers: tiers };
+    state.plots[index].task = { type: "plant", startedAt: Date.now(), duration: Math.round(PLANT_MS * fleetCombinedMult("tractors", tractorTiers) * fleetCombinedMult("toolPlant", toolTiers) * plotTimeMult(index)), crop: state.selected, tractorTiers: tractorTiers, toolTiers: toolTiers };
     saveState();
     render();
   }
@@ -2726,11 +2683,11 @@
     render();
   }
 
-  function startHarvest(index, tiers) {
+  function startHarvest(index, tractorTiers, toolTiers) {
     var plot = state.plots[index];
     // Silo capacity is already validated before the tractor picker opens
     // (see onPlotActivate).
-    plot.task = { type: "harvest", startedAt: Date.now(), duration: Math.round(HARVEST_MS * combinedTractorMult(tiers) * toolHarvestMult() * plotTimeMult(index)), crop: plot.crop, tractorTiers: tiers };
+    plot.task = { type: "harvest", startedAt: Date.now(), duration: Math.round(HARVEST_MS * fleetCombinedMult("tractors", tractorTiers) * fleetCombinedMult("toolHarvest", toolTiers) * plotTimeMult(index)), crop: plot.crop, tractorTiers: tractorTiers, toolTiers: toolTiers };
     saveState();
     render();
   }
@@ -2763,65 +2720,95 @@
     render();
   }
 
-  // Picking one or more tractors for a field -----------------------------
+  // Picking tractors AND the matching tool for a field --------------------
   var pendingTractorAction = null;
-  var pendingSelection = {};
+  var pendingSelection = { tractors: {}, tool: {} };
 
   function taskBaseMsForType(type) {
     return type === "plow" ? PLOW_MS : type === "plant" ? PLANT_MS : HARVEST_MS;
   }
 
-  function taskToolMultForType(type) {
-    return type === "plow" ? toolPlowMult() : type === "plant" ? toolPlantMult() : toolHarvestMult();
+  function selectionTotal(sel) {
+    return Object.keys(sel).reduce(function (sum, t) { return sum + sel[t]; }, 0);
+  }
+
+  function selectionTiers(sel) {
+    var tiers = [];
+    Object.keys(sel).forEach(function (tStr) {
+      var t = parseInt(tStr, 10);
+      for (var k = 0; k < sel[t]; k++) tiers.push(t);
+    });
+    return tiers;
+  }
+
+  function renderFleetGroupHtml(fleetKey, groupName, sel) {
+    var f = FLEETS[fleetKey];
+    var owned = fleetOwnedTierCounts(fleetKey);
+    var busy = fleetBusyTierCounts(fleetKey);
+    var tierList = Object.keys(owned).map(Number).sort(function (a, b) { return b - a; });
+    var total = selectionTotal(sel);
+    var html = "";
+    tierList.forEach(function (t) {
+      var idle = owned[t] - (busy[t] || 0);
+      var picked = sel[t] || 0;
+      if (idle <= 0 && picked <= 0) return;
+      var pct = Math.round(t * f.perTierPct * 100);
+      var canAdd = picked < idle && total < MAX_UNITS_PER_TASK;
+      html += '<div class="tractor-option">' +
+        dealerVisualHtml(f.dealerType, t, null) +
+        '<span class="tractor-option-info"><strong>' + f.brands[t] + '</strong>' +
+        '<span>' + (t === 0 ? "Vitesse normale" : pct + "% plus rapide") + ' — ' + idle + ' disponible' + (idle > 1 ? "s" : "") + '</span></span>' +
+        '<span class="tractor-stepper">' +
+        '<button type="button" class="stepper-btn" data-group="' + groupName + '" data-tier="' + t + '" data-dir="-1"' + (picked <= 0 ? " disabled" : "") + ' aria-label="Retirer un ' + f.brands[t] + '">−</button>' +
+        '<span class="stepper-count">' + picked + '</span>' +
+        '<button type="button" class="stepper-btn" data-group="' + groupName + '" data-tier="' + t + '" data-dir="1"' + (!canAdd ? " disabled" : "") + ' aria-label="Ajouter un ' + f.brands[t] + '">+</button>' +
+        '</span></div>';
+    });
+    return html;
   }
 
   function renderTractorModal() {
-    var owned = ownedTierCounts();
-    var busy = busyTierCounts();
-    var tiers = Object.keys(owned).map(Number).sort(function (a, b) { return b - a; });
-    var rowsHtml = "";
-    var totalSelected = 0;
-    var selectedTiers = [];
-    tiers.forEach(function (t) {
-      var idle = owned[t] - (busy[t] || 0);
-      var picked = pendingSelection[t] || 0;
-      if (idle <= 0 && picked <= 0) return;
-      totalSelected += picked;
-      for (var k = 0; k < picked; k++) selectedTiers.push(t);
-      var pct = t * 10;
-      rowsHtml += '<div class="tractor-option">' +
-        dealerVisualHtml("tractor", t, null) +
-        '<span class="tractor-option-info"><strong>' + TRACTOR_BRANDS[t] + '</strong>' +
-        '<span>' + (t === 0 ? "Vitesse normale" : pct + "% plus rapide") + ' — ' + idle + ' disponible' + (idle > 1 ? "s" : "") + '</span></span>' +
-        '<span class="tractor-stepper">' +
-        '<button type="button" class="stepper-btn" data-tier="' + t + '" data-dir="-1"' + (picked <= 0 ? " disabled" : "") + ' aria-label="Retirer un ' + TRACTOR_BRANDS[t] + '">−</button>' +
-        '<span class="stepper-count">' + picked + '</span>' +
-        '<button type="button" class="stepper-btn" data-tier="' + t + '" data-dir="1"' + (picked >= idle ? " disabled" : "") + ' aria-label="Ajouter un ' + TRACTOR_BRANDS[t] + '">+</button>' +
-        '</span></div>';
-    });
+    var action = pendingTractorAction;
+    var toolFleetKey = FLEET_TASK_TYPE_TO_KEY[action.type];
+    var tractorTotal = selectionTotal(pendingSelection.tractors);
+    var toolTotal = selectionTotal(pendingSelection.tool);
+
+    var html = '<h4 class="modal-group-title">Tracteurs <span>(' + tractorTotal + '/' + MAX_UNITS_PER_TASK + ')</span></h4>' +
+      renderFleetGroupHtml("tractors", "tractors", pendingSelection.tractors);
+    html += '<h4 class="modal-group-title">' + FLEETS[toolFleetKey].label + ' <span>(' + toolTotal + '/' + MAX_UNITS_PER_TASK + ')</span></h4>' +
+      renderFleetGroupHtml(toolFleetKey, "tool", pendingSelection.tool);
 
     var summaryHtml;
-    if (totalSelected === 0) {
-      summaryHtml = '<p class="modal-summary">Choisis au moins un tracteur.</p>' +
+    if (tractorTotal === 0 || toolTotal === 0) {
+      summaryHtml = '<p class="modal-summary">Choisis au moins un tracteur et un ' + FLEETS[toolFleetKey].label.toLowerCase() + '.</p>' +
         '<button type="button" class="modal-confirm" disabled>Confirmer</button>';
     } else {
-      var action = pendingTractorAction;
-      var estMs = Math.round(taskBaseMsForType(action.type) * combinedTractorMult(selectedTiers) * taskToolMultForType(action.type) * plotTimeMult(action.index));
-      summaryHtml = '<p class="modal-summary">' + totalSelected + ' tracteur' + (totalSelected > 1 ? "s" : "") + ' choisi' + (totalSelected > 1 ? "s" : "") +
+      var tractorTiers = selectionTiers(pendingSelection.tractors);
+      var toolTiers = selectionTiers(pendingSelection.tool);
+      var estMs = Math.round(taskBaseMsForType(action.type) * fleetCombinedMult("tractors", tractorTiers) * fleetCombinedMult(toolFleetKey, toolTiers) * plotTimeMult(action.index));
+      summaryHtml = '<p class="modal-summary">' + tractorTotal + ' tracteur' + (tractorTotal > 1 ? "s" : "") +
+        ' + ' + toolTotal + ' ' + FLEETS[toolFleetKey].label.toLowerCase() + (toolTotal > 1 ? "s" : "") +
         ' — durée estimée : ' + fmtTime(Math.max(1, Math.round(estMs / 1000))) + '</p>' +
         '<button type="button" class="modal-confirm">Confirmer</button>';
     }
 
-    tractorModalListEl.innerHTML = rowsHtml + summaryHtml;
+    tractorModalListEl.innerHTML = html + summaryHtml;
   }
 
   function openTractorModal(index, type) {
-    var owned = ownedTierCounts();
-    var busy = busyTierCounts();
-    var anyIdle = Object.keys(owned).some(function (t) { return owned[t] - (busy[t] || 0) > 0; });
-    if (!anyIdle) { tractorsFreeToast(); return; }
+    var toolFleetKey = FLEET_TASK_TYPE_TO_KEY[type];
+    function anyIdleIn(fleetKey) {
+      var owned = fleetOwnedTierCounts(fleetKey);
+      var busy = fleetBusyTierCounts(fleetKey);
+      return Object.keys(owned).some(function (t) { return owned[t] - (busy[t] || 0) > 0; });
+    }
+    if (!anyIdleIn("tractors")) { tractorsFreeToast(); return; }
+    if (!anyIdleIn(toolFleetKey)) {
+      showToast("Tous tes équipements \"" + FLEETS[toolFleetKey].label + "\" sont occupés. Attends qu'un champ se libère ou achètes-en un autre au garage.");
+      return;
+    }
     pendingTractorAction = { index: index, type: type };
-    pendingSelection = {};
+    pendingSelection = { tractors: {}, tool: {} };
     tractorModalEl.hidden = false;
     renderTractorModal();
   }
@@ -2829,35 +2816,41 @@
   function closeTractorModal() {
     tractorModalEl.hidden = true;
     pendingTractorAction = null;
-    pendingSelection = {};
+    pendingSelection = { tractors: {}, tool: {} };
   }
 
   tractorModalListEl.addEventListener("click", function (e) {
     var stepperEl = e.target.closest(".stepper-btn");
     if (stepperEl) {
       if (stepperEl.disabled) return;
+      var group = stepperEl.getAttribute("data-group");
       var tier = parseInt(stepperEl.getAttribute("data-tier"), 10);
       var dir = parseInt(stepperEl.getAttribute("data-dir"), 10);
-      var owned = ownedTierCounts();
-      var busy = busyTierCounts();
+      var fleetKey = group === "tractors" ? "tractors" : FLEET_TASK_TYPE_TO_KEY[pendingTractorAction.type];
+      var owned = fleetOwnedTierCounts(fleetKey);
+      var busy = fleetBusyTierCounts(fleetKey);
       var idle = (owned[tier] || 0) - (busy[tier] || 0);
-      var current = pendingSelection[tier] || 0;
-      pendingSelection[tier] = Math.max(0, Math.min(idle, current + dir));
+      var sel = pendingSelection[group];
+      var current = sel[tier] || 0;
+      var total = selectionTotal(sel);
+      if (dir > 0) {
+        if (current >= idle || total >= MAX_UNITS_PER_TASK) return;
+        sel[tier] = current + 1;
+      } else {
+        sel[tier] = Math.max(0, current - 1);
+      }
       renderTractorModal();
       return;
     }
     var confirmEl = e.target.closest(".modal-confirm");
     if (confirmEl && !confirmEl.disabled && pendingTractorAction) {
       var action = pendingTractorAction;
-      var tiers = [];
-      Object.keys(pendingSelection).forEach(function (tStr) {
-        var t = parseInt(tStr, 10);
-        for (var k = 0; k < pendingSelection[t]; k++) tiers.push(t);
-      });
+      var tractorTiers = selectionTiers(pendingSelection.tractors);
+      var toolTiers = selectionTiers(pendingSelection.tool);
       closeTractorModal();
-      if (action.type === "plow") startPlow(action.index, tiers);
-      else if (action.type === "plant") startPlant(action.index, tiers);
-      else if (action.type === "harvest") startHarvest(action.index, tiers);
+      if (action.type === "plow") startPlow(action.index, tractorTiers, toolTiers);
+      else if (action.type === "plant") startPlant(action.index, tractorTiers, toolTiers);
+      else if (action.type === "harvest") startHarvest(action.index, tractorTiers, toolTiers);
     }
   });
   tractorModalCancelEl.addEventListener("click", closeTractorModal);
@@ -2974,17 +2967,17 @@
       if (arrowEl.disabled) return;
       var key = arrowEl.getAttribute("data-key");
       var dir = parseInt(arrowEl.getAttribute("data-dir"), 10);
-      var maxLevel = key === "tractors" ? TRACTOR_MAX_TIER : UPGRADES[key].maxLevel;
-      var fallback = key === "tractors" ? state.tractorFleet[state.tractorFleet.length - 1] : state.upgrades[key];
+      var arr = fleetArray(key);
+      var fallback = arr[arr.length - 1];
       var current = garageBrowseIndex[key] === undefined ? fallback : garageBrowseIndex[key];
-      garageBrowseIndex[key] = Math.max(0, Math.min(maxLevel, current + dir));
+      garageBrowseIndex[key] = Math.max(0, Math.min(fleetMaxTier(key), current + dir));
       renderGarageList();
       return;
     }
-    var buyTractorEl = e.target.closest("[data-buy-tractor]");
-    if (buyTractorEl) { buyTractor(parseInt(buyTractorEl.getAttribute("data-buy-tractor"), 10)); return; }
-    var el = e.target.closest(".upgrade-buy");
-    if (el) buyUpgrade(el.getAttribute("data-upgrade"));
+    var buyFleetEl = e.target.closest("[data-buy-fleet]");
+    if (buyFleetEl) {
+      buyFleetUnit(buyFleetEl.getAttribute("data-buy-fleet"), parseInt(buyFleetEl.getAttribute("data-tier"), 10));
+    }
   });
 
   function sellCrop(key, el) {
