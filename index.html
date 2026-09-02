@@ -1141,7 +1141,7 @@
       <aside class="shop" aria-label="Boutique de graines">
         <h2>Graines</h2>
         <div class="seed-list" id="seedList"></div>
-        <p class="shop-hint">Chaque parcelle doit d'abord être labourée (le tracteur y passe un moment), puis choisis une graine et plante-la — ça prend aussi un peu de temps. Une fois prête, la récolte demande elle aussi un dernier passage du tracteur avant de rejoindre ta besace. Les parcelles n'ont pas toutes la même taille (indiquée en hectares) : plus une parcelle est grande, plus elle coûte cher à défricher, mais les plus grandes rapportent aussi plus de récolte à chaque fois.</p>
+        <p class="shop-hint">Chaque parcelle doit d'abord être labourée (le tracteur y passe un moment), puis choisis une graine et plante-la — ça prend aussi un peu de temps. Une fois prête, la récolte demande elle aussi un dernier passage du tracteur avant de rejoindre ta besace. Les parcelles n'ont pas toutes la même taille (indiquée en hectares) : plus une parcelle est grande, plus elle coûte cher à défricher et plus le tracteur met de temps à la labourer, la semer ou la récolter — mais elle rapporte aussi davantage à chaque récolte.</p>
       </aside>
     </section>
 
@@ -1201,6 +1201,16 @@
   function plotUnlockCost(index) {
     if (index < BASE_UNLOCKED) return 0;
     return Math.round(plotSizeHa(index) * PLOT_HA_PRICE_MULTIPLIER);
+  }
+
+  // Working a bigger field takes the tractor proportionally longer — without
+  // this, a huge plot earned far more per harvest for the exact same amount
+  // of tractor time as a tiny one. Anchored so the smallest plot (18ha) has
+  // a 1x multiplier, i.e. keeps exactly the original task durations.
+  var PLOT_TIME_BASE_HA = 18;
+
+  function plotTimeMult(index) {
+    return plotSizeHa(index) / PLOT_TIME_BASE_HA;
   }
 
   // Real crop economics: yieldPerHa (t/ha) x pricePerTonne (€/tonne) is the
@@ -1801,7 +1811,7 @@
 
   function startPlow(index) {
     if (busyTaskCount() >= tractorCount()) { tractorsFreeToast(); return; }
-    state.plots[index].task = { type: "plow", startedAt: Date.now(), duration: Math.round(PLOW_MS * taskDurationMult()), crop: null };
+    state.plots[index].task = { type: "plow", startedAt: Date.now(), duration: Math.round(PLOW_MS * taskDurationMult() * plotTimeMult(index)), crop: null };
     saveState();
     render();
   }
@@ -1819,7 +1829,7 @@
       return;
     }
     state.coins -= cost;
-    state.plots[index].task = { type: "plant", startedAt: Date.now(), duration: Math.round(PLANT_MS * taskDurationMult()), crop: state.selected };
+    state.plots[index].task = { type: "plant", startedAt: Date.now(), duration: Math.round(PLANT_MS * taskDurationMult() * plotTimeMult(index)), crop: state.selected };
     saveState();
     render();
   }
@@ -1833,7 +1843,7 @@
       showToast("Ta besace de " + def.name.toLowerCase() + " est pleine (" + cap + "/" + cap + ") — vends au marché avant de récolter davantage.");
       return;
     }
-    plot.task = { type: "harvest", startedAt: Date.now(), duration: Math.round(HARVEST_MS * taskDurationMult()), crop: plot.crop };
+    plot.task = { type: "harvest", startedAt: Date.now(), duration: Math.round(HARVEST_MS * taskDurationMult() * plotTimeMult(index)), crop: plot.crop };
     saveState();
     render();
   }
