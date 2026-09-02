@@ -599,32 +599,36 @@
 
   /* ---------- Crop canopy ----------
      A field-wide texture of the growing crop, filling the whole parcel
-     (clipped to its irregular shape by .plot's own clip-path) instead of
-     just the single icon in .plant. Fades in with --grow-progress so a
-     freshly planted parcel starts bare and fills in as it matures — by
-     "ready" it reads as a dense, textured field like a real crop from
-     above. Pattern and color come from data-shape and --crop-a/--crop-b,
-     so every culture gets its own look. */
+     (clipped to its irregular shape by .plot's own clip-path). Rotated to
+     --furrow-angle so its rows run along the same lines already laid down
+     by the plow, rather than a generic grid. Ripens in place: each dot's
+     color color-mixes from a young green toward the crop's real --crop-a/
+     --crop-b as --grow-progress climbs, instead of simply going darker,
+     while opacity fills in from a sparse young stand to a full stand by
+     harvest. Pattern shape comes from data-shape, so every culture reads
+     differently. Oversized (inset -30%) so rotating it never exposes a
+     gap at the parcel's corners. */
   .crop-canopy {
     position: absolute;
-    inset: 0;
-    opacity: var(--grow-progress, 0);
-    transition: opacity 0.6s ease;
+    inset: -30%;
+    opacity: calc(0.35 + var(--grow-progress, 0) * 0.65);
+    transform: rotate(var(--furrow-angle, 170deg));
+    transition: opacity 0.6s ease, background 0.6s ease;
     pointer-events: none;
   }
 
   .plot[data-shape="bulb"] .crop-canopy {
     background-image:
-      radial-gradient(circle, var(--crop-a) 32%, transparent 34%),
-      radial-gradient(circle, var(--crop-b) 32%, transparent 34%);
+      radial-gradient(circle, color-mix(in srgb, var(--leaf) 100%, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%)) 32%, transparent 34%),
+      radial-gradient(circle, color-mix(in srgb, var(--leaf-dark) 100%, var(--crop-b, transparent) calc(var(--grow-progress, 0) * 100%)) 32%, transparent 34%);
     background-size: 13px 13px, 13px 13px;
     background-position: 0 0, 6.5px 6.5px;
   }
 
   .plot[data-shape="spike"] .crop-canopy {
     background-image:
-      radial-gradient(ellipse 2.6px 6px at center, var(--crop-a) 65%, transparent 68%),
-      radial-gradient(ellipse 2.6px 6px at center, var(--crop-b) 65%, transparent 68%);
+      radial-gradient(ellipse 2.6px 6px at center, color-mix(in srgb, var(--leaf) 100%, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%)) 65%, transparent 68%),
+      radial-gradient(ellipse 2.6px 6px at center, color-mix(in srgb, var(--leaf-dark) 100%, var(--crop-b, transparent) calc(var(--grow-progress, 0) * 100%)) 65%, transparent 68%);
     background-size: 9px 12px, 9px 12px;
     background-position: 0 0, 4.5px 6px;
   }
@@ -632,120 +636,25 @@
   .plot[data-shape="carrot"] .crop-canopy {
     background-image:
       radial-gradient(circle 2px at center, var(--leaf-dark) 85%, transparent 90%),
-      radial-gradient(circle 4.5px at center, var(--crop-a) 60%, transparent 64%);
+      radial-gradient(circle 4.5px at center, color-mix(in srgb, var(--leaf) 100%, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%)) 60%, transparent 64%);
     background-size: 12px 12px, 12px 12px;
     background-position: 3px 1px, 3px 4px;
   }
 
   .plot[data-shape="pumpkin"] .crop-canopy {
     background-image:
-      radial-gradient(circle, var(--crop-a) 40%, transparent 42%),
-      radial-gradient(circle, var(--crop-b) 40%, transparent 42%);
+      radial-gradient(circle, color-mix(in srgb, var(--leaf) 100%, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%)) 40%, transparent 42%),
+      radial-gradient(circle, color-mix(in srgb, var(--leaf-dark) 100%, var(--crop-b, transparent) calc(var(--grow-progress, 0) * 100%)) 40%, transparent 42%);
     background-size: 24px 24px, 24px 24px;
     background-position: 0 0, 12px 12px;
   }
 
   .plot[data-shape="bloom"] .crop-canopy {
     background-image:
-      radial-gradient(circle, var(--crop-b) 22%, var(--crop-a) 24% 42%, transparent 44%),
-      radial-gradient(circle, var(--crop-b) 22%, var(--crop-a) 24% 42%, transparent 44%);
+      radial-gradient(circle, color-mix(in srgb, var(--leaf-dark) 100%, var(--crop-b, transparent) calc(var(--grow-progress, 0) * 100%)) 22%, color-mix(in srgb, var(--leaf) 100%, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%)) 24% 42%, transparent 44%),
+      radial-gradient(circle, color-mix(in srgb, var(--leaf-dark) 100%, var(--crop-b, transparent) calc(var(--grow-progress, 0) * 100%)) 22%, color-mix(in srgb, var(--leaf) 100%, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%)) 24% 42%, transparent 44%);
     background-size: 15px 15px, 15px 15px;
     background-position: 0 0, 7.5px 7.5px;
-  }
-
-  .plant {
-    position: absolute;
-    left: 50%;
-    bottom: 12%;
-    width: 58%;
-    aspect-ratio: 1;
-    transform: translateX(-50%) scale(var(--s, 0.2));
-    transform-origin: bottom center;
-    transition: transform 0.5s cubic-bezier(.34,1.4,.64,1);
-  }
-
-  .plant::before {
-    content: "";
-    position: absolute;
-    left: 18%;
-    top: -32%;
-    width: 64%;
-    height: 50%;
-    background: var(--leaf);
-    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-  }
-
-  .plant::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50% 50% 46% 46%;
-    background: radial-gradient(circle at 34% 28%, var(--crop-a), var(--crop-b) 78%);
-  }
-
-  .plot[data-shape="carrot"] .plant::after {
-    border-radius: 0 0 46% 46% / 0 0 70% 70%;
-    clip-path: polygon(50% 100%, 4% 6%, 96% 6%);
-  }
-  .plot[data-shape="carrot"] .plant::before { top: -26%; }
-
-  .plot[data-shape="pumpkin"] .plant::after {
-    background:
-      repeating-linear-gradient(100deg, var(--crop-b) 0 10%, var(--crop-a) 10% 20%),
-      radial-gradient(circle at 34% 28%, var(--crop-a), var(--crop-b) 85%);
-    border-radius: 48% 48% 46% 46%;
-  }
-  .plot[data-shape="pumpkin"] .plant::before {
-    width: 14%; height: 22%; left: 43%; top: -18%;
-    background: var(--leaf-dark);
-    clip-path: none;
-    border-radius: 3px;
-  }
-
-  .plot[data-shape="bloom"] .plant::after {
-    background: radial-gradient(circle at center, var(--crop-b) 0 26%, var(--crop-a) 27% 100%);
-  }
-  .plot[data-shape="bloom"] .plant::before {
-    top: -34%; height: 46%;
-  }
-
-  .plot[data-shape="spike"] .plant::before {
-    left: 44%;
-    top: 6%;
-    width: 12%;
-    height: 88%;
-    background: var(--leaf-dark);
-    clip-path: none;
-    border-radius: 2px;
-    opacity: 1;
-  }
-  .plot[data-shape="spike"] .plant::after {
-    inset: auto;
-    top: -26%;
-    left: 26%;
-    width: 48%;
-    height: 70%;
-    clip-path: polygon(50% 0%, 85% 26%, 78% 66%, 50% 100%, 22% 66%, 15% 26%);
-    background: repeating-linear-gradient(96deg, var(--crop-b) 0 3px, var(--crop-a) 3px 6px);
-  }
-  .stage-seed[data-shape="spike"] .plant::before { opacity: 0; }
-
-  .stage-seed .plant { --s: 0.2; opacity: 0.9; }
-  .stage-seed .plant::before { opacity: 0; }
-  .stage-sprout .plant { --s: 0.45; }
-  .stage-grown .plant { --s: 0.75; }
-  .stage-ready .plant { --s: 1; }
-
-  .stage-ready .plant {
-    animation: bob 1.8s ease-in-out infinite;
-  }
-  @keyframes bob {
-    0%, 100% { transform: translateX(-50%) scale(1) translateY(0); }
-    50% { transform: translateX(-50%) scale(1) translateY(-6%); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .stage-ready .plant { animation: none; }
-    .drop-fill { animation: none !important; }
   }
 
   .ready-glow {
@@ -754,6 +663,15 @@
     border-radius: 50%;
     background: radial-gradient(circle, color-mix(in srgb, var(--gold-bright) 55%, transparent), transparent 70%);
     pointer-events: none;
+    animation: glow-pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes glow-pulse {
+    0%, 100% { opacity: 0.7; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.08); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ready-glow { animation: none; }
+    .drop-fill { animation: none !important; }
   }
 
   .progress {
@@ -1881,7 +1799,6 @@
       ' role="button" tabindex="0" aria-label="' + label + '">';
     if (def) html += '<div class="crop-canopy"></div>';
     html += '<div class="plot-cell">';
-    if (task.type === "harvest") html += '<div class="plant"></div>';
     html += '<div class="tractor" style="animation-duration:' + totalS + 's;animation-delay:-' + elapsedS.toFixed(2) + 's">' +
       '<div class="tr-cabin"></div><div class="tr-body"></div>' +
       '<div class="tr-wheel tr-wheel-b"></div><div class="tr-wheel tr-wheel-f"></div></div>' +
@@ -1937,7 +1854,6 @@
       html += '<div class="crop-canopy"></div>';
       html += '<div class="plot-cell">';
       if (info.stage === "ready") html += '<div class="ready-glow"></div>';
-      html += '<div class="plant"></div>';
       if (info.stage !== "ready") {
         html += '<div class="progress"><span style="width:' + Math.round(info.progress * 100) + '%"></span></div>';
         if (hasWater) {
