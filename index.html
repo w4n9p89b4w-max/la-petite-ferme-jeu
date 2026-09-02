@@ -932,12 +932,15 @@
     height: 46px;
     transform: translateX(-50%);
   }
-  .dealer-icon[data-tier="0"] { --tier-color: #8a8478; --tier-dark: #5c574c; }
-  .dealer-icon[data-tier="1"] { --tier-color: #c0392b; --tier-dark: #8a2d1f; }
-  .dealer-icon[data-tier="2"] { --tier-color: #d9822b; --tier-dark: #a35d1a; }
-  .dealer-icon[data-tier="3"] { --tier-color: #4a7a3a; --tier-dark: #305226; }
-  .dealer-icon[data-tier="4"] { --tier-color: #2f6fa8; --tier-dark: #204b73; }
-  .dealer-icon[data-tier="5"] { --tier-color: #c9a227; --tier-dark: #7a6015; }
+  /* Tier liveries: each named brand gets its own body color + rim color,
+     going from a plain worn base kit (0) up through five increasingly
+     distinctive paint jobs (1-5) so every tier reads at a glance. */
+  .dealer-icon[data-tier="0"] { --tier-color: #8a8478; --tier-dark: #5c574c; --rim-color: #a89878; }
+  .dealer-icon[data-tier="1"] { --tier-color: #e2711d; --tier-dark: #a8500f; --rim-color: #e2711d; }
+  .dealer-icon[data-tier="2"] { --tier-color: #1f5fa8; --tier-dark: #163f73; --rim-color: #c7ccd1; }
+  .dealer-icon[data-tier="3"] { --tier-color: #9dc22e; --tier-dark: #6b8a1a; --rim-color: #e2600c; }
+  .dealer-icon[data-tier="4"] { --tier-color: #e8e8e4; --tier-dark: #2b2b2b; --rim-color: #d8d8d8; }
+  .dealer-icon[data-tier="5"] { --tier-color: #2e7d32; --tier-dark: #1b5e20; --rim-color: #f4c430; }
 
   .dealer-badge {
     position: absolute;
@@ -966,7 +969,9 @@
     position: absolute;
     inset: 32%;
     border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, #a89878, #7a6a4c 80%);
+    background: radial-gradient(circle at 35% 30%,
+      color-mix(in srgb, var(--rim-color, #a89878) 100%, white 15%),
+      color-mix(in srgb, var(--rim-color, #a89878) 100%, black 35%) 80%);
   }
 
   /* Panels get a top-to-bottom gloss (light catching the roof, shadow
