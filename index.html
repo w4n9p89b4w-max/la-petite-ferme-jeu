@@ -1168,8 +1168,7 @@
   /* ---------- Garage carousel ----------
      Browse every named tier of a brand ladder (not just what's owned)
      with left/right arrows, like walking down a dealership showroom
-     floor — the "tractors" (fleet size) card stays a plain static card
-     since it has no models of its own to browse. */
+     floor. */
   .carousel-row {
     display: flex;
     align-items: center;
@@ -1579,7 +1578,7 @@
 
     <section class="view page-wrap" id="view-garage" role="tabpanel" hidden>
       <h2>Garage</h2>
-      <p class="shop-hint">Un tracteur ne peut travailler qu'un seul champ à la fois — laboure, semis et récolte occupent le tracteur qui s'en charge. Achète des tracteurs supplémentaires pour faire avancer plusieurs champs en même temps, une meilleure marque de tracteur pour accélérer les trois tâches à la fois, ou l'outil dédié à chaque tâche (charrue, semoir, moissonneuse) pour l'accélérer encore davantage — et pour le semoir, réduire aussi le prix des graines.</p>
+      <p class="shop-hint">Un tracteur ne peut travailler qu'un seul champ à la fois — laboure, semis et récolte occupent le tracteur qui s'en charge. Achète une meilleure marque de tracteur pour à la fois faire avancer un champ de plus en même temps et accélérer les trois tâches, ou l'outil dédié à chaque tâche (charrue, semoir, moissonneuse) pour l'accélérer encore davantage — et pour le semoir, réduire aussi le prix des graines.</p>
       <div class="upgrade-grid" id="garageList"></div>
     </section>
   </main>
@@ -1719,26 +1718,21 @@
         return "Stock : " + fmtNum(SEED_SILO_CAPACITY[lvl]) + " ha de graines par culture";
       }
     },
-    tractors: {
-      name: "Tracteurs",
-      maxLevel: 3,
-      baseCost: 120,
-      costMult: 2.3,
-      desc: function (lvl) {
-        var n = lvl + 1;
-        return n + " champ" + (n > 1 ? "s" : "") + " travaillé" + (n > 1 ? "s" : "") + " en même temps";
-      }
-    },
+    // Buying a tractor and upgrading its model are the same purchase: each
+    // tier is a specific named brand that both adds a field worked in
+    // parallel AND speeds up every task, instead of two separate ladders.
     tractorSpeed: {
-      name: "Modèle de tracteur",
+      name: "Tracteurs",
       maxLevel: 4,
       baseCost: 90,
       costMult: 2.0,
       desc: function (lvl) {
         var pct = lvl * 10;
-        return TRACTOR_BRANDS[lvl] + (lvl === 0
-          ? " — vitesse de travail normale"
-          : " — labour, semis et récolte " + pct + "% plus rapides");
+        var n = lvl + 1;
+        var fieldsTxt = n + " champ" + (n > 1 ? "s" : "") + " travaillé" + (n > 1 ? "s" : "") + " en même temps";
+        return TRACTOR_BRANDS[lvl] + " — " + fieldsTxt + (lvl === 0
+          ? ", vitesse de travail normale"
+          : ", labour/semis/récolte " + pct + "% plus rapides");
       }
     },
     toolPlow: {
@@ -1792,7 +1786,7 @@
   var SEED_SILO_CAPACITY = [100, 220, 400, 650, 1000, 1450];
   var SEED_BATCH_HA = 50;
   var UPGRADE_ORDER = ["soil", "water", "harvest", "seedSilo"];
-  var GARAGE_ORDER = ["tractors", "tractorSpeed", "toolPlow", "toolPlant", "toolHarvest"];
+  var GARAGE_ORDER = ["tractorSpeed", "toolPlow", "toolPlant", "toolHarvest"];
 
   var plotsEl = document.getElementById("plots");
   var seedListEl = document.getElementById("seedList");
@@ -1984,7 +1978,7 @@
   }
 
   function tractorCount() {
-    return 1 + state.upgrades.tractors;
+    return 1 + state.upgrades.tractorSpeed;
   }
 
   function busyTaskCount() {
@@ -2343,7 +2337,7 @@
     container.innerHTML = html;
   }
 
-  var GARAGE_ICON_TYPES = { tractors: "tractor", tractorSpeed: "tractor", toolPlow: "plow", toolPlant: "seeder", toolHarvest: "harvester" };
+  var GARAGE_ICON_TYPES = { tractorSpeed: "tractor", toolPlow: "plow", toolPlant: "seeder", toolHarvest: "harvester" };
   var DEALER_PARTS = {
     tractor: '<div class="d-wheel d-wheel-b"></div><div class="d-wheel d-wheel-f"></div><div class="d-cab"></div><div class="d-window"></div><div class="d-body"></div><div class="d-light"></div><div class="d-exhaust"></div>',
     plow: '<div class="d-wheel d-wheel-single"></div><div class="d-frame"></div><div class="d-handle"></div><div class="d-blade"></div>',
@@ -2388,19 +2382,6 @@
       var u = UPGRADES[key];
       var lvl = state.upgrades[key];
       var maxed = lvl >= u.maxLevel;
-
-      if (key === "tractors") {
-        var cost = upgradeCost(key);
-        html += '<div class="upgrade-card' + (maxed ? " maxed" : "") + '">' +
-          dealerVisualHtml("tractor", state.upgrades.tractorSpeed, "×" + (lvl + 1)) +
-          '<div class="seed-top"><span>' + u.name + '</span><span class="level-badge">Niv. ' + lvl + '/' + u.maxLevel + '</span></div>' +
-          '<div class="seed-meta">' + u.desc(lvl) + '</div>';
-        html += maxed
-          ? '<div class="upgrade-maxed">Niveau maximum</div>'
-          : '<button type="button" class="upgrade-buy" data-upgrade="' + key + '">Améliorer — ' + cost + ' pièces</button>';
-        html += '</div>';
-        continue;
-      }
 
       // Showroom carousel: browse every named tier (0 = starting kit,
       // maxLevel = top brand), independent of what's actually owned.
