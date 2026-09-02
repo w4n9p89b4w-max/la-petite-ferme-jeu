@@ -742,42 +742,22 @@
   }
 
   .seed-card {
+    display: block;
+    width: 100%;
+    text-align: left;
     border: 1.5px solid var(--paper-edge);
     background: color-mix(in srgb, var(--paper) 60%, transparent);
     border-radius: 12px;
     padding: 0.6rem 0.7rem;
+    cursor: pointer;
     font-family: inherit;
     color: var(--ink);
   }
-
-  .seed-select {
-    display: block;
-    width: 100%;
-    text-align: left;
-    border: none;
-    background: transparent;
-    padding: 0;
-    margin: 0;
-    cursor: pointer;
-    font-family: inherit;
-    color: inherit;
-  }
-  .seed-select:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 1px; }
+  .seed-card:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 1px; }
 
   .seed-card.selected {
     border-color: var(--leaf-dark);
     background: color-mix(in srgb, var(--leaf) 16%, var(--paper));
-  }
-
-  .seed-stock {
-    margin-top: 0.4rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    font-size: 0.76rem;
-    color: var(--ink-soft);
-    font-variant-numeric: tabular-nums;
   }
 
   .seed-buy {
@@ -1177,6 +1157,7 @@
 
   <nav class="tabs" role="tablist" aria-label="Sections du jeu">
     <button type="button" class="tab-btn active" data-view="field" role="tab" aria-selected="true">Champ</button>
+    <button type="button" class="tab-btn" data-view="silo" role="tab" aria-selected="false">Silo</button>
     <button type="button" class="tab-btn" data-view="market" role="tab" aria-selected="false">Marché<span class="tab-badge" id="marketBadge" hidden>0</span></button>
     <button type="button" class="tab-btn" data-view="upgrades" role="tab" aria-selected="false">Améliorations</button>
     <button type="button" class="tab-btn" data-view="garage" role="tab" aria-selected="false">Garage</button>
@@ -1201,8 +1182,14 @@
       <aside class="shop" aria-label="Boutique de graines">
         <h2>Graines</h2>
         <div class="seed-list" id="seedList"></div>
-        <p class="shop-hint">Chaque parcelle doit d'abord être labourée (le tracteur y passe un moment), puis choisis une graine et plante-la — ça prend aussi un peu de temps. Une fois prête, la récolte demande elle aussi un dernier passage du tracteur avant de rejoindre ta besace. Les parcelles n'ont pas toutes la même taille (indiquée en hectares) : plus une parcelle est grande, plus elle coûte cher à défricher et plus le tracteur met de temps à la labourer, la semer ou la récolter — mais elle rapporte aussi davantage à chaque récolte. Une fois le silo à graines débloqué (Améliorations), tu peux acheter des graines à l'avance pour chaque culture : planter pioche alors dans ce stock au lieu de payer sur le moment.</p>
+        <p class="shop-hint">Chaque parcelle doit d'abord être labourée (le tracteur y passe un moment), puis choisis une graine et plante-la — ça prend aussi un peu de temps. Une fois prête, la récolte demande elle aussi un dernier passage du tracteur avant de rejoindre ta besace. Les parcelles n'ont pas toutes la même taille (indiquée en hectares) : plus une parcelle est grande, plus elle coûte cher à défricher et plus le tracteur met de temps à la labourer, la semer ou la récolter — mais elle rapporte aussi davantage à chaque récolte. Stocke des graines à l'avance dans le Silo pour ne plus payer au moment de planter.</p>
       </aside>
+    </section>
+
+    <section class="view page-wrap" id="view-silo" role="tabpanel" hidden>
+      <h2>Silo à graines</h2>
+      <p class="shop-hint">Achète des graines à l'avance pour chaque culture débloquée, au même tarif que planter directement. Planter une parcelle pioche d'abord dans ce stock (aucune pièce dépensée sur le moment) et ne retombe sur le paiement classique que si le stock est insuffisant. La capacité par culture augmente avec l'amélioration "Silo à graines".</p>
+      <div class="market-grid" id="siloList"></div>
     </section>
 
     <section class="view page-wrap" id="view-market" role="tabpanel" hidden>
@@ -1356,9 +1343,7 @@
       baseCost: 50,
       costMult: 2.0,
       desc: function (lvl) {
-        return lvl === 0
-          ? "Débloque le stockage de graines achetées à l'avance"
-          : "Stock : " + fmtNum(SEED_SILO_CAPACITY[lvl]) + " ha de graines par culture";
+        return "Stock : " + fmtNum(SEED_SILO_CAPACITY[lvl]) + " ha de graines par culture";
       }
     },
     tractors: {
@@ -1397,14 +1382,17 @@
   // the silo has to hold a lot more than the old flat "units" capacity.
   var SILO_CAPACITY = [1000, 1700, 2700, 4000, 5700, 8000];
   // In hectares-of-seed per crop — buying seed ahead of time stocks it here,
-  // so planting can draw from stock instead of paying coins on the spot.
-  var SEED_SILO_CAPACITY = [0, 150, 300, 550, 900, 1400];
+  // so planting can draw from stock instead of paying coins on the spot. The
+  // Silo is a base tab (like Champ/Marché), so even an un-upgraded silo
+  // (level 0) already holds a useful amount.
+  var SEED_SILO_CAPACITY = [100, 220, 400, 650, 1000, 1450];
   var SEED_BATCH_HA = 50;
   var UPGRADE_ORDER = ["soil", "water", "harvest", "seedSilo"];
   var GARAGE_ORDER = ["tractors", "tractorSpeed", "tools"];
 
   var plotsEl = document.getElementById("plots");
   var seedListEl = document.getElementById("seedList");
+  var siloListEl = document.getElementById("siloList");
   var upgradeListEl = document.getElementById("upgradeList");
   var garageListEl = document.getElementById("garageList");
   var marketListEl = document.getElementById("marketList");
@@ -1423,6 +1411,7 @@
   var tabButtons = document.querySelectorAll(".tab-btn");
   var views = {
     field: document.getElementById("view-field"),
+    silo: document.getElementById("view-silo"),
     market: document.getElementById("view-market"),
     upgrades: document.getElementById("view-upgrades"),
     garage: document.getElementById("view-garage")
@@ -1747,6 +1736,7 @@
     marketBadgeEl.textContent = toSell;
     renderPlots();
     renderShop();
+    renderSilo();
     renderUpgradeList(UPGRADE_ORDER, upgradeListEl);
     renderUpgradeList(GARAGE_ORDER, garageListEl);
     renderMarket();
@@ -1841,14 +1831,13 @@
 
   function renderShop() {
     var html = "";
-    var cap = seedSiloCapacity();
     for (var i = 0; i < CROP_ORDER.length; i++) {
       var key = CROP_ORDER[i];
       var def = CROPS[key];
       var unlocked = state.unlockedCrops.indexOf(key) !== -1;
       var selected = unlocked && state.selected === key;
-      html += '<div class="seed-card' + (selected ? " selected" : "") + (unlocked ? "" : " locked") + '">' +
-        '<button type="button" class="seed-select" data-seed="' + key + '">' +
+      html += '<button type="button" class="seed-card' + (selected ? " selected" : "") + (unlocked ? "" : " locked") + '" ' +
+        'data-seed="' + key + '">' +
         '<div class="seed-top"><span><span class="seed-swatch" style="background:' + def.a + '"></span>' + def.name + '</span></div>';
       if (unlocked) {
         html += '<div class="seed-meta"><span>' + plantCostPerHa(def) + ' pièces/ha à planter</span>' +
@@ -1865,23 +1854,31 @@
           '</div>';
       }
       html += '</button>';
-      if (unlocked) {
-        if (cap <= 0) {
-          html += '<div class="seed-stock"><span>Silo à graines non débloqué</span></div>';
-        } else {
-          var stock = state.seedStock[key] || 0;
-          var room = cap - stock;
-          var amount = Math.min(SEED_BATCH_HA, room);
-          var full = room <= 0;
-          html += '<div class="seed-stock"><span>En stock : ' + fmtNum(stock) + ' / ' + fmtNum(cap) + ' ha</span>' +
-            '<button type="button" class="seed-buy" data-seed="' + key + '"' + (full ? " disabled" : "") + '>' +
-            (full ? "Stock plein" : "+" + amount + "ha — " + fmtNum(seedBatchCost(def, amount)) + " pièces") +
-            '</button></div>';
-        }
-      }
-      html += '</div>';
     }
     seedListEl.innerHTML = html;
+  }
+
+  function renderSilo() {
+    var html = "";
+    var cap = seedSiloCapacity();
+    for (var i = 0; i < CROP_ORDER.length; i++) {
+      var key = CROP_ORDER[i];
+      if (state.unlockedCrops.indexOf(key) === -1) continue;
+      var def = CROPS[key];
+      var stock = state.seedStock[key] || 0;
+      var room = cap - stock;
+      var full = room <= 0;
+      var amount = Math.min(SEED_BATCH_HA, Math.max(0, room));
+      html += '<div class="market-card' + (stock === 0 ? " empty" : "") + (full ? " full" : "") + '">' +
+        '<div class="seed-top"><span><span class="seed-swatch" style="background:' + def.a + '"></span>' + def.name + '</span></div>' +
+        '<div class="market-qty">En stock : <strong>' + fmtNum(stock) + ' ha</strong> / ' + fmtNum(cap) + ' ha' + (full ? ' <span class="full-tag">plein</span>' : '') + '</div>' +
+        '<div class="market-price">Achat : ' + plantCostPerHa(def) + ' pièces/ha</div>' +
+        '<button type="button" class="seed-buy" data-seed="' + key + '"' + (full ? " disabled" : "") + '>' +
+        (full ? "Stock plein" : "+" + amount + "ha — " + fmtNum(seedBatchCost(def, amount)) + " pièces") +
+        '</button></div>';
+    }
+    if (!html) html = '<p class="shop-hint">Débloque une graine dans le champ pour commencer à stocker des graines.</p>';
+    siloListEl.innerHTML = html;
   }
 
   function renderUpgradeList(order, container) {
@@ -1981,10 +1978,6 @@
   function buySeedBatch(key) {
     if (state.unlockedCrops.indexOf(key) === -1) return;
     var cap = seedSiloCapacity();
-    if (cap <= 0) {
-      showToast("Débloque le silo à graines dans les améliorations pour stocker des graines à l'avance.");
-      return;
-    }
     var def = CROPS[key];
     var stock = state.seedStock[key] || 0;
     var room = cap - stock;
@@ -2099,13 +2092,13 @@
   }
 
   seedListEl.addEventListener("click", function (e) {
-    var buyEl = e.target.closest(".seed-buy");
-    if (buyEl) {
-      if (!buyEl.disabled) buySeedBatch(buyEl.getAttribute("data-seed"));
-      return;
-    }
-    var el = e.target.closest(".seed-select");
+    var el = e.target.closest(".seed-card");
     if (el) unlockOrSelectCrop(el.getAttribute("data-seed"));
+  });
+
+  siloListEl.addEventListener("click", function (e) {
+    var buyEl = e.target.closest(".seed-buy");
+    if (buyEl && !buyEl.disabled) buySeedBatch(buyEl.getAttribute("data-seed"));
   });
 
   function buyUpgrade(key) {
