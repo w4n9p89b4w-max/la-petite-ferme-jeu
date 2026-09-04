@@ -741,21 +741,29 @@
       drop-shadow(0 1.5px 0 var(--gold-bright)) drop-shadow(0 -1.5px 0 var(--gold-bright));
   }
 
-  /* One Voronoi diagram seeded from a jittered 3x4 grid, clipped to the
+  /* One Voronoi diagram seeded from a jittered 4x5 grid, clipped to the
      board square — cell N's polygon shares its boundary vertices exactly
      with whichever cells sit next to it, so the parcels tile edge-to-edge. */
-  .plot:nth-child(1) { clip-path: polygon(0% 0%, 33.67% 0%, 35.3% 21.74%, 0% 23.72%); }
-  .plot:nth-child(2) { clip-path: polygon(33.67% 0%, 71.99% 0%, 67.67% 22.93%, 35.41% 21.88%, 35.3% 21.74%); }
-  .plot:nth-child(3) { clip-path: polygon(71.99% 0%, 100% 0%, 100% 34.54%, 68.46% 24.46%, 67.67% 22.93%); }
-  .plot:nth-child(4) { clip-path: polygon(0% 23.72%, 35.3% 21.74%, 35.41% 21.88%, 34.15% 42.79%, 0% 50.2%); }
-  .plot:nth-child(5) { clip-path: polygon(35.41% 21.88%, 67.67% 22.93%, 68.46% 24.46%, 62.85% 47.8%, 41.54% 51.66%, 34.15% 42.79%); }
-  .plot:nth-child(6) { clip-path: polygon(68.46% 24.46%, 100% 34.54%, 100% 49.13%, 67.24% 52.84%, 62.85% 47.8%); }
-  .plot:nth-child(7) { clip-path: polygon(0% 50.2%, 34.15% 42.79%, 41.54% 51.66%, 36.92% 74.67%, 0% 68.66%); }
-  .plot:nth-child(8) { clip-path: polygon(41.54% 51.66%, 62.85% 47.8%, 67.24% 52.84%, 70.17% 74.12%, 65.89% 77.69%, 36.96% 74.75%, 36.92% 74.67%); }
-  .plot:nth-child(9) { clip-path: polygon(67.24% 52.84%, 100% 49.13%, 100% 77.78%, 70.17% 74.12%); }
-  .plot:nth-child(10) { clip-path: polygon(0% 68.66%, 36.92% 74.67%, 36.96% 74.75%, 35.22% 100%, 0% 100%, 0% 84.33%); }
-  .plot:nth-child(11) { clip-path: polygon(36.96% 74.75%, 65.89% 77.69%, 64.83% 100%, 35.22% 100%); }
-  .plot:nth-child(12) { clip-path: polygon(65.89% 77.69%, 70.17% 74.12%, 100% 77.78%, 100% 100%, 64.83% 100%); }
+  .plot:nth-child(1) { clip-path: polygon(24.66% 0.00%, 0.00% 0.00%, 0.00% 16.33%, 17.67% 19.34%, 24.99% 11.21%); }
+  .plot:nth-child(2) { clip-path: polygon(48.93% 20.68%, 49.44% 20.28%, 52.24% 0.00%, 24.66% 0.00%, 24.99% 11.21%); }
+  .plot:nth-child(3) { clip-path: polygon(69.10% 21.48%, 71.38% 19.08%, 72.99% 0.00%, 52.24% 0.00%, 49.44% 20.28%); }
+  .plot:nth-child(4) { clip-path: polygon(100.00% 17.55%, 100.00% 0.00%, 72.99% 0.00%, 71.38% 19.08%); }
+  .plot:nth-child(5) { clip-path: polygon(0.00% 16.33%, 0.00% 45.32%, 20.56% 38.82%, 17.67% 19.34%); }
+  .plot:nth-child(6) { clip-path: polygon(24.99% 11.21%, 17.67% 19.34%, 20.56% 38.82%, 23.59% 40.61%, 45.28% 34.13%, 48.93% 20.68%); }
+  .plot:nth-child(7) { clip-path: polygon(45.28% 34.13%, 53.80% 46.91%, 73.11% 34.09%, 69.10% 21.48%, 49.44% 20.28%, 48.93% 20.68%); }
+  .plot:nth-child(8) { clip-path: polygon(69.10% 21.48%, 73.11% 34.09%, 81.44% 40.21%, 100.00% 31.17%, 100.00% 17.55%, 71.38% 19.08%); }
+  .plot:nth-child(9) { clip-path: polygon(0.00% 45.32%, 0.00% 53.68%, 21.95% 67.10%, 28.41% 59.92%, 23.59% 40.61%, 20.56% 38.82%); }
+  .plot:nth-child(10) { clip-path: polygon(28.41% 59.92%, 45.41% 62.48%, 54.72% 54.21%, 53.80% 46.91%, 45.28% 34.13%, 23.59% 40.61%); }
+  .plot:nth-child(11) { clip-path: polygon(54.72% 54.21%, 73.19% 62.02%, 79.58% 56.50%, 81.44% 40.21%, 73.11% 34.09%, 53.80% 46.91%); }
+  .plot:nth-child(12) { clip-path: polygon(81.44% 40.21%, 79.58% 56.50%, 100.00% 59.45%, 100.00% 31.17%); }
+  .plot:nth-child(13) { clip-path: polygon(0.00% 53.68%, 0.00% 78.46%, 20.39% 72.63%, 21.95% 67.10%); }
+  .plot:nth-child(14) { clip-path: polygon(20.39% 72.63%, 23.03% 77.51%, 47.79% 83.89%, 45.41% 62.48%, 28.41% 59.92%, 21.95% 67.10%); }
+  .plot:nth-child(15) { clip-path: polygon(45.41% 62.48%, 47.79% 83.89%, 48.43% 84.97%, 74.17% 75.31%, 73.19% 62.02%, 54.72% 54.21%); }
+  .plot:nth-child(16) { clip-path: polygon(100.00% 82.33%, 100.00% 59.45%, 79.58% 56.50%, 73.19% 62.02%, 74.17% 75.31%, 76.05% 77.55%); }
+  .plot:nth-child(17) { clip-path: polygon(23.03% 77.51%, 20.39% 72.63%, 0.00% 78.46%, 0.00% 100.00%, 21.09% 100.00%); }
+  .plot:nth-child(18) { clip-path: polygon(23.03% 77.51%, 21.09% 100.00%, 47.34% 100.00%, 48.43% 84.97%, 47.79% 83.89%); }
+  .plot:nth-child(19) { clip-path: polygon(76.05% 77.55%, 74.17% 75.31%, 48.43% 84.97%, 47.34% 100.00%, 74.10% 100.00%); }
+  .plot:nth-child(20) { clip-path: polygon(76.05% 77.55%, 74.10% 100.00%, 100.00% 100.00%, 100.00% 82.33%); }
 
   /* Interactive/decorative content (lock, price, plant, progress...) lives in
      a small inner box positioned at each parcel's own safe interior — sized
@@ -763,18 +771,26 @@
      parcel's actual irregular shape. Percentages on its children resolve
      against this box, same as they used to resolve against the old .plot. */
   .plot-cell { position: absolute; }
-  .plot:nth-child(1) .plot-cell { left: 4.16%; top: 2.42%; width: 26.16%; height: 17.89%; }
-  .plot:nth-child(2) .plot-cell { left: 37.29%; top: 6.69%; width: 23.04%; height: 13.23%; }
-  .plot:nth-child(3) .plot-cell { left: 73.64%; top: 8.50%; width: 15.97%; height: 15.78%; }
-  .plot:nth-child(4) .plot-cell { left: 12.18%; top: 24.46%; width: 17.58%; height: 15.21%; }
-  .plot:nth-child(5) .plot-cell { left: 41.83%; top: 26.04%; width: 19.69%; height: 18.43%; }
-  .plot:nth-child(6) .plot-cell { left: 71.19%; top: 34.50%; width: 17.04%; height: 14.52%; }
-  .plot:nth-child(7) .plot-cell { left: 10.25%; top: 49.52%; width: 17.04%; height: 13.70%; }
-  .plot:nth-child(8) .plot-cell { left: 45.16%; top: 55.76%; width: 18.70%; height: 18.06%; }
-  .plot:nth-child(9) .plot-cell { left: 73.38%; top: 54.28%; width: 21.94%; height: 18.38%; }
-  .plot:nth-child(10) .plot-cell { left: 8.18%; top: 75.07%; width: 20.01%; height: 17.33%; }
-  .plot:nth-child(11) .plot-cell { left: 40.18%; top: 79.02%; width: 21.09%; height: 18.19%; }
-  .plot:nth-child(12) .plot-cell { left: 69.39%; top: 78.26%; width: 21.57%; height: 15.33%; }
+  .plot:nth-child(1) .plot-cell { left: 7.35%; top: 4.97%; width: 13.94%; height: 8.99%; }
+  .plot:nth-child(2) .plot-cell { left: 34.88%; top: 4.12%; width: 14.61%; height: 9.43%; }
+  .plot:nth-child(3) .plot-cell { left: 52.64%; top: 4.82%; width: 17.65%; height: 11.39%; }
+  .plot:nth-child(4) .plot-cell { left: 73.61%; top: 4.05%; width: 16.40%; height: 10.58%; }
+  .plot:nth-child(5) .plot-cell { left: 1.60%; top: 25.95%; width: 16.07%; height: 10.37%; }
+  .plot:nth-child(6) .plot-cell { left: 20.89%; top: 19.68%; width: 20.26%; height: 13.07%; }
+  .plot:nth-child(7) .plot-cell { left: 48.65%; top: 26.16%; width: 17.04%; height: 10.99%; }
+  .plot:nth-child(8) .plot-cell { left: 74.34%; top: 23.51%; width: 15.90%; height: 10.26%; }
+  .plot:nth-child(9) .plot-cell { left: 7.45%; top: 46.17%; width: 16.47%; height: 10.62%; }
+  .plot:nth-child(10) .plot-cell { left: 30.57%; top: 43.02%; width: 19.12%; height: 12.33%; }
+  .plot:nth-child(11) .plot-cell { left: 61.02%; top: 43.37%; width: 17.22%; height: 11.11%; }
+  .plot:nth-child(12) .plot-cell { left: 82.26%; top: 41.52%; width: 16.32%; height: 10.53%; }
+  .plot:nth-child(13) .plot-cell { left: 1.34%; top: 63.58%; width: 13.33%; height: 8.60%; }
+  .plot:nth-child(14) .plot-cell { left: 25.72%; top: 64.71%; width: 18.45%; height: 11.90%; }
+  .plot:nth-child(15) .plot-cell { left: 48.05%; top: 62.02%; width: 20.49%; height: 13.22%; }
+  .plot:nth-child(16) .plot-cell { left: 76.17%; top: 61.71%; width: 21.40%; height: 13.81%; }
+  .plot:nth-child(17) .plot-cell { left: 1.92%; top: 80.56%; width: 18.71%; height: 12.07%; }
+  .plot:nth-child(18) .plot-cell { left: 23.47%; top: 84.30%; width: 17.46%; height: 11.26%; }
+  .plot:nth-child(19) .plot-cell { left: 54.30%; top: 83.85%; width: 18.98%; height: 12.25%; }
+  .plot:nth-child(20) .plot-cell { left: 76.48%; top: 84.34%; width: 17.36%; height: 11.20%; }
 
   .plot.locked {
     cursor: pointer;
@@ -2073,17 +2089,17 @@
   "use strict";
 
   var STORAGE_KEY = "petite-ferme-save-v1";
-  var PLOT_COUNT = 12;
+  var PLOT_COUNT = 20;
   var BASE_UNLOCKED = 1;
 
   // Each plot's actual Voronoi polygon (see the .plot clip-path values
   // below) has a real, different area — PLOT_SIZE_RANK ranks each plot from
-  // 1 (smallest) to 12 (largest) by that area. PLOT_SIZE_HA gives each rank
+  // 1 (smallest) to 20 (largest) by that area. PLOT_SIZE_HA gives each rank
   // its real-world size in hectares; unlock price is hectares x 1.8, and a
   // harvest's tonnage is the crop's yield (t/ha) times these hectares, so a
   // plot's size now directly and precisely drives how much it produces.
-  var PLOT_SIZE_RANK = [5, 6, 10, 7, 8, 2, 11, 3, 4, 12, 1, 9];
-  var PLOT_SIZE_HA = [40, 32, 45, 61, 78, 94, 112, 127, 143, 165, 182, 196];
+  var PLOT_SIZE_RANK = [3, 2, 5, 13, 7, 19, 8, 14, 12, 20, 9, 4, 1, 6, 18, 17, 16, 10, 15, 11];
+  var PLOT_SIZE_HA = [26, 29, 33, 37, 42, 47, 53, 60, 68, 77, 87, 98, 111, 125, 141, 159, 180, 203, 229, 259];
   var PLOT_HA_PRICE_MULTIPLIER = 6400;
   // The free starting plot is a special case, capped small (18-30ha) rather
   // than using its rank's table value, so a new game begins on a modest plot.
@@ -2371,6 +2387,14 @@
       if (typeof p.plowed !== "boolean") p.plowed = !!p.unlocked;
       if (typeof p.task === "undefined") p.task = null;
     });
+    // The map has grown a few times (12 plots, now PLOT_COUNT) — extend a
+    // shorter saved plots array with fresh locked plots rather than
+    // wiping the whole save back to defaultState() just because it
+    // predates the new ones.
+    while (s.plots.length < PLOT_COUNT) {
+      s.plots.push({ unlocked: false, crop: null, plantedAt: null, watered: 0, lastWateredAt: null, plowed: false, task: null });
+    }
+    if (s.plots.length > PLOT_COUNT) s.plots.length = PLOT_COUNT;
     return s;
   }
 
@@ -2379,7 +2403,7 @@
       var raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return defaultState();
       var parsed = JSON.parse(raw);
-      if (!parsed || !parsed.plots || parsed.plots.length !== PLOT_COUNT) return defaultState();
+      if (!parsed || !Array.isArray(parsed.plots) || !parsed.plots.length) return defaultState();
       return parsed;
     } catch (e) {
       return defaultState();
@@ -2735,7 +2759,7 @@
   // .field-paths CSS above) — the dirt-track lines between neighboring
   // parcels. Constant, so it's just appended after each render rather
   // than recomputed.
-  var FIELD_PATHS_SVG = "<svg class=\"field-paths\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path class=\"path-edge\" d=\"M33.67,0 L35.3,21.74 M35.3,21.74 L0,23.72 M71.99,0 L67.67,22.93 M67.67,22.93 L35.41,21.88 M35.41,21.88 L35.3,21.74 M100,34.54 L68.46,24.46 M68.46,24.46 L67.67,22.93 M35.41,21.88 L34.15,42.79 M34.15,42.79 L0,50.2 M68.46,24.46 L62.85,47.8 M62.85,47.8 L41.54,51.66 M41.54,51.66 L34.15,42.79 M100,49.13 L67.24,52.84 M67.24,52.84 L62.85,47.8 M41.54,51.66 L36.92,74.67 M36.92,74.67 L0,68.66 M67.24,52.84 L70.17,74.12 M70.17,74.12 L65.89,77.69 M65.89,77.69 L36.96,74.75 M36.96,74.75 L36.92,74.67 M100,77.78 L70.17,74.12 M36.96,74.75 L35.22,100 M65.89,77.69 L64.83,100\"/><path class=\"path-fill\" d=\"M33.67,0 L35.3,21.74 M35.3,21.74 L0,23.72 M71.99,0 L67.67,22.93 M67.67,22.93 L35.41,21.88 M35.41,21.88 L35.3,21.74 M100,34.54 L68.46,24.46 M68.46,24.46 L67.67,22.93 M35.41,21.88 L34.15,42.79 M34.15,42.79 L0,50.2 M68.46,24.46 L62.85,47.8 M62.85,47.8 L41.54,51.66 M41.54,51.66 L34.15,42.79 M100,49.13 L67.24,52.84 M67.24,52.84 L62.85,47.8 M41.54,51.66 L36.92,74.67 M36.92,74.67 L0,68.66 M67.24,52.84 L70.17,74.12 M70.17,74.12 L65.89,77.69 M65.89,77.69 L36.96,74.75 M36.96,74.75 L36.92,74.67 M100,77.78 L70.17,74.12 M36.96,74.75 L35.22,100 M65.89,77.69 L64.83,100\"/></svg>";
+  var FIELD_PATHS_SVG = "<svg class=\"field-paths\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path class=\"path-edge\" d=\"M17.67,19.34 L0.00,16.33 M24.99,11.21 L17.67,19.34 M24.66,0.00 L24.99,11.21 M49.44,20.28 L48.93,20.68 M52.24,0.00 L49.44,20.28 M48.93,20.68 L24.99,11.21 M71.38,19.08 L69.10,21.48 M72.99,0.00 L71.38,19.08 M69.10,21.48 L49.44,20.28 M100.00,17.55 L71.38,19.08 M20.56,38.82 L0.00,45.32 M17.67,19.34 L20.56,38.82 M23.59,40.61 L20.56,38.82 M45.28,34.13 L23.59,40.61 M48.93,20.68 L45.28,34.13 M53.80,46.91 L45.28,34.13 M73.11,34.09 L53.80,46.91 M69.10,21.48 L73.11,34.09 M81.44,40.21 L73.11,34.09 M100.00,31.17 L81.44,40.21 M21.95,67.10 L0.00,53.68 M28.41,59.92 L21.95,67.10 M23.59,40.61 L28.41,59.92 M45.41,62.48 L28.41,59.92 M54.72,54.21 L45.41,62.48 M53.80,46.91 L54.72,54.21 M73.19,62.02 L54.72,54.21 M79.58,56.50 L73.19,62.02 M81.44,40.21 L79.58,56.50 M100.00,59.45 L79.58,56.50 M20.39,72.63 L0.00,78.46 M21.95,67.10 L20.39,72.63 M23.03,77.51 L20.39,72.63 M47.79,83.89 L23.03,77.51 M45.41,62.48 L47.79,83.89 M48.43,84.97 L47.79,83.89 M74.17,75.31 L48.43,84.97 M73.19,62.02 L74.17,75.31 M76.05,77.55 L74.17,75.31 M100.00,82.33 L76.05,77.55 M23.03,77.51 L21.09,100.00 M48.43,84.97 L47.34,100.00 M76.05,77.55 L74.10,100.00\"/><path class=\"path-fill\" d=\"M17.67,19.34 L0.00,16.33 M24.99,11.21 L17.67,19.34 M24.66,0.00 L24.99,11.21 M49.44,20.28 L48.93,20.68 M52.24,0.00 L49.44,20.28 M48.93,20.68 L24.99,11.21 M71.38,19.08 L69.10,21.48 M72.99,0.00 L71.38,19.08 M69.10,21.48 L49.44,20.28 M100.00,17.55 L71.38,19.08 M20.56,38.82 L0.00,45.32 M17.67,19.34 L20.56,38.82 M23.59,40.61 L20.56,38.82 M45.28,34.13 L23.59,40.61 M48.93,20.68 L45.28,34.13 M53.80,46.91 L45.28,34.13 M73.11,34.09 L53.80,46.91 M69.10,21.48 L73.11,34.09 M81.44,40.21 L73.11,34.09 M100.00,31.17 L81.44,40.21 M21.95,67.10 L0.00,53.68 M28.41,59.92 L21.95,67.10 M23.59,40.61 L28.41,59.92 M45.41,62.48 L28.41,59.92 M54.72,54.21 L45.41,62.48 M53.80,46.91 L54.72,54.21 M73.19,62.02 L54.72,54.21 M79.58,56.50 L73.19,62.02 M81.44,40.21 L79.58,56.50 M100.00,59.45 L79.58,56.50 M20.39,72.63 L0.00,78.46 M21.95,67.10 L20.39,72.63 M23.03,77.51 L20.39,72.63 M47.79,83.89 L23.03,77.51 M45.41,62.48 L47.79,83.89 M48.43,84.97 L47.79,83.89 M74.17,75.31 L48.43,84.97 M73.19,62.02 L74.17,75.31 M76.05,77.55 L74.17,75.31 M100.00,82.33 L76.05,77.55 M23.03,77.51 L21.09,100.00 M48.43,84.97 L47.34,100.00 M76.05,77.55 L74.10,100.00\"/></svg>";
 
   function renderPlots() {
     var html = "";
