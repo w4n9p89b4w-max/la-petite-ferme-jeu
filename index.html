@@ -9,10 +9,10 @@
     --sky-1: #262b2f;
     --sky-2: #3f3a2e;
     --sky-3: #33393a;
-    --soil-1: #6b4a30;
-    --soil-2: #46301e;
+    --soil-1: #6b5738;
+    --soil-2: #453a26;
     --soil-edge: #241a10;
-    --furrow: #5a3d26;
+    --furrow: #4f4128;
     --leaf: #7ab24e;
     --leaf-dark: #4a7a2e;
     --barn: #d9601a;
@@ -30,17 +30,24 @@
     --text-on-color: #fff8ea;
     --locked: #565b60;
     --locked-dark: #3a3e42;
-    --grass-1: #7a9c52;
-    --grass-2: #5c7d34;
-    --grass-edge: #3d5322;
-    --road: #8a7654;
+    --grass-1: #7d8f52;
+    --grass-2: #5e6d3a;
+    --grass-edge: #3f4a26;
+    --road: #86795d;
     --road-edge: #6b5636;
-    --wild-1: #5c7538;
-    --wild-2: #384522;
-    --house-wall: #e6d7ae;
-    --house-wall-dark: #b8a06f;
-    --river-1: #6fb3d8;
-    --river-2: #2f6f96;
+    --wild-1: #5f6b3e;
+    --wild-2: #373f21;
+    --house-wall: #d8cba3;
+    --house-wall-dark: #a89468;
+    --river-1: #6a93a0;
+    --river-2: #33586a;
+    --leaf-field: #6f8a4a;
+    --leaf-field-dark: #3f5a2a;
+    --barn-field: #9c4a35;
+    --barn-field-dark: #6e3120;
+    --roof-1: #8a5a42;
+    --roof-2: #5c3a28;
+    --field-path-edge: #4a3d28;
     --shadow: rgba(0, 0, 0, 0.55);
     color-scheme: dark;
   }
@@ -50,10 +57,10 @@
       --sky-1: #1c2023;
       --sky-2: #322e24;
       --sky-3: #292d2e;
-      --soil-1: #5a3d27;
-      --soil-2: #3a2818;
+      --soil-1: #5c4a2f;
+      --soil-2: #392f1f;
       --soil-edge: #1c130b;
-      --furrow: #4a3220;
+      --furrow: #40341f;
       --leaf: #72a648;
       --leaf-dark: #446e29;
       --barn: #cc5716;
@@ -66,17 +73,24 @@
       --paper-edge: #4a5158;
       --locked: #484d51;
       --locked-dark: #2f3336;
-      --grass-1: #6c8c48;
-      --grass-2: #4e6c2c;
-      --grass-edge: #33461c;
-      --road: #7a6748;
+      --grass-1: #6f8049;
+      --grass-2: #52602f;
+      --grass-edge: #333c1e;
+      --road: #766a4f;
       --road-edge: #5c4a2c;
-      --wild-1: #4e6530;
-      --wild-2: #2e3a1a;
-      --house-wall: #d9c99a;
-      --house-wall-dark: #a6905f;
-      --river-1: #5a9bc2;
-      --river-2: #275a7c;
+      --wild-1: #525d34;
+      --wild-2: #2d331a;
+      --house-wall: #cbbd8f;
+      --house-wall-dark: #96835a;
+      --river-1: #587c88;
+      --river-2: #2a4856;
+      --leaf-field: #5f7a40;
+      --leaf-field-dark: #374f24;
+      --barn-field: #8a4030;
+      --barn-field-dark: #5f2a1c;
+      --roof-1: #7a4e38;
+      --roof-2: #4f3122;
+      --field-path-edge: #3c3120;
       --shadow: rgba(0, 0, 0, 0.6);
       color-scheme: dark;
     }
@@ -86,10 +100,10 @@
     --sky-1: #1c2023;
     --sky-2: #322e24;
     --sky-3: #292d2e;
-    --soil-1: #5a3d27;
-    --soil-2: #3a2818;
+    --soil-1: #5c4a2f;
+    --soil-2: #392f1f;
     --soil-edge: #1c130b;
-    --furrow: #4a3220;
+    --furrow: #40341f;
     --leaf: #72a648;
     --leaf-dark: #446e29;
     --barn: #cc5716;
@@ -102,17 +116,24 @@
     --paper-edge: #4a5158;
     --locked: #484d51;
     --locked-dark: #2f3336;
-    --grass-1: #6c8c48;
-    --grass-2: #4e6c2c;
-    --grass-edge: #33461c;
-    --road: #7a6748;
+    --grass-1: #6f8049;
+    --grass-2: #52602f;
+    --grass-edge: #333c1e;
+    --road: #766a4f;
     --road-edge: #5c4a2c;
-    --wild-1: #4e6530;
-    --wild-2: #2e3a1a;
-    --house-wall: #d9c99a;
-    --house-wall-dark: #a6905f;
-    --river-1: #5a9bc2;
-    --river-2: #275a7c;
+    --wild-1: #525d34;
+    --wild-2: #2d331a;
+    --house-wall: #cbbd8f;
+    --house-wall-dark: #96835a;
+    --river-1: #587c88;
+    --river-2: #2a4856;
+    --leaf-field: #5f7a40;
+    --leaf-field-dark: #374f24;
+    --barn-field: #8a4030;
+    --barn-field-dark: #5f2a1c;
+    --roof-1: #7a4e38;
+    --roof-2: #4f3122;
+    --field-path-edge: #3c3120;
     --shadow: rgba(0, 0, 0, 0.6);
     color-scheme: dark;
   }
@@ -428,14 +449,19 @@
     position: absolute;
     width: 22px;
     height: 22px;
+    /* Per-tree hue/lightness jitter (set inline from seededRand in
+       fieldLandscapeHtml) so a cluster of 46 trees doesn't read as one
+       shape copy-pasted — a few degrees of hue and a touch of brightness
+       is enough to break up the "clip-art forest" look. */
+    filter: hue-rotate(var(--tree-hue, 0deg)) brightness(var(--tree-lum, 1));
   }
   .forest-tree::before {
     content: "";
     position: absolute;
     left: 6px;
-    bottom: -4px;
+    bottom: -5px;
     width: 4px;
-    height: 8px;
+    height: 9px;
     background: var(--soil-edge);
     border-radius: 1px;
   }
@@ -443,9 +469,11 @@
     content: "";
     position: absolute;
     inset: 0;
-    border-radius: 50%;
-    background: radial-gradient(circle at 34% 30%, var(--leaf), var(--leaf-dark) 78%);
-    box-shadow: 0 2px 5px -2px rgba(0,0,0,0.35);
+    /* An irregular blob (per-tree via inline --tree-shape) instead of a
+       perfect circle — real canopies aren't compass-drawn. */
+    border-radius: var(--tree-shape, 42% 58% 63% 37% / 45% 40% 60% 55%);
+    background: radial-gradient(circle at 32% 26%, var(--leaf-field), var(--leaf-field-dark) 82%);
+    box-shadow: 0 2px 5px -2px rgba(0,0,0,0.4);
   }
 
   .village { position: absolute; }
@@ -464,8 +492,8 @@
     position: absolute;
     left: 0; bottom: 0;
     width: 100%; height: 65%;
-    background: var(--house-wall);
-    border: 1.5px solid var(--soil-edge);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--house-wall) 100%, white 10%), var(--house-wall) 55%, var(--house-wall-dark));
+    border: 1px solid var(--soil-edge);
     border-radius: 1px;
   }
   .house::after {
@@ -474,7 +502,9 @@
     top: 0; left: -3px;
     width: calc(100% + 6px);
     height: 46%;
-    background: var(--barn);
+    background:
+      repeating-linear-gradient(115deg, rgba(0,0,0,0.16) 0 1.5px, transparent 1.5px 4px),
+      linear-gradient(165deg, var(--roof-1), var(--roof-2));
     clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
   }
   .church {
@@ -487,15 +517,17 @@
     position: absolute;
     left: 3px; bottom: 0;
     width: 14px; height: 22px;
-    background: var(--house-wall);
-    border: 1.5px solid var(--soil-edge);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--house-wall) 100%, white 10%), var(--house-wall) 55%, var(--house-wall-dark));
+    border: 1px solid var(--soil-edge);
   }
   .church::after {
     content: "";
     position: absolute;
     top: 0; left: 0;
     width: 20px; height: 16px;
-    background: var(--barn-dark);
+    background:
+      repeating-linear-gradient(115deg, rgba(0,0,0,0.18) 0 1.5px, transparent 1.5px 4px),
+      linear-gradient(165deg, var(--roof-1), var(--roof-2));
     clip-path: polygon(50% 0%, 100% 55%, 100% 100%, 0% 100%, 0% 55%);
   }
   .church-spire {
@@ -504,7 +536,7 @@
     left: 50%;
     width: 2px;
     height: 8px;
-    background: var(--barn-dark);
+    background: var(--soil-edge);
     transform: translateX(-50%);
   }
   .church-spire::before {
@@ -514,7 +546,7 @@
     left: -2px;
     width: 6px;
     height: 2px;
-    background: var(--barn-dark);
+    background: var(--soil-edge);
   }
 
   /* Square inset the actual crop grid lives in, positioned inside the
@@ -579,9 +611,10 @@
     left: 2%;
     right: 2%;
     top: 50%;
-    height: 3px;
+    height: 2px;
     transform: translateY(-50%);
-    background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--paper) 70%, transparent) 0 14px, transparent 14px 26px);
+    opacity: 0.5;
+    background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--house-wall) 55%, transparent) 0 10px, transparent 10px 22px);
   }
 
   /* The farmyard barn, tucked in the corner just past the plots-frame. */
@@ -599,8 +632,10 @@
     bottom: 0;
     width: 100%;
     height: 68%;
-    background: var(--barn);
-    border: 2px solid var(--barn-dark);
+    background:
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.14) 0 1.5px, transparent 1.5px 7px),
+      linear-gradient(180deg, color-mix(in srgb, var(--barn-field) 100%, white 12%), var(--barn-field) 60%, var(--barn-field-dark));
+    border: 1.5px solid var(--barn-field-dark);
     border-radius: 2px;
   }
   .barn-roof {
@@ -609,7 +644,9 @@
     left: -4px;
     width: calc(100% + 8px);
     height: 20px;
-    background: var(--barn-dark);
+    background:
+      repeating-linear-gradient(115deg, rgba(0,0,0,0.18) 0 1.5px, transparent 1.5px 4.5px),
+      linear-gradient(165deg, var(--roof-1), var(--roof-2));
     clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
   }
   .barn-door {
@@ -631,43 +668,17 @@
     height: 10px;
     border-radius: 50%;
     background: var(--gold-bright);
-    box-shadow: 0 0 0 2px var(--barn-dark);
+    box-shadow: 0 0 0 2px var(--barn-field-dark);
   }
-
-  .tree {
-    position: absolute;
-    width: 26px;
-    height: 26px;
-  }
-  .tree::before {
-    content: "";
-    position: absolute;
-    left: 6px;
-    bottom: -4px;
-    width: 4px;
-    height: 10px;
-    background: var(--soil-edge);
-    border-radius: 1px;
-  }
-  .tree::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: radial-gradient(circle at 34% 30%, var(--leaf), var(--leaf-dark) 78%);
-    box-shadow: 0 3px 6px -2px rgba(0,0,0,0.3);
-  }
-  .tree.t1 { top: 3.1rem; left: 2%; transform: scale(1); }
-  .tree.t2 { top: 3.3rem; left: 6.5%; width: 20px; height: 20px; transform: scale(0.85); }
-  .tree.t3 { bottom: 4%; right: 2.5%; width: 22px; height: 22px; }
 
   .plots {
     position: relative;
     z-index: 1;
     aspect-ratio: 1 / 1;
-    background: var(--road-edge);
+    background: linear-gradient(155deg, var(--soil-1), var(--soil-2));
     border-radius: 6px;
-    padding: 0.4rem;
+    padding: 0.3rem;
+    box-shadow: inset 0 0 0 1px var(--soil-edge);
   }
 
   /* ---------- Field paths ----------
@@ -689,8 +700,8 @@
     stroke-linejoin: round;
     vector-effect: non-scaling-stroke;
   }
-  .field-paths .path-edge { stroke: var(--road-edge); stroke-width: 5; }
-  .field-paths .path-fill { stroke: var(--road); stroke-width: 2.4; }
+  .field-paths .path-edge { stroke: var(--field-path-edge); stroke-width: 4; }
+  .field-paths .path-fill { stroke: var(--road); stroke-width: 1.8; }
 
   /* ---------- Field bed (plot tile) ----------
      Every plot is stacked full-size over the whole board and carved down to
@@ -705,6 +716,8 @@
     overflow: hidden;
     --furrow-angle: 170deg;
     background:
+      radial-gradient(120% 90% at 22% 18%, rgba(0,0,0,0.12), transparent 55%),
+      radial-gradient(90% 70% at 78% 82%, rgba(0,0,0,0.1), transparent 60%),
       repeating-linear-gradient(var(--furrow-angle),
         color-mix(in srgb, var(--furrow) 100%, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 55%)) 0 3px,
         transparent 3px 10px),
@@ -855,7 +868,7 @@
   .plot[data-shape="bulb"] .crop-canopy {
     background-image:
       radial-gradient(circle calc(1.3px + var(--grow-progress, 0) * 2px) at center,
-        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 88%,
+        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf-field)) 88%,
         transparent 100%);
     background-size: 6px 9px;
     background-position: 0 0;
@@ -864,7 +877,7 @@
   .plot[data-shape="spike"] .crop-canopy {
     background-image:
       radial-gradient(circle calc(1.1px + var(--grow-progress, 0) * 1.7px) at center,
-        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 85%,
+        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf-field)) 85%,
         transparent 100%);
     background-size: 5px 7.5px;
     background-position: 0 0;
@@ -873,8 +886,8 @@
   .plot[data-shape="carrot"] .crop-canopy {
     background-image:
       radial-gradient(circle calc(1.1px + var(--grow-progress, 0) * 1.8px) at center,
-        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf-dark)) 0 50%,
-        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 55% 100%);
+        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf-field-dark)) 0 50%,
+        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf-field)) 55% 100%);
     background-size: 5.2px 8px;
     background-position: 0 0;
   }
@@ -882,7 +895,7 @@
   .plot[data-shape="pumpkin"] .crop-canopy {
     background-image:
       radial-gradient(circle calc(2.8px + var(--grow-progress, 0) * 2.6px) at center,
-        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 88%,
+        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf-field)) 88%,
         transparent 100%);
     background-size: 9.5px 14px;
     background-position: 0 0;
@@ -891,8 +904,8 @@
   .plot[data-shape="bloom"] .crop-canopy {
     background-image:
       radial-gradient(circle calc(1.4px + var(--grow-progress, 0) * 2px) at center,
-        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf-dark)) 0 40%,
-        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf)) 45% 100%);
+        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf-field-dark)) 0 40%,
+        color-mix(in srgb, var(--crop-a, transparent) calc(var(--grow-progress, 0) * 100%), var(--leaf-field)) 45% 100%);
     background-size: 6.2px 9.5px;
     background-position: 0 0;
   }
@@ -2842,16 +2855,22 @@
   function fieldLandscapeHtml() {
     var html = "";
 
-    // River down the left margin, with a lighter reflection line down its
-    // middle. preserveAspectRatio="none" so it stretches to fill the
-    // strip regardless of the field's real aspect ratio.
+    // River down the left margin. A muted diagonal gradient instead of a
+    // flat fill (light glancing across the water, not a poster-flat
+    // color), plus a few broken/dashed ripple lines rather than one clean
+    // "shiny cartoon" reflection stroke. preserveAspectRatio="none" so it
+    // stretches to fill the strip regardless of the field's real aspect
+    // ratio.
     html += '<svg class="river" viewBox="0 0 100 300" preserveAspectRatio="none" aria-hidden="true">' +
-      '<defs><linearGradient id="riverGrad" x1="0" y1="0" x2="1" y2="0">' +
-      '<stop offset="0%" stop-color="var(--river-2)"></stop>' +
-      '<stop offset="100%" stop-color="var(--river-1)"></stop>' +
+      '<defs><linearGradient id="riverGrad" x1="0" y1="0" x2="0.85" y2="1">' +
+      '<stop offset="0%" stop-color="var(--river-1)"></stop>' +
+      '<stop offset="100%" stop-color="var(--river-2)"></stop>' +
       '</linearGradient></defs>' +
       '<path d="M38,0 C55,30 20,55 40,85 C58,112 25,140 42,168 C58,194 22,222 40,250 C54,272 30,288 36,300 L0,300 L0,0 Z" fill="url(#riverGrad)"></path>' +
-      '<path d="M40,10 C54,35 24,58 42,86 C58,110 28,138 44,166 C58,190 26,220 42,248 C54,268 34,284 38,298" fill="none" stroke="color-mix(in srgb, var(--river-1) 60%, white)" stroke-width="2" opacity="0.5" stroke-linecap="round"></path>' +
+      '<path d="M40,10 C54,35 24,58 42,86 C58,110 28,138 44,166 C58,190 26,220 42,248 C54,268 34,284 38,298" fill="none" stroke="color-mix(in srgb, var(--river-1) 55%, white)" stroke-width="1.4" opacity="0.3" stroke-linecap="round" stroke-dasharray="3 7"></path>' +
+      '<path d="M30,45 C36,50 30,60 26,64" fill="none" stroke="color-mix(in srgb, var(--river-1) 45%, white)" stroke-width="1" opacity="0.22" stroke-linecap="round" stroke-dasharray="2 5"></path>' +
+      '<path d="M34,150 C40,156 33,165 29,170" fill="none" stroke="color-mix(in srgb, var(--river-1) 45%, white)" stroke-width="1" opacity="0.22" stroke-linecap="round" stroke-dasharray="2 5"></path>' +
+      '<path d="M32,235 C38,240 31,249 27,254" fill="none" stroke="color-mix(in srgb, var(--river-1) 45%, white)" stroke-width="1" opacity="0.22" stroke-linecap="round" stroke-dasharray="2 5"></path>' +
       '</svg>';
 
     // Village: a short lane with a handful of cottages and a chapel,
@@ -2882,7 +2901,20 @@
       // Keep the river's own banks lightly wooded, everything else denser
       // near the outer edge of the map.
       if (inRiver && seededRand(i * 7) > 0.4) continue;
-      trees.push('<div class="forest-tree" style="left:' + x.toFixed(1) + '%; top:' + y.toFixed(1) + '%; transform:scale(' + scale.toFixed(2) + '); z-index:' + (inRiver ? 1 : 0) + '"></div>');
+      // A few degrees of hue and a touch of brightness/shape jitter per
+      // tree, so 46 copies of the same canopy don't read as one clip-art
+      // shape stamped over and over.
+      var hue = -10 + seededRand(i * 3 + 1) * 20;
+      var lum = 0.88 + seededRand(i * 3 + 2) * 0.24;
+      var r1 = 36 + seededRand(i * 5 + 1) * 24;
+      var r2 = 68 - seededRand(i * 5 + 2) * 24;
+      var r3 = 58 + seededRand(i * 5 + 3) * 20;
+      var r4 = 42 - seededRand(i * 5 + 4) * 18;
+      var shape = r1.toFixed(0) + "% " + (100 - r1).toFixed(0) + "% " + r3.toFixed(0) + "% " + (100 - r3).toFixed(0) + "% / " +
+        r4.toFixed(0) + "% " + (100 - r4).toFixed(0) + "% " + r2.toFixed(0) + "% " + (100 - r2).toFixed(0) + "%";
+      var style = "left:" + x.toFixed(1) + "%; top:" + y.toFixed(1) + "%; transform:scale(" + scale.toFixed(2) + "); z-index:" +
+        (inRiver ? 1 : 0) + "; --tree-hue:" + hue.toFixed(1) + "deg; --tree-lum:" + lum.toFixed(2) + "; --tree-shape:" + shape + ";";
+      trees.push('<div class="forest-tree" style="' + style + '"></div>');
     }
     html += trees.join("");
 
