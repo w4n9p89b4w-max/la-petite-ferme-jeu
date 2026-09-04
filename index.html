@@ -2151,7 +2151,11 @@
     if (!s.priceHistory) s.priceHistory = {};
     CROP_ORDER.forEach(function (key) {
       if (!Array.isArray(s.priceHistory[key]) || !s.priceHistory[key].length) {
-        s.priceHistory[key] = [{ t: Date.now(), mult: currentMarketMult(key) }];
+        // s.market was just normalized above — read it directly rather than
+        // through currentMarketMult(), which reads the module-level `state`
+        // variable that migrateState() runs before (it's still being
+        // assigned the very call this is part of), and would be undefined.
+        s.priceHistory[key] = [{ t: Date.now(), mult: s.market[key].mult }];
       }
     });
     if (!s.totalSold) s.totalSold = {};
