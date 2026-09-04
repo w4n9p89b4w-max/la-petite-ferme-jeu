@@ -342,6 +342,23 @@
     gap: 0.8rem;
   }
 
+  /* Garage cards run portrait — narrower columns, taller display case —
+     rather than the wide/short layout the other grids use. */
+  .garage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.7rem;
+    align-items: start;
+  }
+  /* Narrower cards mean "name" and "N au total" no longer fit on one
+     line — stack them instead of letting the flex row crush together. */
+  .garage-grid .seed-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
+  }
+  .garage-grid .level-badge { font-size: 0.72rem; }
+
   .field {
     position: relative;
     background:
@@ -1209,7 +1226,9 @@
     flex: 1;
     min-width: 0;
   }
-  .carousel-stage .dealer-visual { margin-bottom: 0; }
+  .carousel-stage .dealer-visual { margin-bottom: 0; height: 168px; }
+  .carousel-stage .dealer-icon { width: 92px; height: 64px; bottom: 18px; }
+  .carousel-stage .dealer-icon:has(.dealer-photo) { width: 92%; height: 130px; bottom: 30px; }
   .carousel-arrow {
     flex: none;
     width: 30px;
@@ -1827,7 +1846,7 @@
     <section class="view page-wrap" id="view-garage" role="tabpanel" hidden>
       <h2>Garage</h2>
       <p class="shop-hint">Tracteurs, charrues, semoirs et moissonneuses forment chacun leur propre flotte : achète-en plusieurs, du même modèle ou d'une meilleure marque, sans que ça accélère ceux déjà achetés. Avant chaque labour, semis ou récolte, choisis jusqu'à 3 tracteurs et 3 outils correspondants (charrue pour labourer, semoir pour semer, moissonneuse pour récolter) parmi ceux libres — leurs vitesses s'additionnent, donc en envoyer plusieurs sur le même champ accélère nettement la tâche. Le semoir réduit aussi le prix des graines, selon le meilleur modèle possédé.</p>
-      <div class="upgrade-grid" id="garageList"></div>
+      <div class="garage-grid" id="garageList"></div>
     </section>
   </main>
 
