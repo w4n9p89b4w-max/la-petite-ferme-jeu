@@ -2,106 +2,106 @@
 <meta charset="utf-8">
 <title>La Petite Ferme</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Nunito:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Rajdhani:wght@500;600;700&display=swap">
 
 <style>
   :root {
-    --sky-1: #f7e2b8;
-    --sky-2: #eea968;
-    --sky-3: #f3c98a;
-    --soil-1: #8a5c3c;
-    --soil-2: #5c3b25;
-    --soil-edge: #3c2415;
-    --furrow: #6e4830;
-    --leaf: #6a9c46;
-    --leaf-dark: #3f7028;
-    --barn: #b8452e;
-    --barn-dark: #8c3320;
-    --gold: #cf8f24;
-    --gold-bright: #f0b93f;
-    --ink: #2e2013;
-    --ink-soft: #6b5540;
-    --paper: #fff8ea;
-    --paper-edge: #e2c48f;
+    --sky-1: #262b2f;
+    --sky-2: #3f3a2e;
+    --sky-3: #33393a;
+    --soil-1: #6b4a30;
+    --soil-2: #46301e;
+    --soil-edge: #241a10;
+    --furrow: #5a3d26;
+    --leaf: #7ab24e;
+    --leaf-dark: #4a7a2e;
+    --barn: #d9601a;
+    --barn-dark: #a8450f;
+    --gold: #c99427;
+    --gold-bright: #f3c04a;
+    --ink: #f1ece0;
+    --ink-soft: #b9c0c4;
+    --paper: #34393e;
+    --paper-edge: #5a6169;
     /* Fixed light color for text/icons drawn over the illustrated scene or
        a solid-hue badge/button (barn red, leaf green, gold...) — unlike
        --paper it never flips dark in night mode, since those backgrounds
        don't flip either and would otherwise lose contrast. */
     --text-on-color: #fff8ea;
-    --locked: #a3907a;
-    --locked-dark: #6b5a48;
-    --grass-1: #a3c667;
-    --grass-2: #7fa84c;
-    --grass-edge: #5c7d34;
-    --road: #d8b988;
-    --road-edge: #b8925c;
-    --wild-1: #82a154;
-    --wild-2: #55712f;
-    --shadow: rgba(48, 28, 12, 0.28);
-    color-scheme: light;
+    --locked: #565b60;
+    --locked-dark: #3a3e42;
+    --grass-1: #7a9c52;
+    --grass-2: #5c7d34;
+    --grass-edge: #3d5322;
+    --road: #8a7654;
+    --road-edge: #6b5636;
+    --wild-1: #5c7538;
+    --wild-2: #384522;
+    --shadow: rgba(0, 0, 0, 0.55);
+    color-scheme: dark;
   }
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --sky-1: #1c2340;
-      --sky-2: #4a2f4f;
-      --sky-3: #2d2650;
-      --soil-1: #4a3220;
-      --soil-2: #241708;
-      --soil-edge: #150d05;
-      --furrow: #382517;
-      --leaf: #6fae4a;
-      --leaf-dark: #3f7a2a;
-      --barn: #d1573a;
-      --barn-dark: #9c3f28;
-      --gold: #e6a72e;
-      --gold-bright: #f7c757;
-      --ink: #f4e8d2;
-      --ink-soft: #cbb996;
-      --paper: #2a2035;
-      --paper-edge: #4a3a52;
-      --locked: #4d4258;
-      --locked-dark: #342b3d;
-      --grass-1: #3c5a2a;
-      --grass-2: #29401b;
-      --grass-edge: #182710;
-      --road: #6b5636;
-      --road-edge: #4a3a22;
-      --wild-1: #33481f;
-      --wild-2: #202f13;
-      --shadow: rgba(0, 0, 0, 0.45);
+      --sky-1: #1c2023;
+      --sky-2: #322e24;
+      --sky-3: #292d2e;
+      --soil-1: #5a3d27;
+      --soil-2: #3a2818;
+      --soil-edge: #1c130b;
+      --furrow: #4a3220;
+      --leaf: #72a648;
+      --leaf-dark: #446e29;
+      --barn: #cc5716;
+      --barn-dark: #98400e;
+      --gold: #b9821f;
+      --gold-bright: #e6b23f;
+      --ink: #ece6d8;
+      --ink-soft: #a7aeb2;
+      --paper: #2a2e32;
+      --paper-edge: #4a5158;
+      --locked: #484d51;
+      --locked-dark: #2f3336;
+      --grass-1: #6c8c48;
+      --grass-2: #4e6c2c;
+      --grass-edge: #33461c;
+      --road: #7a6748;
+      --road-edge: #5c4a2c;
+      --wild-1: #4e6530;
+      --wild-2: #2e3a1a;
+      --shadow: rgba(0, 0, 0, 0.6);
       color-scheme: dark;
     }
   }
 
   :root[data-theme="dark"] {
-    --sky-1: #1c2340;
-    --sky-2: #4a2f4f;
-    --sky-3: #2d2650;
-    --soil-1: #4a3220;
-    --soil-2: #241708;
-    --soil-edge: #150d05;
-    --furrow: #382517;
-    --leaf: #6fae4a;
-    --leaf-dark: #3f7a2a;
-    --barn: #d1573a;
-    --barn-dark: #9c3f28;
-    --gold: #e6a72e;
-    --gold-bright: #f7c757;
-    --ink: #f4e8d2;
-    --ink-soft: #cbb996;
-    --paper: #2a2035;
-    --paper-edge: #4a3a52;
-    --locked: #4d4258;
-    --locked-dark: #342b3d;
-    --grass-1: #3c5a2a;
-    --grass-2: #29401b;
-    --grass-edge: #182710;
-    --road: #6b5636;
-    --road-edge: #4a3a22;
-    --wild-1: #33481f;
-    --wild-2: #202f13;
-    --shadow: rgba(0, 0, 0, 0.45);
+    --sky-1: #1c2023;
+    --sky-2: #322e24;
+    --sky-3: #292d2e;
+    --soil-1: #5a3d27;
+    --soil-2: #3a2818;
+    --soil-edge: #1c130b;
+    --furrow: #4a3220;
+    --leaf: #72a648;
+    --leaf-dark: #446e29;
+    --barn: #cc5716;
+    --barn-dark: #98400e;
+    --gold: #b9821f;
+    --gold-bright: #e6b23f;
+    --ink: #ece6d8;
+    --ink-soft: #a7aeb2;
+    --paper: #2a2e32;
+    --paper-edge: #4a5158;
+    --locked: #484d51;
+    --locked-dark: #2f3336;
+    --grass-1: #6c8c48;
+    --grass-2: #4e6c2c;
+    --grass-edge: #33461c;
+    --road: #7a6748;
+    --road-edge: #5c4a2c;
+    --wild-1: #4e6530;
+    --wild-2: #2e3a1a;
+    --shadow: rgba(0, 0, 0, 0.6);
     color-scheme: dark;
   }
 
@@ -112,7 +112,7 @@
     margin: 0;
     background: var(--sky-1);
     color: var(--ink);
-    font-family: "Nunito", system-ui, sans-serif;
+    font-family: "Rajdhani", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -148,9 +148,9 @@
 
   .cloud {
     position: absolute;
-    background: color-mix(in srgb, var(--paper) 80%, transparent);
+    background: color-mix(in srgb, var(--ink-soft) 55%, transparent);
     border-radius: 999px;
-    opacity: 0.55;
+    opacity: 0.3;
   }
   .cloud.c1 { width: 120px; height: 34px; top: 20%; left: -10%; animation: drift-cloud 40s linear infinite; }
   .cloud.c2 { width: 84px; height: 24px; top: 42%; left: -20%; animation: drift-cloud 55s linear infinite 6s; }
@@ -181,12 +181,15 @@
 
   h1 {
     margin: 0 0 1.1rem;
-    font-family: "Fraunces", Georgia, serif;
+    font-family: "Oswald", "Arial Narrow", sans-serif;
     font-optical-sizing: auto;
     font-weight: 700;
     font-size: clamp(2.1rem, 5.5vw, 3rem);
     text-wrap: balance;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
     color: var(--ink);
+    text-shadow: 0 2px 0 rgba(0,0,0,0.35);
   }
 
   .stats { display: flex; gap: 0.7rem; flex-wrap: wrap; }
@@ -273,22 +276,24 @@
     align-items: center;
     gap: 0.4rem;
     border: 1px solid var(--paper-edge);
-    background: var(--paper);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--paper) 100%, white 6%), var(--paper) 60%);
     color: var(--ink-soft);
-    font-family: inherit;
-    font-weight: 800;
-    font-size: 0.88rem;
+    font-family: "Oswald", "Arial Narrow", sans-serif;
+    font-weight: 600;
+    font-size: 0.86rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
     padding: 0.55rem 1.1rem;
-    border-radius: 999px 999px 0 0;
+    border-radius: 6px 6px 0 0;
     cursor: pointer;
-    box-shadow: 0 4px 0 var(--paper-edge);
+    box-shadow: 0 4px 0 var(--paper-edge), inset 0 1px 0 rgba(255,255,255,0.12);
   }
   .tab-btn:hover { color: var(--ink); }
   .tab-btn:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 2px; }
   .tab-btn.active {
     color: var(--ink);
-    background: var(--paper);
-    box-shadow: 0 4px 0 var(--barn);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--paper) 100%, white 6%), var(--paper) 60%);
+    box-shadow: 0 4px 0 var(--gold), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 0 0 1px color-mix(in srgb, var(--gold-bright) 55%, transparent);
   }
 
   .tab-badge {
@@ -325,7 +330,7 @@
   }
   .page-wrap h2 {
     margin: 0 0 0.4rem;
-    font-family: "Fraunces", serif;
+    font-family: "Oswald", "Arial Narrow", sans-serif;
     font-weight: 600;
     font-size: 1.4rem;
   }
@@ -725,7 +730,7 @@
 
   .shop h2 {
     margin: 0 0 0.8rem;
-    font-family: "Fraunces", serif;
+    font-family: "Oswald", "Arial Narrow", sans-serif;
     font-weight: 600;
     font-size: 1.3rem;
   }
@@ -760,17 +765,20 @@
 
   .seed-buy {
     flex: none;
-    border: none;
-    border-radius: 8px;
+    border: 1px solid color-mix(in srgb, var(--gold-bright) 40%, transparent);
+    border-radius: 6px;
     padding: 0.3rem 0.55rem;
-    background: var(--gold);
-    color: var(--ink);
-    font-weight: 800;
-    font-family: inherit;
+    background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+    color: var(--soil-edge);
+    font-weight: 700;
+    font-family: "Oswald", "Arial Narrow", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
     font-size: 0.74rem;
     cursor: pointer;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 2px 3px rgba(0,0,0,0.3);
   }
   .seed-buy:hover:not(:disabled) { background: var(--gold-bright); }
   .seed-buy:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 1px; }
@@ -890,12 +898,26 @@
   }
 
   .upgrade-card {
+    position: relative;
     border: 1.5px solid var(--paper-edge);
     background: color-mix(in srgb, var(--paper) 60%, transparent);
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 0.6rem 0.7rem;
-    box-shadow: 0 1px 2px rgba(60,36,18,0.06), 0 5px 12px -8px rgba(60,36,18,0.35);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 6px 14px -8px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06);
   }
+  /* Corner rivets — the little steel bolts that read "metal panel". */
+  .upgrade-card::before, .upgrade-card::after {
+    content: "";
+    position: absolute;
+    top: 7px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--paper-edge) 100%, white 25%), color-mix(in srgb, var(--paper-edge) 100%, black 25%));
+    box-shadow: 0 1px 1px rgba(0,0,0,0.4);
+  }
+  .upgrade-card::before { left: 7px; }
+  .upgrade-card::after { right: 7px; }
   .upgrade-card.maxed {
     border-color: var(--leaf-dark);
     background: color-mix(in srgb, var(--leaf) 14%, var(--paper));
@@ -911,16 +933,19 @@
   .upgrade-buy {
     margin-top: 0.5rem;
     width: 100%;
-    border: none;
-    border-radius: 8px;
+    border: 1px solid color-mix(in srgb, var(--barn-dark) 60%, black 15%);
+    border-radius: 6px;
     padding: 0.5rem 0.6rem;
-    background: var(--barn);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--barn) 100%, white 12%), var(--barn) 55%, var(--barn-dark));
     color: var(--text-on-color);
-    font-weight: 800;
-    font-family: inherit;
+    font-weight: 600;
+    font-family: "Oswald", "Arial Narrow", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
     font-size: 0.82rem;
     cursor: pointer;
     font-variant-numeric: tabular-nums;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 2px 4px rgba(0,0,0,0.35);
   }
   .upgrade-buy:hover { background: var(--barn-dark); }
   .upgrade-buy:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 1px; }
@@ -1244,15 +1269,28 @@
 
   /* ---------- Market ---------- */
   .market-card {
+    position: relative;
     border: 1.5px solid var(--paper-edge);
     background: var(--paper);
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 0.7rem 0.8rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    box-shadow: 0 1px 2px rgba(60,36,18,0.06), 0 5px 12px -8px rgba(60,36,18,0.35);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 6px 14px -8px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06);
   }
+  .market-card::before, .market-card::after {
+    content: "";
+    position: absolute;
+    top: 7px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--paper-edge) 100%, white 25%), color-mix(in srgb, var(--paper-edge) 100%, black 25%));
+    box-shadow: 0 1px 1px rgba(0,0,0,0.4);
+  }
+  .market-card::before { left: 7px; }
+  .market-card::after { right: 7px; }
   .market-card.empty { opacity: 0.7; }
   .market-card.full { border-color: var(--barn); }
 
@@ -1323,16 +1361,19 @@
   }
 
   .sell-btn {
-    border: none;
-    border-radius: 8px;
+    border: 1px solid color-mix(in srgb, var(--leaf-dark) 70%, black 15%);
+    border-radius: 6px;
     padding: 0.5rem 0.6rem;
-    background: var(--leaf-dark);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--leaf) 100%, white 10%), var(--leaf-dark));
     color: var(--text-on-color);
-    font-weight: 800;
-    font-family: inherit;
+    font-weight: 600;
+    font-family: "Oswald", "Arial Narrow", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
     font-size: 0.85rem;
     cursor: pointer;
     font-variant-numeric: tabular-nums;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 2px 4px rgba(0,0,0,0.35);
   }
   .sell-btn:hover:not(:disabled) { background: var(--leaf); }
   .sell-btn:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 1px; }
@@ -1392,7 +1433,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: "Fraunces", serif;
+    font-family: "Oswald", "Arial Narrow", sans-serif;
     font-size: 1.6rem;
     color: color-mix(in srgb, var(--text-on-color) 45%, transparent);
     opacity: 0;
@@ -1504,7 +1545,7 @@
   }
   .modal-box h3 {
     margin: 0 0 0.7rem;
-    font-family: "Fraunces", serif;
+    font-family: "Oswald", "Arial Narrow", sans-serif;
     font-weight: 600;
     font-size: 1.15rem;
     color: var(--ink);
@@ -1559,7 +1600,7 @@
   }
   .modal-group-title {
     margin: 0.7rem 0 0.4rem;
-    font-family: "Fraunces", serif;
+    font-family: "Oswald", "Arial Narrow", sans-serif;
     font-weight: 600;
     font-size: 0.9rem;
     color: var(--ink);
@@ -1633,7 +1674,7 @@
   }
   .floater {
     position: absolute;
-    font-family: "Fraunces", serif;
+    font-family: "Oswald", "Arial Narrow", sans-serif;
     font-weight: 700;
     color: var(--gold-bright);
     text-shadow: 0 1px 3px rgba(0,0,0,0.4);
