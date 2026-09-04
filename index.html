@@ -350,6 +350,11 @@
     gap: 0.7rem;
     align-items: start;
   }
+  /* Phone width already lands on one wide card per row on its own; on
+     desktop, auto-fit would pack in 3-4 — pin it to two, wider still. */
+  @media (min-width: 760px) {
+    .garage-grid { grid-template-columns: repeat(2, 1fr); }
+  }
   /* Narrower cards mean "name" and "N au total" no longer fit on one
      line — stack them instead of letting the flex row crush together. */
   .garage-grid .seed-top {
