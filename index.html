@@ -346,8 +346,8 @@
      rather than the wide/short layout the other grids use. */
   .garage-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
-    gap: 0.6rem;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 0.7rem;
     align-items: start;
   }
   /* Narrower cards mean "name" and "N au total" no longer fit on one
@@ -1229,10 +1229,6 @@
   .carousel-stage .dealer-visual { margin-bottom: 0; height: 208px; }
   .carousel-stage .dealer-icon { width: 82px; height: 58px; bottom: 22px; }
   .carousel-stage .dealer-icon:has(.dealer-photo) { width: 88%; height: 165px; bottom: 36px; }
-  /* Slimmer arrows in the garage's narrow columns, so the display case
-     itself keeps most of the width. */
-  .garage-grid .carousel-arrow { width: 24px; height: 24px; font-size: 0.9rem; }
-  .garage-grid .carousel-row { gap: 0.2rem; }
   .carousel-arrow {
     flex: none;
     width: 30px;
