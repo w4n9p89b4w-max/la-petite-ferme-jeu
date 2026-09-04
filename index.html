@@ -894,6 +894,7 @@
     background: color-mix(in srgb, var(--paper) 60%, transparent);
     border-radius: 12px;
     padding: 0.6rem 0.7rem;
+    box-shadow: 0 1px 2px rgba(60,36,18,0.06), 0 5px 12px -8px rgba(60,36,18,0.35);
   }
   .upgrade-card.maxed {
     border-color: var(--leaf-dark);
@@ -933,28 +934,44 @@
      and static, plus new shapes for the three hand tools. */
   .dealer-visual {
     position: relative;
-    height: 64px;
+    height: 74px;
     margin-bottom: 0.5rem;
-    border-radius: 10px;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--paper) 40%, transparent), color-mix(in srgb, var(--road-edge) 30%, transparent) 85%);
+    border-radius: 12px;
+    background:
+      radial-gradient(60% 55% at 50% 26%, color-mix(in srgb, var(--gold-bright) 15%, transparent), transparent 72%),
+      linear-gradient(180deg, color-mix(in srgb, var(--paper) 45%, transparent) 0%, color-mix(in srgb, var(--road-edge) 32%, transparent) 88%);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 7%, transparent);
     overflow: hidden;
+  }
+  /* Podium: a lit platform under the vehicle (like a showroom pedestal),
+     plus a tighter, darker contact shadow where the wheels actually meet it. */
+  .dealer-visual::before {
+    content: "";
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    bottom: 5px;
+    height: 9px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--paper-edge) 85%, white 10%) 0%, color-mix(in srgb, var(--road-edge) 90%, black 14%) 100%);
+    box-shadow: 0 4px 5px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.35);
   }
   .dealer-visual::after {
     content: "";
     position: absolute;
-    left: 8%;
-    right: 8%;
-    bottom: 6px;
+    left: 24%;
+    right: 24%;
+    bottom: 8px;
     height: 4px;
     border-radius: 50%;
-    background: color-mix(in srgb, var(--ink) 18%, transparent);
-    filter: blur(1px);
+    background: color-mix(in srgb, var(--ink) 32%, transparent);
+    filter: blur(2px);
   }
 
   .dealer-icon {
     position: absolute;
     left: 50%;
-    bottom: 8px;
+    bottom: 13px;
     width: 66px;
     height: 46px;
     transform: translateX(-50%);
@@ -971,7 +988,7 @@
 
   /* Real tractor photos (background removed) render bigger than the
      CSS-drawn icons, so the box grows to fit them without cropping. */
-  .dealer-icon:has(.dealer-photo) { width: 92px; height: 56px; bottom: 4px; }
+  .dealer-icon:has(.dealer-photo) { width: 92px; height: 56px; bottom: 10px; }
   .dealer-photo {
     position: absolute;
     left: 50%;
@@ -1234,6 +1251,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    box-shadow: 0 1px 2px rgba(60,36,18,0.06), 0 5px 12px -8px rgba(60,36,18,0.35);
   }
   .market-card.empty { opacity: 0.7; }
   .market-card.full { border-color: var(--barn); }
@@ -1266,6 +1284,36 @@
     font-size: 0.72rem;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
+  }
+
+  /* Price gauge: where today's price sits between the market floor (left)
+     and the full, un-dipped price (right) — real data, not a fake chart. */
+  .price-gauge-track {
+    position: relative;
+    height: 6px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--barn) 20%, var(--paper-edge));
+    margin: 0.15rem 0.3rem 0.35rem 0;
+  }
+  .price-gauge-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--barn), var(--leaf));
+    transition: width 0.4s ease;
+  }
+  .price-gauge-marker {
+    position: absolute;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: left 0.4s ease;
   }
 
   .market-price {
@@ -2650,11 +2698,14 @@
       var mult = currentMarketMult(key);
       var price = effectivePricePerTonne(key);
       var dip = Math.round((1 - mult) * 100);
+      var gaugePct = Math.round(((mult - MARKET_FLOOR) / (1 - MARKET_FLOOR)) * 100);
+      gaugePct = Math.max(0, Math.min(100, gaugePct));
       html += '<div class="market-card' + (qty === 0 ? " empty" : "") + (qty >= cap ? " full" : "") + '">' +
         '<div class="seed-top"><span><span class="seed-swatch" style="background:' + def.a + '"></span>' + def.name + '</span></div>' +
         siloVisualHtml("harvest", qty, cap) +
         '<div class="market-qty">Dans la besace : <strong>' + fmtNum(qty) + ' t</strong> / ' + fmtNum(cap) + ' t' + (qty >= cap ? ' <span class="full-tag">pleine</span>' : '') + '</div>' +
         '<div class="market-price">' + fmtNum(price) + ' pièces la tonne' + (dip > 1 ? ' <span class="dip-tag">-' + dip + '%</span>' : '') + ' — ' + fmtNum(price * qty) + ' pièces au total</div>' +
+        '<div class="price-gauge-track"><div class="price-gauge-fill" style="width:' + gaugePct + '%"></div><div class="price-gauge-marker" style="left:' + gaugePct + '%"></div></div>' +
         '<button type="button" class="sell-btn" data-sell="' + key + '"' + (qty === 0 ? " disabled" : "") + '>Vendre tout</button>' +
         '</div>';
     }
