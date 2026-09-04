@@ -37,6 +37,10 @@
     --road-edge: #6b5636;
     --wild-1: #5c7538;
     --wild-2: #384522;
+    --house-wall: #e6d7ae;
+    --house-wall-dark: #b8a06f;
+    --river-1: #6fb3d8;
+    --river-2: #2f6f96;
     --shadow: rgba(0, 0, 0, 0.55);
     color-scheme: dark;
   }
@@ -69,6 +73,10 @@
       --road-edge: #5c4a2c;
       --wild-1: #4e6530;
       --wild-2: #2e3a1a;
+      --house-wall: #d9c99a;
+      --house-wall-dark: #a6905f;
+      --river-1: #5a9bc2;
+      --river-2: #275a7c;
       --shadow: rgba(0, 0, 0, 0.6);
       color-scheme: dark;
     }
@@ -101,6 +109,10 @@
     --road-edge: #5c4a2c;
     --wild-1: #4e6530;
     --wild-2: #2e3a1a;
+    --house-wall: #d9c99a;
+    --house-wall-dark: #a6905f;
+    --river-1: #5a9bc2;
+    --river-2: #275a7c;
     --shadow: rgba(0, 0, 0, 0.6);
     color-scheme: dark;
   }
@@ -364,16 +376,24 @@
   }
   .garage-grid .level-badge { font-size: 0.72rem; }
 
+  /* The field is a pannable/zoomable map: .field is the fixed-size window
+     (overflow hidden, frame styling), .field-world is the actual canvas —
+     bigger than the window — that a translate()+scale() transform moves
+     around inside it (see fieldView state / applyFieldView() in the
+     script). Everything that used to fill .field directly (decor, plots)
+     now lives inside .field-world instead. */
   .field {
     position: relative;
-    background:
-      linear-gradient(180deg, var(--grass-1), var(--grass-2));
     border: 1px solid var(--grass-edge);
     border-radius: 20px;
-    padding: 3.6rem 1rem 1rem;
+    aspect-ratio: 6 / 5;
     box-shadow: inset 0 2px 0 rgba(255,255,255,0.12), 0 10px 24px -14px var(--shadow);
     overflow: hidden;
+    touch-action: none;
+    cursor: grab;
+    background: linear-gradient(180deg, var(--grass-1), var(--grass-2));
   }
+  .field.dragging { cursor: grabbing; }
   .field::after {
     content: "";
     position: absolute;
@@ -384,35 +404,191 @@
     mix-blend-mode: soft-light;
   }
 
+  .field-world {
+    position: absolute;
+    inset: 0;
+    transform-origin: 0 0;
+  }
+
+  /* River, forest treeline and the village — the wider landscape framing
+     the actual crop plots, drawn once in JS (see fieldLandscapeHtml()). */
+  .field-landscape {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .river {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 34%;
+  }
+  .forest-tree {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+  }
+  .forest-tree::before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    bottom: -4px;
+    width: 4px;
+    height: 8px;
+    background: var(--soil-edge);
+    border-radius: 1px;
+  }
+  .forest-tree::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, var(--leaf), var(--leaf-dark) 78%);
+    box-shadow: 0 2px 5px -2px rgba(0,0,0,0.35);
+  }
+
+  .village { position: absolute; }
+  .village-road {
+    position: absolute;
+    background: var(--road);
+    border-radius: 2px;
+  }
+  .house {
+    position: absolute;
+    width: 26px;
+    height: 20px;
+  }
+  .house::before {
+    content: "";
+    position: absolute;
+    left: 0; bottom: 0;
+    width: 100%; height: 65%;
+    background: var(--house-wall);
+    border: 1.5px solid var(--soil-edge);
+    border-radius: 1px;
+  }
+  .house::after {
+    content: "";
+    position: absolute;
+    top: 0; left: -3px;
+    width: calc(100% + 6px);
+    height: 46%;
+    background: var(--barn);
+    clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+  }
+  .church {
+    position: absolute;
+    width: 20px;
+    height: 34px;
+  }
+  .church::before {
+    content: "";
+    position: absolute;
+    left: 3px; bottom: 0;
+    width: 14px; height: 22px;
+    background: var(--house-wall);
+    border: 1.5px solid var(--soil-edge);
+  }
+  .church::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 20px; height: 16px;
+    background: var(--barn-dark);
+    clip-path: polygon(50% 0%, 100% 55%, 100% 100%, 0% 100%, 0% 55%);
+  }
+  .church-spire {
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    width: 2px;
+    height: 8px;
+    background: var(--barn-dark);
+    transform: translateX(-50%);
+  }
+  .church-spire::before {
+    content: "";
+    position: absolute;
+    top: -3px;
+    left: -2px;
+    width: 6px;
+    height: 2px;
+    background: var(--barn-dark);
+  }
+
+  /* Square inset the actual crop grid lives in, positioned inside the
+     wider .field-world landscape (river to the left, village along the
+     top, forest bordering the rest). */
+  .plots-frame {
+    position: absolute;
+    left: 30%;
+    top: 12%;
+    width: 64%;
+    height: 64%;
+    z-index: 1;
+  }
+
+  .field-controls {
+    position: absolute;
+    right: 0.6rem;
+    bottom: 0.6rem;
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .field-zoom-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1.5px solid var(--paper-edge);
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    color: var(--ink);
+    font-size: 1.15rem;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px -2px rgba(0,0,0,0.4);
+  }
+  .field-zoom-btn:hover { background: var(--paper); }
+  .field-zoom-btn:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 1px; }
+  .field-zoom-reset { font-size: 0.95rem; }
+
   /* ---------- Farmland decor ---------- */
   .farmland-decor { position: absolute; inset: 0; pointer-events: none; }
 
+  /* The farm lane running along the top edge of the crop plots, linking
+     the village above to the plots-frame below. */
   .road {
     position: absolute;
-    top: 0;
-    left: -4%;
-    width: 108%;
-    height: 2.6rem;
+    top: 9%;
+    left: 28%;
+    width: 68%;
+    height: 1.6rem;
     background: var(--road);
     border-bottom: 3px solid var(--road-edge);
-    transform: rotate(-1.2deg);
     box-shadow: 0 3px 8px -2px rgba(0,0,0,0.25);
   }
   .road::after {
     content: "";
     position: absolute;
-    left: 4%;
-    right: 22%;
+    left: 2%;
+    right: 2%;
     top: 50%;
     height: 3px;
     transform: translateY(-50%);
     background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--paper) 70%, transparent) 0 14px, transparent 14px 26px);
   }
 
+  /* The farmyard barn, tucked in the corner just past the plots-frame. */
   .barn {
     position: absolute;
-    top: 0.15rem;
-    right: 6%;
+    top: 79%;
+    left: 89%;
     width: 52px;
     height: 40px;
   }
@@ -1809,19 +1985,26 @@
 
   <main>
     <section class="view field-wrap" id="view-field" role="tabpanel">
-      <div class="field" aria-label="Parcelles de culture">
-        <div class="farmland-decor" aria-hidden="true">
-          <div class="road"></div>
-          <div class="barn">
-            <div class="barn-roof"></div>
-            <div class="barn-door"></div>
-            <div class="barn-window"></div>
+      <div class="field" id="fieldViewport" aria-label="Parcelles de culture — glisser pour se déplacer, molette ou pincer pour zoomer">
+        <div class="field-world" id="fieldWorld">
+          <div class="field-landscape" id="fieldLandscape" aria-hidden="true"></div>
+          <div class="farmland-decor" aria-hidden="true">
+            <div class="road"></div>
+            <div class="barn">
+              <div class="barn-roof"></div>
+              <div class="barn-door"></div>
+              <div class="barn-window"></div>
+            </div>
           </div>
-          <div class="tree t1"></div>
-          <div class="tree t2"></div>
-          <div class="tree t3"></div>
+          <div class="plots-frame">
+            <div class="plots" id="plots"></div>
+          </div>
         </div>
-        <div class="plots" id="plots"></div>
+        <div class="field-controls" aria-hidden="true">
+          <button type="button" class="field-zoom-btn" id="zoomInBtn" aria-label="Zoomer">+</button>
+          <button type="button" class="field-zoom-btn" id="zoomOutBtn" aria-label="Dézoomer">−</button>
+          <button type="button" class="field-zoom-btn field-zoom-reset" id="zoomResetBtn" aria-label="Recentrer la carte">⤢</button>
+        </div>
       </div>
       <aside class="shop" aria-label="Boutique de graines">
         <h2>Graines</h2>
@@ -2041,6 +2224,9 @@
   var GARAGE_ORDER = ["tractors", "toolPlow", "toolPlant", "toolHarvest"];
 
   var plotsEl = document.getElementById("plots");
+  var fieldViewportEl = document.getElementById("fieldViewport");
+  var fieldWorldEl = document.getElementById("fieldWorld");
+  var fieldLandscapeEl = document.getElementById("fieldLandscape");
   var seedListEl = document.getElementById("seedList");
   var siloListEl = document.getElementById("siloList");
   var upgradeListEl = document.getElementById("upgradeList");
@@ -2641,6 +2827,66 @@
     if (pct < 67) return "Moyen";
     if (pct < 100) return "Élevé";
     return "Plein";
+  }
+
+  // A tiny seeded pseudo-random generator so the forest border scatters
+  // the same way every load instead of reshuffling on every render.
+  function seededRand(seed) {
+    var x = Math.sin(seed * 12.9898) * 43758.5453;
+    return x - Math.floor(x);
+  }
+
+  // The wider landscape framing the crop plots — river, forest border and
+  // a small village — drawn once as static HTML (see fieldLandscapeEl)
+  // rather than rebuilt on every render() tick.
+  function fieldLandscapeHtml() {
+    var html = "";
+
+    // River down the left margin, with a lighter reflection line down its
+    // middle. preserveAspectRatio="none" so it stretches to fill the
+    // strip regardless of the field's real aspect ratio.
+    html += '<svg class="river" viewBox="0 0 100 300" preserveAspectRatio="none" aria-hidden="true">' +
+      '<defs><linearGradient id="riverGrad" x1="0" y1="0" x2="1" y2="0">' +
+      '<stop offset="0%" stop-color="var(--river-2)"></stop>' +
+      '<stop offset="100%" stop-color="var(--river-1)"></stop>' +
+      '</linearGradient></defs>' +
+      '<path d="M38,0 C55,30 20,55 40,85 C58,112 25,140 42,168 C58,194 22,222 40,250 C54,272 30,288 36,300 L0,300 L0,0 Z" fill="url(#riverGrad)"></path>' +
+      '<path d="M40,10 C54,35 24,58 42,86 C58,110 28,138 44,166 C58,190 26,220 42,248 C54,268 34,284 38,298" fill="none" stroke="color-mix(in srgb, var(--river-1) 60%, white)" stroke-width="2" opacity="0.5" stroke-linecap="round"></path>' +
+      '</svg>';
+
+    // Village: a short lane with a handful of cottages and a chapel,
+    // clustered above the plots-frame's top edge.
+    html += '<div class="village" style="left:34%; top:0%; width:32%; height:11%;">' +
+      '<div class="village-road" style="left:2%; top:62%; width:88%; height:14%;"></div>' +
+      '<div class="house" style="left:4%; top:18%;"></div>' +
+      '<div class="house" style="left:26%; top:8%;"></div>' +
+      '<div class="church" style="left:48%; top:0%;"><span class="church-spire"></span></div>' +
+      '<div class="house" style="left:70%; top:14%;"></div>' +
+      '<div class="house" style="left:88%; top:24%;"></div>' +
+      '</div>';
+
+    // Forest border: scattered trees filling the margins around the
+    // plots-frame (roughly x 30-94%, y 12-76%) and the village
+    // (roughly x 34-66%, y 0-11%), without wandering into either.
+    var plots = { x0: 28, x1: 96, y0: 10, y1: 78 };
+    var village = { x0: 32, x1: 68, y0: -2, y1: 13 };
+    var trees = [];
+    for (var i = 0; i < 46; i++) {
+      var x = seededRand(i * 2 + 1) * 100;
+      var y = seededRand(i * 2 + 2) * 100;
+      var inPlots = x > plots.x0 && x < plots.x1 && y > plots.y0 && y < plots.y1;
+      var inVillage = x > village.x0 && x < village.x1 && y > village.y0 && y < village.y1;
+      var inRiver = x < 33;
+      if (inPlots || inVillage) continue;
+      var scale = 0.7 + seededRand(i * 2 + 3) * 0.6;
+      // Keep the river's own banks lightly wooded, everything else denser
+      // near the outer edge of the map.
+      if (inRiver && seededRand(i * 7) > 0.4) continue;
+      trees.push('<div class="forest-tree" style="left:' + x.toFixed(1) + '%; top:' + y.toFixed(1) + '%; transform:scale(' + scale.toFixed(2) + '); z-index:' + (inRiver ? 1 : 0) + '"></div>');
+    }
+    html += trees.join("");
+
+    return html;
   }
 
   function siloVisualHtml(kind, current, cap) {
@@ -3355,12 +3601,213 @@
       btn.classList.toggle("active", active);
       btn.setAttribute("aria-selected", active ? "true" : "false");
     });
+    if (name === "field") requestAnimationFrame(sizeFieldWorld);
   }
 
   tabButtons.forEach(function (btn) {
     btn.addEventListener("click", function () {
       setView(btn.getAttribute("data-view"));
     });
+  });
+
+  // ---------- Field pan/zoom (map-style) ----------
+  // .field-world is sized as a square in JS (rather than via CSS percentages,
+  // which would go wrong since .field itself isn't square) so that every
+  // percentage-positioned child — plots-frame, river, village, forest — lines
+  // up consistently regardless of the viewport's own aspect ratio.
+  fieldLandscapeEl.innerHTML = fieldLandscapeHtml();
+
+  var fieldView = { x: 0, y: 0, scale: 1 };
+  var FIELD_ZOOM_MIN = 0.5;
+  var FIELD_ZOOM_MAX = 2.6;
+  var FIELD_DEFAULT_SCALE = 0.62;
+  var fieldWorldSize = 0;
+  var fieldWorldSized = false;
+
+  // When the world (at the current scale) is smaller than the viewport in a
+  // dimension, center it there instead of pinning it to a corner — the rest
+  // of .field's own grass-gradient background shows through, which reads as
+  // "zoomed out further from the map" rather than a layout gap.
+  function fieldViewBounds() {
+    var rect = fieldViewportEl.getBoundingClientRect();
+    var side = fieldWorldSize * fieldView.scale;
+    var fitsX = side <= rect.width;
+    var fitsY = side <= rect.height;
+    var centeredX = (rect.width - side) / 2;
+    var centeredY = (rect.height - side) / 2;
+    return {
+      minX: fitsX ? centeredX : rect.width - side,
+      maxX: fitsX ? centeredX : 0,
+      minY: fitsY ? centeredY : rect.height - side,
+      maxY: fitsY ? centeredY : 0,
+      viewW: rect.width,
+      viewH: rect.height
+    };
+  }
+
+  function clampFieldView() {
+    var b = fieldViewBounds();
+    fieldView.x = Math.min(b.maxX, Math.max(b.minX, fieldView.x));
+    fieldView.y = Math.min(b.maxY, Math.max(b.minY, fieldView.y));
+  }
+
+  function applyFieldView() {
+    fieldWorldEl.style.transform =
+      "translate(" + fieldView.x.toFixed(1) + "px, " + fieldView.y.toFixed(1) + "px) scale(" + fieldView.scale.toFixed(3) + ")";
+  }
+
+  function centerFieldView() {
+    if (!fieldWorldSize) return;
+    var rect = fieldViewportEl.getBoundingClientRect();
+    // Center on the plots-frame (left:30% top:12% width:64% height:64%),
+    // not the whole square world.
+    var cx = fieldWorldSize * 0.62;
+    var cy = fieldWorldSize * 0.44;
+    fieldView.scale = FIELD_DEFAULT_SCALE;
+    fieldView.x = rect.width / 2 - cx * fieldView.scale;
+    fieldView.y = rect.height / 2 - cy * fieldView.scale;
+    clampFieldView();
+    applyFieldView();
+  }
+
+  function sizeFieldWorld() {
+    var rect = fieldViewportEl.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    fieldWorldSize = Math.max(rect.width, rect.height) * 1.55;
+    fieldWorldEl.style.width = fieldWorldSize + "px";
+    fieldWorldEl.style.height = fieldWorldSize + "px";
+    if (!fieldWorldSized) {
+      fieldWorldSized = true;
+      centerFieldView();
+    } else {
+      clampFieldView();
+      applyFieldView();
+    }
+  }
+
+  function zoomFieldAt(px, py, factor) {
+    var newScale = Math.min(FIELD_ZOOM_MAX, Math.max(FIELD_ZOOM_MIN, fieldView.scale * factor));
+    if (newScale === fieldView.scale) return;
+    var ratio = newScale / fieldView.scale;
+    fieldView.x = px - (px - fieldView.x) * ratio;
+    fieldView.y = py - (py - fieldView.y) * ratio;
+    fieldView.scale = newScale;
+    clampFieldView();
+    applyFieldView();
+  }
+
+  var fieldPointers = new Map();
+  var fieldDrag = null;
+  var fieldPinch = null;
+  var fieldSuppressClick = false;
+
+  function fieldPointerList() {
+    return Array.from(fieldPointers.values());
+  }
+
+  function fieldPinchState(pts) {
+    var rect = fieldViewportEl.getBoundingClientRect();
+    return {
+      dist: Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y),
+      midX: (pts[0].x + pts[1].x) / 2 - rect.left,
+      midY: (pts[0].y + pts[1].y) / 2 - rect.top
+    };
+  }
+
+  fieldViewportEl.addEventListener("pointerdown", function (e) {
+    if (e.target.closest(".field-zoom-btn")) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    fieldViewportEl.setPointerCapture(e.pointerId);
+    fieldPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (fieldPointers.size === 1) {
+      fieldDrag = { startX: e.clientX, startY: e.clientY, originX: fieldView.x, originY: fieldView.y, moved: false };
+      fieldViewportEl.classList.add("dragging");
+    } else if (fieldPointers.size === 2) {
+      fieldDrag = null;
+      fieldViewportEl.classList.remove("dragging");
+      fieldPinch = fieldPinchState(fieldPointerList());
+    }
+  });
+
+  fieldViewportEl.addEventListener("pointermove", function (e) {
+    if (!fieldPointers.has(e.pointerId)) return;
+    fieldPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (fieldPointers.size >= 2) {
+      var pts = fieldPointerList().slice(0, 2);
+      var next = fieldPinchState(pts);
+      if (fieldPinch && fieldPinch.dist > 0) {
+        var factor = next.dist / fieldPinch.dist;
+        if (isFinite(factor) && factor > 0) zoomFieldAt(next.midX, next.midY, factor);
+      }
+      fieldPinch = next;
+      return;
+    }
+
+    if (fieldDrag) {
+      var dx = e.clientX - fieldDrag.startX;
+      var dy = e.clientY - fieldDrag.startY;
+      if (!fieldDrag.moved && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) fieldDrag.moved = true;
+      fieldView.x = fieldDrag.originX + dx;
+      fieldView.y = fieldDrag.originY + dy;
+      clampFieldView();
+      applyFieldView();
+    }
+  });
+
+  function fieldPointerUp(e) {
+    var wasDragging = !!(fieldDrag && fieldDrag.moved);
+    fieldPointers.delete(e.pointerId);
+    if (fieldPointers.size < 2) fieldPinch = null;
+    if (fieldPointers.size === 0) {
+      fieldDrag = null;
+      fieldViewportEl.classList.remove("dragging");
+    } else if (fieldPointers.size === 1) {
+      var pts = fieldPointerList();
+      fieldDrag = { startX: pts[0].x, startY: pts[0].y, originX: fieldView.x, originY: fieldView.y, moved: false };
+    }
+    if (wasDragging) fieldSuppressClick = true;
+  }
+  fieldViewportEl.addEventListener("pointerup", fieldPointerUp);
+  fieldViewportEl.addEventListener("pointercancel", fieldPointerUp);
+
+  // Capture-phase: swallow the click that follows a drag before it ever
+  // reaches #plots' own click listener (which would otherwise open/water
+  // whatever plot happened to be under the pointer on release).
+  fieldViewportEl.addEventListener(
+    "click",
+    function (e) {
+      if (fieldSuppressClick) {
+        fieldSuppressClick = false;
+        e.stopPropagation();
+      }
+    },
+    true
+  );
+
+  fieldViewportEl.addEventListener(
+    "wheel",
+    function (e) {
+      e.preventDefault();
+      var rect = fieldViewportEl.getBoundingClientRect();
+      var factor = Math.pow(1.0015, -e.deltaY);
+      zoomFieldAt(e.clientX - rect.left, e.clientY - rect.top, factor);
+    },
+    { passive: false }
+  );
+
+  document.getElementById("zoomInBtn").addEventListener("click", function () {
+    var b = fieldViewBounds();
+    zoomFieldAt(b.viewW / 2, b.viewH / 2, 1.35);
+  });
+  document.getElementById("zoomOutBtn").addEventListener("click", function () {
+    var b = fieldViewBounds();
+    zoomFieldAt(b.viewW / 2, b.viewH / 2, 1 / 1.35);
+  });
+  document.getElementById("zoomResetBtn").addEventListener("click", centerFieldView);
+
+  window.addEventListener("resize", function () {
+    if (!views.field.hidden) sizeFieldWorld();
   });
 
   // Avoid window.confirm(): it's silently blocked in sandboxed iframes
@@ -3404,6 +3851,7 @@
 
   render();
   setInterval(render, 1000);
+  requestAnimationFrame(sizeFieldWorld);
   window.addEventListener("beforeunload", function () {
     state.lastSeen = Date.now();
     saveState();
