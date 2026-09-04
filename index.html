@@ -763,26 +763,15 @@
     background: color-mix(in srgb, var(--leaf) 16%, var(--paper));
   }
 
+  /* Visual chrome for .seed-buy comes from .wood-btn (the Silo card's buy
+     button carries both classes) — this just adds sizing on top. */
   .seed-buy {
     flex: none;
-    border: 1px solid color-mix(in srgb, var(--gold-bright) 40%, transparent);
-    border-radius: 6px;
-    padding: 0.3rem 0.55rem;
-    background: linear-gradient(180deg, var(--gold-bright), var(--gold));
-    color: var(--soil-edge);
-    font-weight: 700;
-    font-family: "Oswald", "Arial Narrow", sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
     font-size: 0.74rem;
     cursor: pointer;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 2px 3px rgba(0,0,0,0.3);
   }
-  .seed-buy:hover:not(:disabled) { background: var(--gold-bright); }
-  .seed-buy:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 1px; }
-  .seed-buy:disabled { background: var(--locked); cursor: default; opacity: 0.7; }
 
   /* ---------- Silo icon (seed silo vs harvest silo, told apart by --fill-a/
      --fill-b: gold grain for seed stock, green for harvested crops) ---------- */
@@ -1313,45 +1302,100 @@
     letter-spacing: 0.03em;
   }
 
-  .dip-tag {
-    display: inline-block;
-    padding: 0.02rem 0.35rem;
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--barn) 18%, transparent);
-    color: var(--barn);
+  /* Sell cards (Marché) get a money-green rim, storage cards (Silo) a
+     grain-blue one — same steel panel underneath, just a tinted edge so
+     the two contexts read apart at a glance. */
+  .sell-card { border-color: color-mix(in srgb, var(--leaf) 55%, var(--paper-edge)); }
+  .silo-card { border-color: color-mix(in srgb, #4f8fd6 55%, var(--paper-edge)); }
+
+  /* Price chart: a real line built from price samples taken during play
+     (see samplePriceHistory) — never a fabricated curve. */
+  .price-chart-wrap {
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
+    border: 1px solid var(--paper-edge);
+    border-radius: 8px;
+    padding: 0.55rem 0.65rem 0.4rem;
+  }
+  .price-chart-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
     font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  .price-delta {
+    font-variant-numeric: tabular-nums;
     font-weight: 800;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+  .price-delta.up { color: var(--leaf); }
+  .price-delta.down { color: var(--barn); }
+  .price-now {
+    font-family: "Oswald", "Arial Narrow", sans-serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0.1rem 0 0.3rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .price-chart {
+    display: block;
+    width: 100%;
+    height: 56px;
+  }
+  .price-chart-foot {
+    margin-top: 0.3rem;
+    font-size: 0.7rem;
+    color: var(--ink-soft);
     font-variant-numeric: tabular-nums;
   }
 
-  /* Price gauge: where today's price sits between the market floor (left)
-     and the full, un-dipped price (right) — real data, not a fake chart. */
-  .price-gauge-track {
+  .sell-row { display: flex; gap: 0.4rem; }
+  .sell-row .wood-btn { flex: 1; }
+
+  /* Wood-plank buttons for market/silo actions — a barn-ledger feel,
+     distinct from the steel/amber "Acheter" buttons in the garage. */
+  .wood-btn {
     position: relative;
-    height: 6px;
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--barn) 20%, var(--paper-edge));
-    margin: 0.15rem 0.3rem 0.35rem 0;
+    border: 2px solid #3c2612;
+    border-radius: 6px;
+    padding: 0.5rem 0.6rem 0.5rem 1.1rem;
+    background:
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.08) 0 2px, transparent 2px 22px),
+      linear-gradient(180deg, #9c6a3c, #6e4726 90%);
+    color: #fff3de;
+    font-family: "Oswald", "Arial Narrow", sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 2px 4px rgba(0,0,0,0.4);
+    text-shadow: 0 1px 0 rgba(0,0,0,0.35);
   }
-  .price-gauge-fill {
+  .wood-btn::before {
+    content: "";
     position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    border-radius: 999px;
-    background: linear-gradient(90deg, var(--barn), var(--leaf));
-    transition: width 0.4s ease;
+    left: 3px;
+    top: 3px;
+    bottom: 3px;
+    width: 9px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #e6c467, #a37f2e);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.35);
   }
-  .price-gauge-marker {
-    position: absolute;
-    top: 50%;
-    width: 10px;
-    height: 10px;
-    background: var(--paper);
-    border: 2px solid var(--ink);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: left 0.4s ease;
+  .wood-btn:hover:not(:disabled) { filter: brightness(1.08); }
+  .wood-btn:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 1px; }
+  .wood-btn:disabled { opacity: 0.45; cursor: default; filter: grayscale(0.4); }
+  .alert-btn {
+    margin-top: 0.4rem;
+    width: 100%;
+    font-size: 0.74rem;
   }
 
   .market-price {
@@ -1360,24 +1404,15 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* Visual chrome for .sell-btn now comes entirely from .wood-btn
+     (every sell button carries both classes) — this just adds the
+     sell-specific sizing/behavior on top. */
   .sell-btn {
-    border: 1px solid color-mix(in srgb, var(--leaf-dark) 70%, black 15%);
-    border-radius: 6px;
-    padding: 0.5rem 0.6rem;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--leaf) 100%, white 10%), var(--leaf-dark));
-    color: var(--text-on-color);
-    font-weight: 600;
-    font-family: "Oswald", "Arial Narrow", sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     cursor: pointer;
     font-variant-numeric: tabular-nums;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 2px 4px rgba(0,0,0,0.35);
   }
-  .sell-btn:hover:not(:disabled) { background: var(--leaf); }
-  .sell-btn:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 1px; }
-  .sell-btn:disabled { background: var(--locked); cursor: default; opacity: 0.7; }
+  .sell-btn.sell-all { font-size: 0.85rem; }
 
   /* ---------- Watering ---------- */
   .water-row {
@@ -2035,6 +2070,9 @@
       inventory: CROP_ORDER.reduce(function (acc, key) { acc[key] = 0; return acc; }, {}),
       seedStock: CROP_ORDER.reduce(function (acc, key) { acc[key] = 0; return acc; }, {}),
       market: CROP_ORDER.reduce(function (acc, key) { acc[key] = { mult: 1, updatedAt: Date.now() }; return acc; }, {}),
+      priceHistory: CROP_ORDER.reduce(function (acc, key) { acc[key] = [{ t: Date.now(), mult: 1 }]; return acc; }, {}),
+      totalSold: CROP_ORDER.reduce(function (acc, key) { acc[key] = 0; return acc; }, {}),
+      priceAlerts: CROP_ORDER.reduce(function (acc, key) { acc[key] = null; return acc; }, {}),
       plots: plots,
       lastSeen: Date.now()
     };
@@ -2085,6 +2123,20 @@
     if (!s.market) s.market = {};
     CROP_ORDER.forEach(function (key) {
       if (!s.market[key] || typeof s.market[key].mult !== "number") s.market[key] = { mult: 1, updatedAt: Date.now() };
+    });
+    if (!s.priceHistory) s.priceHistory = {};
+    CROP_ORDER.forEach(function (key) {
+      if (!Array.isArray(s.priceHistory[key]) || !s.priceHistory[key].length) {
+        s.priceHistory[key] = [{ t: Date.now(), mult: currentMarketMult(key) }];
+      }
+    });
+    if (!s.totalSold) s.totalSold = {};
+    CROP_ORDER.forEach(function (key) {
+      if (typeof s.totalSold[key] !== "number") s.totalSold[key] = 0;
+    });
+    if (!s.priceAlerts) s.priceAlerts = {};
+    CROP_ORDER.forEach(function (key) {
+      if (typeof s.priceAlerts[key] !== "number") s.priceAlerts[key] = null;
     });
     s.plots.forEach(function (p) {
       if (typeof p.watered !== "number") p.watered = 0;
@@ -2408,6 +2460,8 @@
 
   function render() {
     if (resolveTasks()) saveState();
+    samplePriceHistory();
+    checkPriceAlerts();
     coinCountEl.textContent = fmtNum(state.coins);
     harvestCountEl.textContent = state.harvests;
     tractorBusyEl.textContent = busyTaskCount();
@@ -2582,12 +2636,12 @@
       var room = cap - stock;
       var full = room <= 0;
       var amount = Math.min(SEED_BATCH_HA, Math.max(0, room));
-      html += '<div class="market-card' + (stock === 0 ? " empty" : "") + (full ? " full" : "") + '">' +
+      html += '<div class="market-card silo-card' + (stock === 0 ? " empty" : "") + (full ? " full" : "") + '">' +
         '<div class="seed-top"><span><span class="seed-swatch" style="background:' + def.a + '"></span>' + def.name + '</span></div>' +
         siloVisualHtml("seed", stock, cap) +
         '<div class="market-qty">En stock : <strong>' + fmtNum(stock) + ' ha</strong> / ' + fmtNum(cap) + ' ha' + (full ? ' <span class="full-tag">plein</span>' : '') + '</div>' +
         '<div class="market-price">Achat : ' + plantCostPerHa(def) + ' pièces/ha</div>' +
-        '<button type="button" class="seed-buy" data-seed="' + key + '"' + (full ? " disabled" : "") + '>' +
+        '<button type="button" class="wood-btn seed-buy" data-seed="' + key + '"' + (full ? " disabled" : "") + '>' +
         (full ? "Stock plein" : "+" + amount + "ha — " + fmtNum(seedBatchCost(def, amount)) + " pièces") +
         '</button></div>';
     }
@@ -2736,18 +2790,34 @@
       var def = CROPS[key];
       var qty = state.inventory[key] || 0;
       var cap = siloCapacity();
-      var mult = currentMarketMult(key);
       var price = effectivePricePerTonne(key);
-      var dip = Math.round((1 - mult) * 100);
-      var gaugePct = Math.round(((mult - MARKET_FLOOR) / (1 - MARKET_FLOOR)) * 100);
-      gaugePct = Math.max(0, Math.min(100, gaugePct));
-      html += '<div class="market-card' + (qty === 0 ? " empty" : "") + (qty >= cap ? " full" : "") + '">' +
+      var hist = state.priceHistory[key] || [];
+      var deltaPct = 0;
+      if (hist.length >= 2 && hist[0].mult > 0) {
+        deltaPct = Math.round(((hist[hist.length - 1].mult - hist[0].mult) / hist[0].mult) * 1000) / 10;
+      }
+      var deltaUp = deltaPct >= 0;
+      var totalSold = state.totalSold[key] || 0;
+      var alert = state.priceAlerts[key];
+      html += '<div class="market-card sell-card' + (qty === 0 ? " empty" : "") + (qty >= cap ? " full" : "") + '">' +
         '<div class="seed-top"><span><span class="seed-swatch" style="background:' + def.a + '"></span>' + def.name + '</span></div>' +
-        siloVisualHtml("harvest", qty, cap) +
+        '<div class="price-chart-wrap">' +
+        '<div class="price-chart-head">' +
+        '<span class="price-chart-title">Marché de ' + def.name.toLowerCase() + '</span>' +
+        (hist.length >= 2 ? '<span class="price-delta ' + (deltaUp ? "up" : "down") + '">' + (deltaUp ? "▲" : "▼") + ' ' + (deltaUp ? "+" : "") + deltaPct + '%</span>' : '') +
+        '</div>' +
+        '<div class="price-now">' + fmtNum(price) + ' pièces/t</div>' +
+        priceChartSvg(key) +
+        '<div class="price-chart-foot">Vol. total vendu : ' + fmtNum(totalSold) + ' t</div>' +
+        '</div>' +
         '<div class="market-qty">Dans la besace : <strong>' + fmtNum(qty) + ' t</strong> / ' + fmtNum(cap) + ' t' + (qty >= cap ? ' <span class="full-tag">pleine</span>' : '') + '</div>' +
-        '<div class="market-price">' + fmtNum(price) + ' pièces la tonne' + (dip > 1 ? ' <span class="dip-tag">-' + dip + '%</span>' : '') + ' — ' + fmtNum(price * qty) + ' pièces au total</div>' +
-        '<div class="price-gauge-track"><div class="price-gauge-fill" style="width:' + gaugePct + '%"></div><div class="price-gauge-marker" style="left:' + gaugePct + '%"></div></div>' +
-        '<button type="button" class="sell-btn" data-sell="' + key + '"' + (qty === 0 ? " disabled" : "") + '>Vendre tout</button>' +
+        '<div class="market-price">' + fmtNum(price * qty) + ' pièces au total</div>' +
+        '<div class="sell-row">' +
+        '<button type="button" class="wood-btn sell-btn" data-sell="' + key + '" data-frac="0.25"' + (qty === 0 ? " disabled" : "") + '>Vendre 25%</button>' +
+        '<button type="button" class="wood-btn sell-btn" data-sell="' + key + '" data-frac="0.5"' + (qty === 0 ? " disabled" : "") + '>Vendre 50%</button>' +
+        '</div>' +
+        '<button type="button" class="wood-btn sell-btn sell-all" data-sell="' + key + '" data-frac="1"' + (qty === 0 ? " disabled" : "") + '>Vendre tout</button>' +
+        '<button type="button" class="wood-btn alert-btn" data-alert-set="' + key + '">🔔 ' + (alert ? "Alerte : " + fmtNum(alert) + " pièces/t" : "Définir alerte de prix") + '</button>' +
         '</div>';
     }
     if (!html) html = '<p class="shop-hint">Débloque une graine dans le champ pour commencer à vendre au marché.</p>';
@@ -3110,14 +3180,18 @@
     }
   });
 
-  function sellCrop(key, el) {
-    var qty = state.inventory[key] || 0;
+  function sellCrop(key, el, fraction) {
+    var have = state.inventory[key] || 0;
+    if (have <= 0) return;
+    fraction = typeof fraction === "number" && fraction > 0 && fraction < 1 ? fraction : 1;
+    var qty = fraction >= 1 ? have : Math.round(have * fraction * 100) / 100;
     if (qty <= 0) return;
     var def = CROPS[key];
     var price = effectivePricePerTonne(key);
     var total = Math.round(price * qty);
     state.coins += total;
-    state.inventory[key] = 0;
+    state.inventory[key] = Math.round((have - qty) * 100) / 100;
+    state.totalSold[key] = Math.round(((state.totalSold[key] || 0) + qty) * 100) / 100;
     var mult = currentMarketMult(key);
     var newMult = Math.max(MARKET_FLOOR, mult - qty * MARKET_DROP_PER_UNIT);
     state.market[key] = { mult: newMult, updatedAt: Date.now() };
@@ -3127,9 +3201,100 @@
     render();
   }
 
+  // ---------- Price history + alerts (real data sampled during play,
+  // never a fabricated chart) ----------
+  var PRICE_HISTORY_SAMPLE_MS = 5000;
+  var PRICE_HISTORY_MAX_POINTS = 60;
+
+  function samplePriceHistory() {
+    var now = Date.now();
+    CROP_ORDER.forEach(function (key) {
+      if (!state.priceHistory[key]) state.priceHistory[key] = [];
+      var hist = state.priceHistory[key];
+      var last = hist[hist.length - 1];
+      if (!last || now - last.t >= PRICE_HISTORY_SAMPLE_MS) {
+        hist.push({ t: now, mult: currentMarketMult(key) });
+        if (hist.length > PRICE_HISTORY_MAX_POINTS) hist.shift();
+      }
+    });
+  }
+
+  function checkPriceAlerts() {
+    CROP_ORDER.forEach(function (key) {
+      var target = state.priceAlerts[key];
+      if (!target) return;
+      var price = effectivePricePerTonne(key);
+      if (price >= target) {
+        state.priceAlerts[key] = null;
+        showToast("Alerte prix : " + CROPS[key].name + " a atteint " + fmtNum(price) + " pièces/t !");
+        saveState();
+      }
+    });
+  }
+
+  function priceChartSvg(key) {
+    var hist = state.priceHistory[key] || [];
+    var w = 280, h = 60;
+    if (hist.length < 2) {
+      return '<svg class="price-chart" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true"></svg>';
+    }
+    var vals = hist.map(function (p) { return p.mult; });
+    var min = Math.min.apply(null, vals);
+    var max = Math.max.apply(null, vals);
+    if (max === min) { min -= 0.02; max += 0.02; }
+    var n = hist.length;
+    var pts = hist.map(function (p, i) {
+      var x = (i / (n - 1)) * w;
+      var y = h - ((p.mult - min) / (max - min)) * (h - 8) - 4;
+      return x.toFixed(1) + "," + y.toFixed(1);
+    });
+    var up = hist[hist.length - 1].mult >= hist[0].mult;
+    var stroke = up ? "var(--leaf)" : "var(--barn)";
+    var line = pts.map(function (p, i) { return (i === 0 ? "M" : "L") + p; }).join(" ");
+    var area = line + " L" + w + "," + h + " L0," + h + " Z";
+    var gradId = "pcgrad-" + key;
+    return '<svg class="price-chart" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" role="img" aria-label="Historique du prix">' +
+      '<defs><linearGradient id="' + gradId + '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0%" stop-color="' + stroke + '" stop-opacity="0.4"></stop>' +
+      '<stop offset="100%" stop-color="' + stroke + '" stop-opacity="0"></stop>' +
+      '</linearGradient></defs>' +
+      '<path d="' + area + '" fill="url(#' + gradId + ')" stroke="none"></path>' +
+      '<path d="' + line + '" fill="none" stroke="' + stroke + '" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>' +
+      '</svg>';
+  }
+
+  // A plain window.prompt() rather than an in-list <input> — renderMarket()
+  // rebuilds the whole list every second (see the render() tick), which
+  // would wipe out anything the player was mid-typing into a DOM input.
+  function setPriceAlert(key) {
+    var def = CROPS[key];
+    var current = state.priceAlerts[key];
+    var suggested = current || Math.round(def.pricePerTonne);
+    var raw = window.prompt("Te prévenir quand le " + def.name.toLowerCase() + " atteint quel prix (pièces/t) ? Laisse vide pour désactiver.", suggested);
+    if (raw === null) return;
+    var target = parseInt(raw, 10);
+    if (!target || target <= 0) {
+      state.priceAlerts[key] = null;
+      showToast("Alerte désactivée pour " + def.name.toLowerCase() + ".");
+    } else {
+      state.priceAlerts[key] = target;
+      showToast("Alerte réglée : on te prévient si le " + def.name.toLowerCase() + " atteint " + fmtNum(target) + " pièces/t.");
+    }
+    saveState();
+    render();
+  }
+
   marketListEl.addEventListener("click", function (e) {
+    var alertBtn = e.target.closest(".alert-btn");
+    if (alertBtn) {
+      setPriceAlert(alertBtn.getAttribute("data-alert-set"));
+      return;
+    }
     var el = e.target.closest(".sell-btn");
-    if (el && !el.disabled) sellCrop(el.getAttribute("data-sell"), el);
+    if (el && !el.disabled) {
+      var frac = parseFloat(el.getAttribute("data-frac"));
+      sellCrop(el.getAttribute("data-sell"), el, frac);
+    }
   });
 
   function setView(name) {
