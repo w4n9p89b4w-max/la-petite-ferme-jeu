@@ -689,26 +689,40 @@
     border-radius: 4px;
   }
 
+  /* Both lines are independently clipped with an ellipsis rather than
+     left to overflow — .plot-cell is already sized to the real safe
+     interior of each parcel's (often small, irregular) polygon, so
+     unclipped text on the tighter ones used to spill straight into
+     whichever neighboring parcel happened to be next door. */
   .plot-price {
     position: absolute;
     inset: auto 4% 5%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
     font-size: 0.68rem;
-    line-height: 1.25;
+    line-height: 1.3;
     font-weight: 800;
     color: var(--text-on-color);
     text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    overflow: hidden;
   }
 
+  .plot-size-label,
+  .plot-cost {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
   .plot-size-label {
     font-size: 0.58rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     opacity: 0.85;
-  }
-  .plot-size-label::after {
-    content: " · ";
   }
 
   @media (max-width: 480px) {
@@ -2645,7 +2659,7 @@
           'aria-label="Parcelle de ' + sizeHa + ' hectares en friche, défricher pour ' + fmtNum(cost) + ' pièces">' +
           '<div class="plot-cell">' +
           '<div class="lock-mark"></div>' +
-          '<div class="plot-price"><span class="plot-size-label">' + sizeHa + ' ha</span>' + fmtCompact(cost) + ' pièces</div>' +
+          '<div class="plot-price"><span class="plot-size-label">' + sizeHa + ' ha</span><span class="plot-cost">' + fmtCompact(cost) + ' pièces</span></div>' +
           '</div></div>';
         continue;
       }
