@@ -456,6 +456,7 @@
     box-shadow: inset 0 2px 0 rgba(255,255,255,0.12), 0 10px 24px -14px var(--shadow);
     overflow: hidden;
     touch-action: none;
+    overscroll-behavior: none;
     cursor: grab;
     background: linear-gradient(180deg, var(--grass-1), var(--grass-2));
   }
@@ -3585,46 +3586,63 @@
     };
   }
 
-  fieldViewportEl.addEventListener("pointerdown", function (e) {
-    if (e.target.closest(".field-zoom-btn")) return;
-    if (e.pointerType === "mouse" && e.button !== 0) return;
-    fieldViewportEl.setPointerCapture(e.pointerId);
-    fieldPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (fieldPointers.size === 1) {
-      fieldDrag = { startX: e.clientX, startY: e.clientY, originX: fieldView.x, originY: fieldView.y, moved: false };
-      fieldViewportEl.classList.add("dragging");
-    } else if (fieldPointers.size === 2) {
-      fieldDrag = null;
-      fieldViewportEl.classList.remove("dragging");
-      fieldPinch = fieldPinchState(fieldPointerList());
-    }
-  });
-
-  fieldViewportEl.addEventListener("pointermove", function (e) {
-    if (!fieldPointers.has(e.pointerId)) return;
-    fieldPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
-    if (fieldPointers.size >= 2) {
-      var pts = fieldPointerList().slice(0, 2);
-      var next = fieldPinchState(pts);
-      if (fieldPinch && fieldPinch.dist > 0) {
-        var factor = next.dist / fieldPinch.dist;
-        if (isFinite(factor) && factor > 0) zoomFieldAt(next.midX, next.midY, factor);
+  fieldViewportEl.addEventListener(
+    "pointerdown",
+    function (e) {
+      if (e.target.closest(".field-zoom-btn")) return;
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      // touch-action: none on .field already tells the browser this
+      // element handles its own touch gestures, but some mobile browsers
+      // still start a page scroll/rubber-band on the initial touch unless
+      // it's also blocked here — without this, dragging the map on a
+      // phone can scroll the whole page instead of (or as well as)
+      // panning it. Needs the explicit { passive: false } below, since a
+      // passive listener's preventDefault() is silently ignored.
+      e.preventDefault();
+      fieldViewportEl.setPointerCapture(e.pointerId);
+      fieldPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (fieldPointers.size === 1) {
+        fieldDrag = { startX: e.clientX, startY: e.clientY, originX: fieldView.x, originY: fieldView.y, moved: false };
+        fieldViewportEl.classList.add("dragging");
+      } else if (fieldPointers.size === 2) {
+        fieldDrag = null;
+        fieldViewportEl.classList.remove("dragging");
+        fieldPinch = fieldPinchState(fieldPointerList());
       }
-      fieldPinch = next;
-      return;
-    }
+    },
+    { passive: false }
+  );
 
-    if (fieldDrag) {
-      var dx = e.clientX - fieldDrag.startX;
-      var dy = e.clientY - fieldDrag.startY;
-      if (!fieldDrag.moved && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) fieldDrag.moved = true;
-      fieldView.x = fieldDrag.originX + dx;
-      fieldView.y = fieldDrag.originY + dy;
-      clampFieldView();
-      applyFieldView();
-    }
-  });
+  fieldViewportEl.addEventListener(
+    "pointermove",
+    function (e) {
+      if (!fieldPointers.has(e.pointerId)) return;
+      e.preventDefault();
+      fieldPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+      if (fieldPointers.size >= 2) {
+        var pts = fieldPointerList().slice(0, 2);
+        var next = fieldPinchState(pts);
+        if (fieldPinch && fieldPinch.dist > 0) {
+          var factor = next.dist / fieldPinch.dist;
+          if (isFinite(factor) && factor > 0) zoomFieldAt(next.midX, next.midY, factor);
+        }
+        fieldPinch = next;
+        return;
+      }
+
+      if (fieldDrag) {
+        var dx = e.clientX - fieldDrag.startX;
+        var dy = e.clientY - fieldDrag.startY;
+        if (!fieldDrag.moved && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) fieldDrag.moved = true;
+        fieldView.x = fieldDrag.originX + dx;
+        fieldView.y = fieldDrag.originY + dy;
+        clampFieldView();
+        applyFieldView();
+      }
+    },
+    { passive: false }
+  );
 
   function fieldPointerUp(e) {
     var wasDragging = !!(fieldDrag && fieldDrag.moved);
