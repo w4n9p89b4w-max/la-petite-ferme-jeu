@@ -707,6 +707,12 @@
     color: var(--text-on-color);
     text-shadow: 0 1px 2px rgba(0,0,0,0.4);
     overflow: hidden;
+    transition: opacity 0.15s ease;
+  }
+
+  .field-world.zoomed-out .plot-price {
+    opacity: 0;
+    pointer-events: none;
   }
 
   .plot-size-label,
@@ -3508,6 +3514,11 @@
   // no stretching, whatever the viewport's own aspect ratio is.
   var FIELD_MAP_W = 396;
   var FIELD_MAP_H = 333;
+  // Below this scale, the default full-map view included, every parcel's
+  // price/size label is hidden entirely rather than shown shrunk — with all
+  // 30 at once on screen even small text reads as clutter. Zooming past it
+  // (in on a parcel) reveals its label again.
+  var FIELD_TEXT_ZOOM_THRESHOLD = 1;
   var fieldWorldW = 0;
   var fieldWorldH = 0;
   var fieldWorldSized = false;
@@ -3543,6 +3554,7 @@
   function applyFieldView() {
     fieldWorldEl.style.transform =
       "translate(" + fieldView.x.toFixed(1) + "px, " + fieldView.y.toFixed(1) + "px) scale(" + fieldView.scale.toFixed(3) + ")";
+    fieldWorldEl.classList.toggle("zoomed-out", fieldView.scale < FIELD_TEXT_ZOOM_THRESHOLD);
   }
 
   function centerFieldView() {
