@@ -3495,23 +3495,19 @@
   // At FIELD_DEFAULT_SCALE the world renders at exactly FIELD_MARGIN's
   // inverse — see sizeFieldWorld() — i.e. the map fills the viewport
   // edge-to-edge with no crop, like object-fit: cover at rest, while still
-  // leaving room to zoom in for detail or out a little further.
+  // leaving room to zoom in for detail or out a little further. Starting
+  // zoomed in further than this (e.g. on the player's own starting plot)
+  // was tried and reverted — it hid every other parcel's price/size text
+  // until the player zoomed back out themselves, which read as missing
+  // information rather than a nice reveal.
   var FIELD_MARGIN = 1.35;
-  // Starting zoomed out over all 30 parcels at once read as a wall of tiny
-  // price tags — starting already zoomed in on the player's own starting
-  // plot (see FIELD_START_CX_PCT/CY_PCT below) reads as "here's your
-  // field", closer to how farm-sim maps open on the player's own yard.
-  var FIELD_DEFAULT_SCALE = 1.6;
+  var FIELD_DEFAULT_SCALE = 1 / FIELD_MARGIN;
   // The land-survey's own coordinate extents (see the Python build script
   // that generated DXF_LANDSCAPE_SVG and the .plot clip-paths) — .field-
   // world is always sized to this exact aspect ratio so they line up with
   // no stretching, whatever the viewport's own aspect ratio is.
   var FIELD_MAP_W = 396;
   var FIELD_MAP_H = 333;
-  // Center of .plot:nth-child(1) — the free starter plot — in the same
-  // percentage-of-map space as its clip-path/plot-cell values.
-  var FIELD_START_CX_PCT = 16.32;
-  var FIELD_START_CY_PCT = 90.96;
   var fieldWorldW = 0;
   var fieldWorldH = 0;
   var fieldWorldSized = false;
@@ -3553,10 +3549,8 @@
     if (!fieldWorldW) return;
     var rect = fieldViewportEl.getBoundingClientRect();
     fieldView.scale = FIELD_DEFAULT_SCALE;
-    var cx = (FIELD_START_CX_PCT / 100) * fieldWorldW;
-    var cy = (FIELD_START_CY_PCT / 100) * fieldWorldH;
-    fieldView.x = rect.width / 2 - cx * fieldView.scale;
-    fieldView.y = rect.height / 2 - cy * fieldView.scale;
+    fieldView.x = rect.width / 2 - (fieldWorldW / 2) * fieldView.scale;
+    fieldView.y = rect.height / 2 - (fieldWorldH / 2) * fieldView.scale;
     clampFieldView();
     applyFieldView();
   }
