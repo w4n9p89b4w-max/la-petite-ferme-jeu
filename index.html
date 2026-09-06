@@ -3629,12 +3629,25 @@
       // panning it. Needs the explicit { passive: false } below, since a
       // passive listener's preventDefault() is silently ignored.
       e.preventDefault();
-      fieldViewportEl.setPointerCapture(e.pointerId);
+      // Pointer capture isn't taken here on every press — only once a
+      // gesture turns out to actually be a drag/pinch (below). Capturing
+      // eagerly, on the very first press, retargets the *click* that
+      // follows a plain tap to fieldViewportEl instead of the plot the
+      // player tapped (pointer capture retargets the compatibility mouse
+      // events too, not just pointer events) — #plots' click listener
+      // never sees it, so tapping a plot silently did nothing.
       fieldPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
       if (fieldPointers.size === 1) {
+        // A fresh single-finger gesture: any leftover suppression from a
+        // previous drag can't still apply — reset it now rather than
+        // waiting for a click to consume it, since a real touch-drag often
+        // ends with no click event at all (browsers don't synthesize one),
+        // which would otherwise leave the flag stuck and swallow this
+        // gesture's own later tap.
+        fieldSuppressClick = false;
         fieldDrag = { startX: e.clientX, startY: e.clientY, originX: fieldView.x, originY: fieldView.y, moved: false };
-        fieldViewportEl.classList.add("dragging");
       } else if (fieldPointers.size === 2) {
+        fieldViewportEl.setPointerCapture(e.pointerId);
         fieldDrag = null;
         fieldViewportEl.classList.remove("dragging");
         fieldPinch = fieldPinchState(fieldPointerList());
@@ -3664,7 +3677,12 @@
       if (fieldDrag) {
         var dx = e.clientX - fieldDrag.startX;
         var dy = e.clientY - fieldDrag.startY;
-        if (!fieldDrag.moved && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) fieldDrag.moved = true;
+        if (!fieldDrag.moved && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+          fieldDrag.moved = true;
+          fieldViewportEl.setPointerCapture(e.pointerId);
+          fieldViewportEl.classList.add("dragging");
+        }
+        if (!fieldDrag.moved) return;
         fieldView.x = fieldDrag.originX + dx;
         fieldView.y = fieldDrag.originY + dy;
         clampFieldView();
