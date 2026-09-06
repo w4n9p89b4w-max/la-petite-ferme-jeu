@@ -701,7 +701,7 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    font-size: 0.68rem;
+    font-size: 0.56rem;
     line-height: 1.3;
     font-weight: 800;
     color: var(--text-on-color);
@@ -718,7 +718,7 @@
     text-overflow: ellipsis;
   }
   .plot-size-label {
-    font-size: 0.58rem;
+    font-size: 0.48rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.03em;
@@ -727,8 +727,8 @@
 
   @media (max-width: 480px) {
     .lock-mark { top: 5%; height: 16%; }
-    .plot-price { font-size: 0.54rem; inset: auto 2% 2%; }
-    .plot-size-label { font-size: 0.48rem; }
+    .plot-price { font-size: 0.44rem; inset: auto 2% 2%; }
+    .plot-size-label { font-size: 0.38rem; }
   }
 
   /* ---------- Crop canopy ----------
@@ -3497,13 +3497,21 @@
   // edge-to-edge with no crop, like object-fit: cover at rest, while still
   // leaving room to zoom in for detail or out a little further.
   var FIELD_MARGIN = 1.35;
-  var FIELD_DEFAULT_SCALE = 1 / FIELD_MARGIN;
+  // Starting zoomed out over all 30 parcels at once read as a wall of tiny
+  // price tags — starting already zoomed in on the player's own starting
+  // plot (see FIELD_START_CX_PCT/CY_PCT below) reads as "here's your
+  // field", closer to how farm-sim maps open on the player's own yard.
+  var FIELD_DEFAULT_SCALE = 1.6;
   // The land-survey's own coordinate extents (see the Python build script
   // that generated DXF_LANDSCAPE_SVG and the .plot clip-paths) — .field-
   // world is always sized to this exact aspect ratio so they line up with
   // no stretching, whatever the viewport's own aspect ratio is.
   var FIELD_MAP_W = 396;
   var FIELD_MAP_H = 333;
+  // Center of .plot:nth-child(1) — the free starter plot — in the same
+  // percentage-of-map space as its clip-path/plot-cell values.
+  var FIELD_START_CX_PCT = 16.32;
+  var FIELD_START_CY_PCT = 90.96;
   var fieldWorldW = 0;
   var fieldWorldH = 0;
   var fieldWorldSized = false;
@@ -3545,8 +3553,10 @@
     if (!fieldWorldW) return;
     var rect = fieldViewportEl.getBoundingClientRect();
     fieldView.scale = FIELD_DEFAULT_SCALE;
-    fieldView.x = rect.width / 2 - (fieldWorldW / 2) * fieldView.scale;
-    fieldView.y = rect.height / 2 - (fieldWorldH / 2) * fieldView.scale;
+    var cx = (FIELD_START_CX_PCT / 100) * fieldWorldW;
+    var cy = (FIELD_START_CY_PCT / 100) * fieldWorldH;
+    fieldView.x = rect.width / 2 - cx * fieldView.scale;
+    fieldView.y = rect.height / 2 - cy * fieldView.scale;
     clampFieldView();
     applyFieldView();
   }
